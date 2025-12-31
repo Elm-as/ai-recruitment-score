@@ -3,10 +3,12 @@ import { Position, Candidate, Language } from '@/lib/types'
 import { t, pluralize } from '@/lib/translations'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plus, Users } from '@phosphor-icons/react'
+import { Plus, Users, Archive } from '@phosphor-icons/react'
+import { Badge } from '@/components/ui/badge'
 import CreatePositionDialog from './CreatePositionDialog'
 import PositionDetailView from './PositionDetailView'
 import { motion } from 'framer-motion'
+import { toast } from 'sonner'
 
 interface PositionsViewProps {
   positions: Position[]
@@ -25,11 +27,34 @@ export default function PositionsView({
 }: PositionsViewProps) {
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null)
+  const [showArchived, setShowArchived] = useState(false)
 
   const activePositions = positions.filter((p) => p.status === 'active')
+  const archivedPositions = positions.filter((p) => p.status === 'archived')
+  
+  const displayPositions = showArchived ? archivedPositions : activePositions
 
   const getCandidateCount = (positionId: string) => {
     return candidates.filter((c) => c.positionId === positionId).length
+  }
+
+  const unarchivePosition = (position: Position, e: React.MouseEvent) => {
+    e.stopPropagation()
+    
+    const restoredPosition = { ...position, status: 'active' as const, archivedAt: undefined }
+    
+    setPositions((prev) => prev.map((p) => (p.id === position.id ? restoredPosition : p)))
+    
+    toast.success(t('positions.unarchiveSuccess', language), {
+      action: {
+        label: t('common.undo', language),
+        onClick: () => {
+          setPositions((prev) => prev.map((p) => (p.id === position.id ? position : p)))
+          toast.success(t('common.undoAction', language))
+        },
+      },
+      duration: 5000,
+    })
   }
 
   if (selectedPosition) {
@@ -54,18 +79,35 @@ export default function PositionsView({
         className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
       >
         <div>
-          <h2 className="text-2xl font-semibold text-foreground">{t('positions.title', language)}</h2>
+          <h2 className="text-2xl font-semibold text-foreground">
+            {showArchived ? t('positions.archived', language) : t('positions.title', language)}
+          </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {pluralize('positions.count', activePositions.length, language)}
+            {showArchived
+              ? pluralize('positions.count', archivedPositions.length, language)
+              : pluralize('positions.count', activePositions.length, language)
+            }
           </p>
         </div>
-        <Button onClick={() => setCreateDialogOpen(true)} className="gap-2 hover:scale-105 transition-transform">
-          <Plus size={18} weight="bold" />
-          {t('positions.newPosition', language)}
-        </Button>
+        <div className="flex gap-2">
+          {archivedPositions.length > 0 && (
+            <Button
+              variant="outline"
+              onClick={() => setShowArchived(!showArchived)}
+              className="gap-2"
+            >
+              <Archive size={18} weight="duotone" />
+              {showArchived ? t('positions.hideArchived', language) : t('positions.viewArchived', language)}
+            </Button>
+          )}
+          <Button onClick={() => setCreateDialogOpen(true)} className="gap-2 hover:scale-105 transition-transform">
+            <Plus size={18} weight="bold" />
+            {t('positions.newPosition', language)}
+          </Button>
+        </div>
       </motion.div>
 
-      {activePositions.length === 0 ? (
+      {displayPositions.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -73,22 +115,33 @@ export default function PositionsView({
           <Card className="border-dashed border-2">
             <CardContent className="flex flex-col items-center justify-center py-16">
               <div className="rounded-full bg-gradient-to-br from-accent/20 to-primary/20 p-6 mb-4">
-                <Users size={40} className="text-accent" weight="duotone" />
+                {showArchived ? (
+                  <Archive size={40} className="text-accent" weight="duotone" />
+                ) : (
+                  <Users size={40} className="text-accent" weight="duotone" />
+                )}
               </div>
-              <h3 className="text-lg font-semibold mb-2">{t('positions.noPositions', language)}</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                {showArchived ? 'Aucun poste archivé' : t('positions.noPositions', language)}
+              </h3>
               <p className="text-sm text-muted-foreground text-center max-w-sm mb-4">
-                {t('positions.noPositionsDesc', language)}
+                {showArchived 
+                  ? 'Les postes archivés apparaîtront ici'
+                  : t('positions.noPositionsDesc', language)
+                }
               </p>
-              <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
-                <Plus size={18} weight="bold" />
-                {t('positions.createFirst', language)}
-              </Button>
+              {!showArchived && (
+                <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
+                  <Plus size={18} weight="bold" />
+                  {t('positions.createFirst', language)}
+                </Button>
+              )}
             </CardContent>
           </Card>
         </motion.div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {activePositions.map((position, index) => {
+          {displayPositions.map((position, index) => {
             const candidateCount = getCandidateCount(position.id)
             return (
               <motion.div
@@ -99,11 +152,20 @@ export default function PositionsView({
                 whileHover={{ scale: 1.02, y: -4 }}
               >
                 <Card
-                  className="cursor-pointer hover:shadow-xl hover:border-accent/50 transition-all duration-300 h-full bg-gradient-to-br from-card to-card/50"
+                  className={`cursor-pointer hover:shadow-xl hover:border-accent/50 transition-all duration-300 h-full ${
+                    showArchived ? 'bg-gradient-to-br from-muted/50 to-muted/30' : 'bg-gradient-to-br from-card to-card/50'
+                  }`}
                   onClick={() => setSelectedPosition(position)}
                 >
                   <CardHeader>
-                    <CardTitle className="text-lg">{position.title}</CardTitle>
+                    <div className="flex items-start justify-between gap-2">
+                      <CardTitle className="text-lg">{position.title}</CardTitle>
+                      {showArchived && (
+                        <Badge variant="outline" className="shrink-0">
+                          {t('positions.archived', language)}
+                        </Badge>
+                      )}
+                    </div>
                     <CardDescription className="line-clamp-2">
                       {position.description}
                     </CardDescription>
@@ -116,9 +178,21 @@ export default function PositionsView({
                           {candidateCount} {candidateCount === 1 ? t('positions.candidates', language) : t('positions.candidates_plural', language)}
                         </span>
                       </div>
-                      <div className="text-accent font-medium px-3 py-1 bg-accent/10 rounded-full">
-                        {position.openings} {position.openings === 1 ? t('positions.openings', language) : t('positions.openings_plural', language)}
-                      </div>
+                      {showArchived ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => unarchivePosition(position, e)}
+                          className="gap-1.5"
+                        >
+                          <Archive size={14} weight="bold" />
+                          {t('positions.unarchive', language)}
+                        </Button>
+                      ) : (
+                        <div className="text-accent font-medium px-3 py-1 bg-accent/10 rounded-full">
+                          {position.openings} {position.openings === 1 ? t('positions.openings', language) : t('positions.openings_plural', language)}
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

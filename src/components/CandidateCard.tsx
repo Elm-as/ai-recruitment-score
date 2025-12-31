@@ -142,8 +142,20 @@ Return a JSON object with a single property "questions" containing an array of q
   }
 
   const deleteCandidate = () => {
+    const deletedCandidate = candidate
+    
     setCandidates((prev) => prev.filter((c) => c.id !== candidate.id))
-    toast.success(t('candidate.deleteSuccess', language))
+    
+    toast.success(t('candidate.deleteSuccess', language), {
+      action: {
+        label: t('common.undo', language),
+        onClick: () => {
+          setCandidates((prev) => [...prev, deletedCandidate].sort((a, b) => b.createdAt - a.createdAt))
+          toast.success(t('common.undoAction', language))
+        },
+      },
+      duration: 5000,
+    })
   }
 
   if (candidate.status === 'analyzing') {

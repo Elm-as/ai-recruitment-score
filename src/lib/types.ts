@@ -5,7 +5,8 @@ export interface Position {
   requirements: string
   openings: number
   createdAt: number
-  status: 'active' | 'closed'
+  status: 'active' | 'closed' | 'archived'
+  archivedAt?: number
 }
 
 export interface Candidate {

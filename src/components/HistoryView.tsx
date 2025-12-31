@@ -108,10 +108,15 @@ export default function HistoryView({ positions, candidates, language }: History
                           </CardDescription>
                         </div>
                         <Badge
-                          variant={position.status === 'active' ? 'default' : 'secondary'}
+                          variant={position.status === 'active' ? 'default' : position.status === 'archived' ? 'outline' : 'secondary'}
                           className="shrink-0"
                         >
-                          {position.status === 'active' ? t('history.active', language) : t('history.closed', language)}
+                          {position.status === 'active' 
+                            ? t('history.active', language) 
+                            : position.status === 'archived'
+                            ? t('positions.archived', language)
+                            : t('history.closed', language)
+                          }
                         </Badge>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">

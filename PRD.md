@@ -14,11 +14,11 @@ Cette application nécessite une intégration IA sophistiquée pour l'analyse de
 ## Essential Features
 
 ### Job Position Management
-- **Functionality**: Create and manage job positions with title, description, requirements, and number of openings
-- **Purpose**: Establishes the evaluation criteria against which all candidates will be assessed
-- **Trigger**: User clicks "New Position" button
-- **Progression**: Click New Position → Enter job details (title, description, requirements, openings) → Save → Position appears in positions list
-- **Success criteria**: Position is saved to persistent storage and can be selected for candidate evaluation
+- **Functionality**: Create and manage job positions with title, description, requirements, and number of openings. Archive positions instead of deleting them to preserve history. Restore archived positions when needed.
+- **Purpose**: Establishes the evaluation criteria against which all candidates will be assessed, while maintaining a complete history of all positions
+- **Trigger**: User clicks "New Position" button for creation, Archive icon for archiving, or "View Archives" to see archived positions
+- **Progression**: Click New Position → Enter job details (title, description, requirements, openings) → Save → Position appears in positions list. For archiving: Click Archive → Confirm → Position moved to archives with undo option
+- **Success criteria**: Position is saved to persistent storage and can be selected for candidate evaluation. Archived positions are hidden from active view but can be restored with full data intact. Undo functionality available for 5 seconds after archiving or deleting
 
 ### Candidate Profile Submission
 - **Functionality**: Input candidate information via text paste (simulating CV content extraction)
@@ -35,11 +35,11 @@ Cette application nécessite une intégration IA sophistiquée pour l'analyse de
 - **Success criteria**: Each candidate receives a numerical score with justification showing requirement matches
 
 ### Intelligent Candidate Ranking
-- **Functionality**: Displays all candidates for a position sorted by score (highest to lowest)
-- **Purpose**: Enables quick identification of top candidates
+- **Functionality**: Displays all candidates for a position sorted by score (highest to lowest). Supports bulk selection and deletion of multiple candidates at once with checkboxes. Individual candidate deletion also available.
+- **Purpose**: Enables quick identification of top candidates and efficient management of candidate lists
 - **Trigger**: User views a position with candidates
-- **Progression**: Open position → View ranked candidate list → See scores and highlights → Filter by status (all/top picks/rejected)
-- **Success criteria**: Candidates appear in descending score order with visual indicators for top performers
+- **Progression**: Open position → View ranked candidate list → See scores and highlights → Filter by status (all/top picks/rejected) → Select multiple candidates with checkboxes → Bulk delete or manage individually. Undo available for 5 seconds after any deletion.
+- **Success criteria**: Candidates appear in descending score order with visual indicators for top performers. Bulk operations complete successfully with undo functionality preserving all deleted data
 
 ### Interview Question Generation
 - **Functionality**: AI generates tailored interview questions for each candidate based on their profile and the position
@@ -56,11 +56,11 @@ Cette application nécessite une intégration IA sophistiquée pour l'analyse de
 - **Success criteria**: System identifies at least one alternative position when appropriate with clear reasoning
 
 ### Historical Evaluation Archive
-- **Functionality**: Maintains searchable history of all positions, candidates, and evaluations
-- **Purpose**: Enables review of past decisions, retrieval of candidate information, and analytics
-- **Trigger**: User navigates to "History" section
-- **Progression**: Click History → View all past positions → Search/filter by date, position, candidate name → View detailed evaluation → Access archived interview questions
-- **Success criteria**: All evaluations persist indefinitely and are searchable with full detail retrieval
+- **Functionality**: Maintains searchable history of all positions (active, archived, and closed), candidates, and evaluations
+- **Purpose**: Enables review of past decisions, retrieval of candidate information, analytics, and restoration of archived positions
+- **Trigger**: User navigates to "History" section or clicks "View Archives" in Positions view
+- **Progression**: Click History → View all past positions with status badges → Search/filter by date, position, candidate name → View detailed evaluation → Access archived interview questions → Restore archived positions if needed
+- **Success criteria**: All evaluations persist indefinitely and are searchable with full detail retrieval. Archived positions clearly marked and can be restored to active status with undo support
 
 ## Edge Case Handling
 
@@ -71,6 +71,10 @@ Cette application nécessite une intégration IA sophistiquée pour l'analyse de
 - **No alternative positions**: Gracefully handle case when no other positions exist or none are suitable
 - **Very long candidate profiles**: Truncate display while keeping full text for AI analysis
 - **Position with no candidates**: Display empty state with call-to-action to add first candidate
+- **Accidental deletion**: Provide 5-second undo window via toast notification for all delete and archive operations
+- **Bulk deletion with no selection**: Disable bulk delete button when no candidates are selected
+- **Archived position access**: Archived positions remain viewable and their candidates accessible, but hidden from active positions list
+- **Undo after navigation**: Undo functionality persists even if user navigates to different views within the 5-second window
 
 ## Design Direction
 
