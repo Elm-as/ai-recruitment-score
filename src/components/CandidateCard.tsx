@@ -16,7 +16,19 @@ import {
   ArrowsLeftRight,
   User,
   Envelope,
+  Trash,
 } from '@phosphor-icons/react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
 
@@ -127,6 +139,11 @@ Return a JSON object with a single property "questions" containing an array of q
       prev.map((c) => (c.id === candidate.id ? { ...c, status: 'rejected' as const } : c))
     )
     toast.success(t('candidate.markedRejected', language))
+  }
+
+  const deleteCandidate = () => {
+    setCandidates((prev) => prev.filter((c) => c.id !== candidate.id))
+    toast.success(t('candidate.deleteSuccess', language))
   }
 
   if (candidate.status === 'analyzing') {
@@ -339,6 +356,33 @@ Return a JSON object with a single property "questions" containing an array of q
                 {t('candidate.reject', language)}
               </Button>
             )}
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-2 border-destructive text-destructive hover:bg-destructive/10"
+                >
+                  <Trash size={16} weight="bold" />
+                  {t('candidate.delete', language)}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t('candidate.deleteConfirmTitle', language)}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {t('candidate.deleteConfirmDescription', language, { name: candidate.name })}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{t('candidate.cancel', language)}</AlertDialogCancel>
+                  <AlertDialogAction onClick={deleteCandidate} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    {t('candidate.confirmDelete', language)}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </CardContent>
       </Card>

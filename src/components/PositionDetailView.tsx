@@ -2,12 +2,24 @@ import { useState } from 'react'
 import { Position, Candidate, Language } from '@/lib/types'
 import { t } from '@/lib/translations'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Plus, Funnel } from '@phosphor-icons/react'
+import { ArrowLeft, Plus, Funnel, Trash } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import AddCandidateDialog from './AddCandidateDialog'
 import CandidateCard from './CandidateCard'
 import { motion } from 'framer-motion'
+import { toast } from 'sonner'
 
 interface PositionDetailViewProps {
   position: Position
@@ -40,6 +52,13 @@ export default function PositionDetailView({
 
   const topPicksCount = Math.min(position.openings, candidates.length)
 
+  const deletePosition = () => {
+    setPositions((prev) => prev.filter((p) => p.id !== position.id))
+    setCandidates((prev) => prev.filter((c) => c.positionId !== position.id))
+    toast.success(t('positions.deleteSuccess', language))
+    onBack()
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
@@ -65,10 +84,33 @@ export default function PositionDetailView({
             </div>
           </div>
         </div>
-        <Button onClick={() => setAddCandidateOpen(true)} className="gap-2 shrink-0 hover:scale-105 transition-transform">
-          <Plus size={18} weight="bold" />
-          {t('positionDetail.addCandidate', language)}
-        </Button>
+        <div className="flex gap-2 shrink-0">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" size="icon" className="border-destructive text-destructive hover:bg-destructive/10">
+                <Trash size={18} weight="bold" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t('positions.deleteConfirmTitle', language)}</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {t('positions.deleteConfirmDescription', language, { title: position.title, count: candidates.length })}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{t('positions.cancel', language)}</AlertDialogCancel>
+                <AlertDialogAction onClick={deletePosition} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  {t('positions.confirmDelete', language)}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <Button onClick={() => setAddCandidateOpen(true)} className="gap-2 hover:scale-105 transition-transform">
+            <Plus size={18} weight="bold" />
+            {t('positionDetail.addCandidate', language)}
+          </Button>
+        </div>
       </div>
 
       {candidates.length > 0 && (
