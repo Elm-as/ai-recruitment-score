@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { MagnifyingGlass, CalendarBlank, Users, User } from '@phosphor-icons/react'
+import { Button } from '@/components/ui/button'
+import { MagnifyingGlass, CalendarBlank, Users, User, Archive } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 
 interface HistoryViewProps {
@@ -17,13 +18,20 @@ interface HistoryViewProps {
 
 export default function HistoryView({ positions, candidates, language }: HistoryViewProps) {
   const [searchQuery, setSearchQuery] = useState('')
+  const [showArchivedOnly, setShowArchivedOnly] = useState(false)
 
   const filteredPositions = positions.filter((position) => {
     const query = searchQuery.toLowerCase()
-    return (
+    const matchesSearch = (
       position.title.toLowerCase().includes(query) ||
       position.description.toLowerCase().includes(query)
     )
+    
+    if (showArchivedOnly) {
+      return matchesSearch && position.status === 'archived'
+    }
+    
+    return matchesSearch
   })
 
   const getCandidatesForPosition = (positionId: string) => {
@@ -50,18 +58,28 @@ export default function HistoryView({ positions, candidates, language }: History
         </p>
       </motion.div>
 
-      <div className="relative">
-        <MagnifyingGlass
-          size={18}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-          weight="duotone"
-        />
-        <Input
-          placeholder={t('history.search', language)}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
-        />
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <MagnifyingGlass
+            size={18}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            weight="duotone"
+          />
+          <Input
+            placeholder={t('history.search', language)}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Button
+          variant={showArchivedOnly ? 'default' : 'outline'}
+          onClick={() => setShowArchivedOnly(!showArchivedOnly)}
+          className="gap-2 whitespace-nowrap"
+        >
+          <Archive size={18} weight={showArchivedOnly ? 'fill' : 'duotone'} />
+          {showArchivedOnly ? t('history.hideArchived', language) : t('history.showArchived', language)}
+        </Button>
       </div>
 
       {filteredPositions.length === 0 ? (
