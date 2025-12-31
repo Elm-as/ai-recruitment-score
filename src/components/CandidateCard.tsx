@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Candidate, Position, Language } from '@/lib/types'
+import { t } from '@/lib/translations'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -26,7 +27,7 @@ interface CandidateCardProps {
   setCandidates: (updater: (prev: Candidate[]) => Candidate[]) => void
   position: Position
   positions: Position[]
-  language?: Language
+  language: Language
 }
 
 export default function CandidateCard({
@@ -36,6 +37,7 @@ export default function CandidateCard({
   setCandidates,
   position,
   positions,
+  language,
 }: CandidateCardProps) {
   const [generatingQuestions, setGeneratingQuestions] = useState(false)
 
@@ -61,7 +63,10 @@ export default function CandidateCard({
   const generateInterviewQuestions = async () => {
     setGeneratingQuestions(true)
     try {
+      const isEnglish = language === 'en'
       const questionsPrompt = (window as any).spark.llmPrompt`You are an expert HR interviewer. Generate 6-8 targeted interview questions for this candidate based on their profile and the job requirements.
+
+IMPORTANT: Generate all questions in ${isEnglish ? 'ENGLISH' : 'FRENCH'} language.
 
 JOB POSITION:
 ${position.title}
@@ -85,7 +90,7 @@ Generate questions that:
 4. Verify their technical capabilities
 5. Explore their achievements in detail
 
-Return a JSON object with a single property "questions" containing an array of question strings:
+Return a JSON object with a single property "questions" containing an array of question strings in ${isEnglish ? 'ENGLISH' : 'FRENCH'}:
 {
   "questions": ["question 1", "question 2", ...]
 }`
@@ -101,10 +106,10 @@ Return a JSON object with a single property "questions" containing an array of q
         )
       )
 
-      toast.success('Interview questions generated')
+      toast.success(t('candidate.questionsGenerated', language))
     } catch (error) {
       console.error('Error generating questions:', error)
-      toast.error('Failed to generate questions')
+      toast.error(t('candidate.questionsError', language))
     } finally {
       setGeneratingQuestions(false)
     }
@@ -114,14 +119,14 @@ Return a JSON object with a single property "questions" containing an array of q
     setCandidates((prev) =>
       prev.map((c) => (c.id === candidate.id ? { ...c, status: 'selected' as const } : c))
     )
-    toast.success('Candidate marked as selected')
+    toast.success(t('candidate.markedSelected', language))
   }
 
   const markAsRejected = () => {
     setCandidates((prev) =>
       prev.map((c) => (c.id === candidate.id ? { ...c, status: 'rejected' as const } : c))
     )
-    toast.success('Candidate marked as rejected')
+    toast.success(t('candidate.markedRejected', language))
   }
 
   if (candidate.status === 'analyzing') {
@@ -131,7 +136,7 @@ Return a JSON object with a single property "questions" containing an array of q
           <div className="flex items-center justify-center gap-3">
             <Sparkle size={24} className="text-accent animate-pulse" weight="fill" />
             <span className="text-sm text-muted-foreground">
-              Analyzing {candidate.name}...
+              {t('candidate.analyzing', language, { name: candidate.name })}
             </span>
           </div>
         </CardContent>
@@ -161,7 +166,7 @@ Return a JSON object with a single property "questions" containing an array of q
                 </Badge>
                 {isTopPick && (
                   <Badge className="bg-accent text-accent-foreground w-fit">
-                    Top Pick
+                    {t('candidate.topPick', language)}
                   </Badge>
                 )}
               </div>
@@ -199,7 +204,7 @@ Return a JSON object with a single property "questions" containing an array of q
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="breakdown">
               <AccordionTrigger className="text-sm font-medium">
-                Score Breakdown
+                {t('candidate.scoreBreakdown', language)}
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-3 pt-2">
@@ -219,14 +224,14 @@ Return a JSON object with a single property "questions" containing an array of q
 
             <AccordionItem value="strengths-weaknesses">
               <AccordionTrigger className="text-sm font-medium">
-                Strengths & Weaknesses
+                {t('candidate.strengthsWeaknesses', language)}
               </AccordionTrigger>
               <AccordionContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <TrendUp size={16} className="text-green-600" weight="bold" />
-                      <h4 className="text-sm font-semibold text-green-600">Strengths</h4>
+                      <h4 className="text-sm font-semibold text-green-600">{t('candidate.strengths', language)}</h4>
                     </div>
                     <ul className="space-y-1">
                       {candidate.strengths.map((strength, index) => (
@@ -240,7 +245,7 @@ Return a JSON object with a single property "questions" containing an array of q
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <TrendDown size={16} className="text-red-600" weight="bold" />
-                      <h4 className="text-sm font-semibold text-red-600">Weaknesses</h4>
+                      <h4 className="text-sm font-semibold text-red-600">{t('candidate.weaknesses', language)}</h4>
                     </div>
                     <ul className="space-y-1">
                       {candidate.weaknesses.map((weakness, index) => (
@@ -258,7 +263,7 @@ Return a JSON object with a single property "questions" containing an array of q
             {candidate.interviewQuestions && candidate.interviewQuestions.length > 0 && (
               <AccordionItem value="questions">
                 <AccordionTrigger className="text-sm font-medium">
-                  Interview Questions ({candidate.interviewQuestions.length})
+                  {t('candidate.interviewQuestions', language, { count: candidate.interviewQuestions.length })}
                 </AccordionTrigger>
                 <AccordionContent>
                   <ul className="space-y-3 pt-2">
@@ -278,7 +283,7 @@ Return a JSON object with a single property "questions" containing an array of q
                 <AccordionTrigger className="text-sm font-medium">
                   <div className="flex items-center gap-2">
                     <ArrowsLeftRight size={16} />
-                    Alternative Position Suggestions
+                    {t('candidate.alternativePositions', language)}
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
@@ -307,7 +312,7 @@ Return a JSON object with a single property "questions" containing an array of q
                 className="gap-2"
               >
                 <Sparkle size={16} weight="fill" />
-                {generatingQuestions ? 'Generating...' : 'Generate Questions'}
+                {generatingQuestions ? t('candidate.generating', language) : t('candidate.generateQuestions', language)}
               </Button>
             )}
 
@@ -319,7 +324,7 @@ Return a JSON object with a single property "questions" containing an array of q
                 className="gap-2 border-green-500 text-green-600 hover:bg-green-50"
               >
                 <CheckCircle size={16} weight="bold" />
-                Select
+                {t('candidate.select', language)}
               </Button>
             )}
 
@@ -331,7 +336,7 @@ Return a JSON object with a single property "questions" containing an array of q
                 className="gap-2 border-red-500 text-red-600 hover:bg-red-50"
               >
                 <XCircle size={16} weight="bold" />
-                Reject
+                {t('candidate.reject', language)}
               </Button>
             )}
           </div>

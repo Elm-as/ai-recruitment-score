@@ -73,7 +73,7 @@ export default function HistoryView({ positions, candidates, language }: History
             <CardContent className="py-16 text-center">
               <Users size={48} className="text-muted-foreground mx-auto mb-4" weight="duotone" />
               <p className="text-muted-foreground text-lg font-medium mb-2">
-                {positions.length === 0 ? t('history.noHistory', language) : 'Aucun résultat'}
+                {positions.length === 0 ? t('history.noHistory', language) : t('history.noResults', language)}
               </p>
               {positions.length === 0 && (
                 <p className="text-sm text-muted-foreground">
@@ -111,12 +111,12 @@ export default function HistoryView({ positions, candidates, language }: History
                           variant={position.status === 'active' ? 'default' : 'secondary'}
                           className="shrink-0"
                         >
-                          {position.status}
+                          {position.status === 'active' ? t('history.active', language) : t('history.closed', language)}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
                         <CalendarBlank size={14} weight="duotone" />
-                        <span>{language === 'fr' ? 'Créé le' : 'Created'} {formatDate(position.createdAt)}</span>
+                        <span>{t('history.created', language)} {formatDate(position.createdAt)}</span>
                       </div>
                     </CardHeader>
                     <CardContent>
@@ -124,17 +124,17 @@ export default function HistoryView({ positions, candidates, language }: History
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
                           <div className="flex items-center gap-2">
                             <Users size={16} className="text-muted-foreground" weight="duotone" />
-                            <span className="text-muted-foreground">Total:</span>
+                            <span className="text-muted-foreground">{t('history.total', language)}:</span>
                             <span className="font-semibold">{positionCandidates.length}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <User size={16} className="text-muted-foreground" weight="duotone" />
-                            <span className="text-muted-foreground">{language === 'fr' ? 'Évalués' : 'Evaluated'}:</span>
+                            <span className="text-muted-foreground">{t('history.evaluated', language)}:</span>
                             <span className="font-semibold">{scoredCandidates.length}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Badge className="bg-green-600 text-white gap-1.5 text-xs">
-                              {language === 'fr' ? 'Sélectionnés' : 'Selected'}: {selectedCandidates.length}
+                              {t('history.selected', language)}: {selectedCandidates.length}
                             </Badge>
                           </div>
                         </div>
@@ -144,7 +144,7 @@ export default function HistoryView({ positions, candidates, language }: History
                             <Separator />
                             <div>
                               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                                {language === 'fr' ? 'Meilleurs Candidats' : 'Top Candidates'}
+                                {t('history.topCandidates', language)}
                               </h4>
                               <div className="space-y-2">
                                 {scoredCandidates
