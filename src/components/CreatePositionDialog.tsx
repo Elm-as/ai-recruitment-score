@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Position } from '@/lib/types'
+import { Position, Language } from '@/lib/types'
+import { t } from '@/lib/translations'
 import {
   Dialog,
   DialogContent,
@@ -18,12 +19,14 @@ interface CreatePositionDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onCreatePosition: (position: Position) => void
+  language: Language
 }
 
 export default function CreatePositionDialog({
   open,
   onOpenChange,
   onCreatePosition,
+  language,
 }: CreatePositionDialogProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -34,13 +37,13 @@ export default function CreatePositionDialog({
     e.preventDefault()
 
     if (!title.trim() || !description.trim() || !requirements.trim()) {
-      toast.error('Please fill in all required fields')
+      toast.error(t('createPosition.errorFields', language))
       return
     }
 
     const openingsNum = parseInt(openings)
     if (isNaN(openingsNum) || openingsNum < 1) {
-      toast.error('Number of openings must be at least 1')
+      toast.error(t('createPosition.errorOpenings', language))
       return
     }
 
@@ -55,7 +58,7 @@ export default function CreatePositionDialog({
     }
 
     onCreatePosition(newPosition)
-    toast.success('Position created successfully')
+    toast.success(t('createPosition.success', language))
 
     setTitle('')
     setDescription('')
@@ -68,27 +71,27 @@ export default function CreatePositionDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Position</DialogTitle>
+          <DialogTitle>{t('createPosition.title', language)}</DialogTitle>
           <DialogDescription>
-            Define the job position details. This information will be used to evaluate candidates.
+            {t('createPosition.description', language)}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Job Title *</Label>
+            <Label htmlFor="title">{t('createPosition.jobTitle', language)} {t('createPosition.required', language)}</Label>
             <Input
               id="title"
-              placeholder="e.g., Senior React Developer"
+              placeholder={t('createPosition.jobTitlePlaceholder', language)}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Job Description *</Label>
+            <Label htmlFor="description">{t('createPosition.jobDescription', language)} {t('createPosition.required', language)}</Label>
             <Textarea
               id="description"
-              placeholder="Describe the role, responsibilities, and what the ideal candidate will do..."
+              placeholder={t('createPosition.jobDescriptionPlaceholder', language)}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
@@ -96,10 +99,10 @@ export default function CreatePositionDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="requirements">Requirements & Qualifications *</Label>
+            <Label htmlFor="requirements">{t('createPosition.requirements', language)} {t('createPosition.required', language)}</Label>
             <Textarea
               id="requirements"
-              placeholder="List the required skills, experience, education, and qualifications..."
+              placeholder={t('createPosition.requirementsPlaceholder', language)}
               value={requirements}
               onChange={(e) => setRequirements(e.target.value)}
               rows={4}
@@ -107,7 +110,7 @@ export default function CreatePositionDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="openings">Number of Openings *</Label>
+            <Label htmlFor="openings">{t('createPosition.numberOfOpenings', language)} {t('createPosition.required', language)}</Label>
             <Input
               id="openings"
               type="number"
@@ -120,9 +123,9 @@ export default function CreatePositionDialog({
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t('createPosition.cancel', language)}
             </Button>
-            <Button type="submit">Create Position</Button>
+            <Button type="submit">{t('createPosition.create', language)}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

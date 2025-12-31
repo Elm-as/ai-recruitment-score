@@ -14,6 +14,8 @@ export interface Candidate {
   name: string
   email: string
   profileText: string
+  fileName?: string
+  fileType?: 'pdf' | 'html'
   score: number
   scoreBreakdown: {
     category: string
@@ -37,3 +39,5 @@ export interface Candidate {
 export interface PositionWithCandidates extends Position {
   candidates: Candidate[]
 }
+
+export type Language = 'fr' | 'en'

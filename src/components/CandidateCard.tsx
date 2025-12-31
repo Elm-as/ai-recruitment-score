@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Candidate, Position } from '@/lib/types'
+import { Candidate, Position, Language } from '@/lib/types'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -26,6 +26,7 @@ interface CandidateCardProps {
   setCandidates: (updater: (prev: Candidate[]) => Candidate[]) => void
   position: Position
   positions: Position[]
+  language?: Language
 }
 
 export default function CandidateCard({

@@ -1,14 +1,15 @@
-# AI Recruitment Assistant
+# Assistant IA de Recrutement / AI Recruitment Assistant
 
-An intelligent recruitment tool that analyzes candidate profiles against job positions, scores and ranks applicants, generates tailored interview questions, and maintains a searchable history of all evaluations.
+Un outil intelligent de recrutement qui analyse les profils des candidats par rapport aux postes à pourvoir, attribue des scores et classe les candidats, génère des questions d'entretien personnalisées et maintient un historique consultable de toutes les évaluations. **Support multilingue (Français/English) avec thème sombre/clair et téléchargement de fichiers PDF/HTML.**
 
-**Experience Qualities**:
-1. **Efficient** - Streamlines the candidate review process by automating scoring and ranking, saving recruiters hours of manual evaluation
-2. **Insightful** - Provides deep analysis of each candidate's strengths, weaknesses, and fit for the position with actionable intelligence
-3. **Professional** - Maintains a polished, authoritative interface that reflects the serious nature of hiring decisions
+**Qualités de l'Expérience** :
+1. **Efficace** - Rationalise le processus d'examen des candidats en automatisant la notation et le classement, économisant des heures d'évaluation manuelle pour les recruteurs
+2. **Perspicace** - Fournit une analyse approfondie des forces, faiblesses et adéquation de chaque candidat avec des informations exploitables
+3. **Professionnel** - Maintient une interface polie et autoritaire qui reflète la nature sérieuse des décisions d'embauche
+4. **Moderne** - Interface responsive avec animations fluides et support du thème sombre pour une expérience utilisateur optimale
 
-**Complexity Level**: Complex Application (advanced functionality, likely with multiple views)
-This application requires sophisticated AI integration for candidate analysis, multi-step workflows (job posting → candidate submission → scoring → ranking → interview prep), persistent data storage for history, and dynamic content generation based on AI responses.
+**Niveau de Complexité** : Application Complexe (fonctionnalités avancées, avec plusieurs vues)
+Cette application nécessite une intégration IA sophistiquée pour l'analyse des candidats, des workflows multi-étapes (publication de poste → soumission de candidat → notation → classement → préparation d'entretien), stockage persistant des données pour l'historique, génération de contenu dynamique basée sur les réponses IA, **support multilingue complet, système de thème dynamique et extraction de texte depuis fichiers PDF/HTML**.
 
 ## Essential Features
 

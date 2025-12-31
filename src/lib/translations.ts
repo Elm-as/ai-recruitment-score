@@ -1,0 +1,294 @@
+import { Language } from './types'
+
+export const translations = {
+  fr: {
+    app: {
+      title: 'Assistant IA de Recrutement',
+      subtitle: 'Système intelligent d\'évaluation et de classement des candidats',
+    },
+    nav: {
+      positions: 'Postes',
+      history: 'Historique',
+      theme: 'Thème',
+      language: 'Langue',
+    },
+    positions: {
+      title: 'Postes Actifs',
+      count: '{{count}} poste ouvert',
+      count_plural: '{{count}} postes ouverts',
+      newPosition: 'Nouveau Poste',
+      noPositions: 'Aucun poste pour le moment',
+      noPositionsDesc: 'Créez votre premier poste pour commencer à évaluer des candidats avec l\'IA',
+      createFirst: 'Créer le Premier Poste',
+      candidates: 'candidat',
+      candidates_plural: 'candidats',
+      openings: 'ouverture',
+      openings_plural: 'ouvertures',
+    },
+    createPosition: {
+      title: 'Créer un Nouveau Poste',
+      description: 'Définissez les détails du poste. Ces informations seront utilisées pour évaluer les candidats.',
+      jobTitle: 'Titre du Poste',
+      jobTitlePlaceholder: 'ex: Développeur React Senior',
+      jobDescription: 'Description du Poste',
+      jobDescriptionPlaceholder: 'Décrivez le rôle, les responsabilités et ce que le candidat idéal fera...',
+      requirements: 'Exigences & Qualifications',
+      requirementsPlaceholder: 'Listez les compétences requises, l\'expérience, la formation et les qualifications...',
+      numberOfOpenings: 'Nombre d\'Ouvertures',
+      required: '*',
+      cancel: 'Annuler',
+      create: 'Créer le Poste',
+      success: 'Poste créé avec succès',
+      errorFields: 'Veuillez remplir tous les champs obligatoires',
+      errorOpenings: 'Le nombre d\'ouvertures doit être au moins 1',
+    },
+    addCandidate: {
+      title: 'Ajouter un Candidat',
+      description: 'Téléchargez le CV du candidat (PDF ou HTML) pour une analyse automatique par l\'IA',
+      uploadMethod: 'Méthode de Téléchargement',
+      file: 'Fichier',
+      paste: 'Coller le Texte',
+      uploadFile: 'Télécharger le CV',
+      uploadDesc: 'PDF ou HTML uniquement, max 5MB',
+      candidateName: 'Nom du Candidat',
+      candidateNamePlaceholder: 'ex: Marie Dupont',
+      candidateEmail: 'Email du Candidat',
+      candidateEmailPlaceholder: 'ex: marie.dupont@email.com',
+      profileText: 'Profil / CV (Texte)',
+      profileTextPlaceholder: 'Collez ici les informations du candidat: expérience, compétences, formation...',
+      cancel: 'Annuler',
+      analyze: 'Analyser le Candidat',
+      analyzing: 'Analyse en cours...',
+      success: 'Candidat ajouté et analysé avec succès',
+      errorFields: 'Veuillez remplir tous les champs obligatoires',
+      errorFile: 'Veuillez télécharger un fichier valide (PDF ou HTML)',
+      errorFileSize: 'Le fichier est trop volumineux (max 5MB)',
+      errorFileRead: 'Erreur lors de la lecture du fichier',
+      errorAnalysis: 'Erreur lors de l\'analyse du candidat',
+      extracting: 'Extraction du contenu...',
+      dragDrop: 'Glissez-déposez votre fichier ici, ou cliquez pour parcourir',
+      fileUploaded: 'Fichier téléchargé: {{name}}',
+    },
+    positionDetail: {
+      back: 'Retour aux Postes',
+      candidates: 'Candidats',
+      addCandidate: 'Ajouter un Candidat',
+      description: 'Description',
+      requirements: 'Exigences',
+      noCandidates: 'Aucun candidat pour le moment',
+      noCandidatesDesc: 'Commencez à ajouter des candidats pour les évaluer avec l\'IA',
+      status: 'Statut',
+      score: 'Score',
+      analyzing: 'Analyse...',
+      viewDetails: 'Voir les Détails',
+      generateQuestions: 'Générer des Questions',
+      generating: 'Génération...',
+      strengths: 'Points Forts',
+      weaknesses: 'Points Faibles',
+      assessment: 'Évaluation Globale',
+      scoreBreakdown: 'Détails du Score',
+      interviewQuestions: 'Questions d\'Entretien',
+      alternativePositions: 'Postes Alternatifs Suggérés',
+      select: 'Sélectionner',
+      reject: 'Rejeter',
+      selected: 'Sélectionné',
+      rejected: 'Rejeté',
+    },
+    history: {
+      title: 'Historique des Évaluations',
+      description: 'Consultez toutes les évaluations passées et les décisions de recrutement',
+      search: 'Rechercher par nom ou poste...',
+      filterAll: 'Tous',
+      filterSelected: 'Sélectionnés',
+      filterRejected: 'Rejetés',
+      noHistory: 'Aucun historique',
+      noHistoryDesc: 'Commencez à évaluer des candidats pour voir l\'historique ici',
+      position: 'Poste',
+      evaluatedOn: 'Évalué le',
+    },
+    status: {
+      pending: 'En attente',
+      analyzing: 'Analyse...',
+      scored: 'Évalué',
+      selected: 'Sélectionné',
+      rejected: 'Rejeté',
+    },
+    theme: {
+      light: 'Clair',
+      dark: 'Sombre',
+      system: 'Système',
+    },
+    common: {
+      loading: 'Chargement...',
+      error: 'Erreur',
+      success: 'Succès',
+      close: 'Fermer',
+      save: 'Enregistrer',
+      delete: 'Supprimer',
+      edit: 'Modifier',
+      view: 'Voir',
+    },
+  },
+  en: {
+    app: {
+      title: 'AI Recruitment Assistant',
+      subtitle: 'Intelligent candidate evaluation and ranking system',
+    },
+    nav: {
+      positions: 'Positions',
+      history: 'History',
+      theme: 'Theme',
+      language: 'Language',
+    },
+    positions: {
+      title: 'Active Positions',
+      count: '{{count}} position open',
+      count_plural: '{{count}} positions open',
+      newPosition: 'New Position',
+      noPositions: 'No positions yet',
+      noPositionsDesc: 'Create your first job position to start evaluating candidates with AI',
+      createFirst: 'Create First Position',
+      candidates: 'candidate',
+      candidates_plural: 'candidates',
+      openings: 'opening',
+      openings_plural: 'openings',
+    },
+    createPosition: {
+      title: 'Create New Position',
+      description: 'Define the job position details. This information will be used to evaluate candidates.',
+      jobTitle: 'Job Title',
+      jobTitlePlaceholder: 'e.g., Senior React Developer',
+      jobDescription: 'Job Description',
+      jobDescriptionPlaceholder: 'Describe the role, responsibilities, and what the ideal candidate will do...',
+      requirements: 'Requirements & Qualifications',
+      requirementsPlaceholder: 'List the required skills, experience, education, and qualifications...',
+      numberOfOpenings: 'Number of Openings',
+      required: '*',
+      cancel: 'Cancel',
+      create: 'Create Position',
+      success: 'Position created successfully',
+      errorFields: 'Please fill in all required fields',
+      errorOpenings: 'Number of openings must be at least 1',
+    },
+    addCandidate: {
+      title: 'Add Candidate',
+      description: 'Upload candidate\'s resume (PDF or HTML) for automatic AI analysis',
+      uploadMethod: 'Upload Method',
+      file: 'File',
+      paste: 'Paste Text',
+      uploadFile: 'Upload Resume',
+      uploadDesc: 'PDF or HTML only, max 5MB',
+      candidateName: 'Candidate Name',
+      candidateNamePlaceholder: 'e.g., John Doe',
+      candidateEmail: 'Candidate Email',
+      candidateEmailPlaceholder: 'e.g., john.doe@email.com',
+      profileText: 'Profile / CV (Text)',
+      profileTextPlaceholder: 'Paste candidate information here: experience, skills, education...',
+      cancel: 'Cancel',
+      analyze: 'Analyze Candidate',
+      analyzing: 'Analyzing...',
+      success: 'Candidate added and analyzed successfully',
+      errorFields: 'Please fill in all required fields',
+      errorFile: 'Please upload a valid file (PDF or HTML)',
+      errorFileSize: 'File is too large (max 5MB)',
+      errorFileRead: 'Error reading file',
+      errorAnalysis: 'Error analyzing candidate',
+      extracting: 'Extracting content...',
+      dragDrop: 'Drag and drop your file here, or click to browse',
+      fileUploaded: 'File uploaded: {{name}}',
+    },
+    positionDetail: {
+      back: 'Back to Positions',
+      candidates: 'Candidates',
+      addCandidate: 'Add Candidate',
+      description: 'Description',
+      requirements: 'Requirements',
+      noCandidates: 'No candidates yet',
+      noCandidatesDesc: 'Start adding candidates to evaluate them with AI',
+      status: 'Status',
+      score: 'Score',
+      analyzing: 'Analyzing...',
+      viewDetails: 'View Details',
+      generateQuestions: 'Generate Questions',
+      generating: 'Generating...',
+      strengths: 'Strengths',
+      weaknesses: 'Weaknesses',
+      assessment: 'Overall Assessment',
+      scoreBreakdown: 'Score Breakdown',
+      interviewQuestions: 'Interview Questions',
+      alternativePositions: 'Suggested Alternative Positions',
+      select: 'Select',
+      reject: 'Reject',
+      selected: 'Selected',
+      rejected: 'Rejected',
+    },
+    history: {
+      title: 'Evaluation History',
+      description: 'Review all past evaluations and hiring decisions',
+      search: 'Search by name or position...',
+      filterAll: 'All',
+      filterSelected: 'Selected',
+      filterRejected: 'Rejected',
+      noHistory: 'No history yet',
+      noHistoryDesc: 'Start evaluating candidates to see history here',
+      position: 'Position',
+      evaluatedOn: 'Evaluated on',
+    },
+    status: {
+      pending: 'Pending',
+      analyzing: 'Analyzing...',
+      scored: 'Scored',
+      selected: 'Selected',
+      rejected: 'Rejected',
+    },
+    theme: {
+      light: 'Light',
+      dark: 'Dark',
+      system: 'System',
+    },
+    common: {
+      loading: 'Loading...',
+      error: 'Error',
+      success: 'Success',
+      close: 'Close',
+      save: 'Save',
+      delete: 'Delete',
+      edit: 'Edit',
+      view: 'View',
+    },
+  },
+}
+
+export function t(key: string, lang: Language, replacements?: Record<string, string | number>): string {
+  const keys = key.split('.')
+  let value: any = translations[lang]
+  
+  for (const k of keys) {
+    if (value && typeof value === 'object' && k in value) {
+      value = value[k]
+    } else {
+      return key
+    }
+  }
+  
+  if (typeof value !== 'string') {
+    return key
+  }
+  
+  if (replacements) {
+    return value.replace(/\{\{(\w+)\}\}/g, (_, key) => String(replacements[key] ?? ''))
+  }
+  
+  return value
+}
+
+export function pluralize(key: string, count: number, lang: Language): string {
+  const singularKey = key
+  const pluralKey = `${key}_plural`
+  
+  if (count === 1) {
+    return t(singularKey, lang, { count })
+  } else {
+    return t(pluralKey, lang, { count })
+  }
+}
