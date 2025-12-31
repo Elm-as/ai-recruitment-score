@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { MagnifyingGlass, CalendarBlank, Users, User, Archive } from '@phosphor-icons/react'
+import DateRangeFilter from './DateRangeFilter'
 import { motion } from 'framer-motion'
 
 interface HistoryViewProps {
@@ -19,6 +20,10 @@ interface HistoryViewProps {
 export default function HistoryView({ positions, candidates, language }: HistoryViewProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [showArchivedOnly, setShowArchivedOnly] = useState(false)
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+    from: undefined,
+    to: undefined,
+  })
 
   const filteredPositions = positions.filter((position) => {
     const query = searchQuery.toLowerCase()
@@ -27,11 +32,31 @@ export default function HistoryView({ positions, candidates, language }: History
       position.description.toLowerCase().includes(query)
     )
     
-    if (showArchivedOnly) {
-      return matchesSearch && position.status === 'archived'
+    if (!matchesSearch) return false
+    
+    if (showArchivedOnly && position.status !== 'archived') {
+      return false
     }
     
-    return matchesSearch
+    if (!dateRange.from && !dateRange.to) return true
+    
+    const positionDate = new Date(position.createdAt)
+    
+    if (dateRange.from && dateRange.to) {
+      const from = new Date(dateRange.from)
+      from.setHours(0, 0, 0, 0)
+      const to = new Date(dateRange.to)
+      to.setHours(23, 59, 59, 999)
+      return positionDate >= from && positionDate <= to
+    }
+    
+    if (dateRange.from) {
+      const from = new Date(dateRange.from)
+      from.setHours(0, 0, 0, 0)
+      return positionDate >= from
+    }
+    
+    return true
   })
 
   const getCandidatesForPosition = (positionId: string) => {
@@ -72,6 +97,11 @@ export default function HistoryView({ positions, candidates, language }: History
             className="pl-10"
           />
         </div>
+        <DateRangeFilter
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+          language={language}
+        />
         <Button
           variant={showArchivedOnly ? 'default' : 'outline'}
           onClick={() => setShowArchivedOnly(!showArchivedOnly)}

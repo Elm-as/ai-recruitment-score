@@ -7,6 +7,7 @@ import { Plus, Users, Archive } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import CreatePositionDialog from './CreatePositionDialog'
 import PositionDetailView from './PositionDetailView'
+import DateRangeFilter from './DateRangeFilter'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 
@@ -28,9 +29,35 @@ export default function PositionsView({
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null)
   const [showArchived, setShowArchived] = useState(false)
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+    from: undefined,
+    to: undefined,
+  })
 
-  const activePositions = positions.filter((p) => p.status === 'active')
-  const archivedPositions = positions.filter((p) => p.status === 'archived')
+  const filterByDateRange = (position: Position) => {
+    if (!dateRange.from && !dateRange.to) return true
+    
+    const positionDate = new Date(position.createdAt)
+    
+    if (dateRange.from && dateRange.to) {
+      const from = new Date(dateRange.from)
+      from.setHours(0, 0, 0, 0)
+      const to = new Date(dateRange.to)
+      to.setHours(23, 59, 59, 999)
+      return positionDate >= from && positionDate <= to
+    }
+    
+    if (dateRange.from) {
+      const from = new Date(dateRange.from)
+      from.setHours(0, 0, 0, 0)
+      return positionDate >= from
+    }
+    
+    return true
+  }
+
+  const activePositions = positions.filter((p) => p.status === 'active' && filterByDateRange(p))
+  const archivedPositions = positions.filter((p) => p.status === 'archived' && filterByDateRange(p))
   
   const displayPositions = showArchived ? archivedPositions : activePositions
 
@@ -76,34 +103,44 @@ export default function PositionsView({
       <motion.div 
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+        className="flex flex-col gap-4"
       >
-        <div>
-          <h2 className="text-2xl font-semibold text-foreground">
-            {showArchived ? t('positions.archived', language) : t('positions.title', language)}
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {showArchived
-              ? pluralize('positions.count', archivedPositions.length, language)
-              : pluralize('positions.count', activePositions.length, language)
-            }
-          </p>
-        </div>
-        <div className="flex gap-2">
-          {archivedPositions.length > 0 && (
-            <Button
-              variant="outline"
-              onClick={() => setShowArchived(!showArchived)}
-              className="gap-2"
-            >
-              <Archive size={18} weight="duotone" />
-              {showArchived ? t('positions.hideArchived', language) : t('positions.viewArchived', language)}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-semibold text-foreground">
+              {showArchived ? t('positions.archived', language) : t('positions.title', language)}
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              {showArchived
+                ? pluralize('positions.count', archivedPositions.length, language)
+                : pluralize('positions.count', activePositions.length, language)
+              }
+            </p>
+          </div>
+          <div className="flex gap-2">
+            {archivedPositions.length > 0 && (
+              <Button
+                variant="outline"
+                onClick={() => setShowArchived(!showArchived)}
+                className="gap-2"
+              >
+                <Archive size={18} weight="duotone" />
+                {showArchived ? t('positions.hideArchived', language) : t('positions.viewArchived', language)}
+              </Button>
+            )}
+            <Button onClick={() => setCreateDialogOpen(true)} className="gap-2 hover:scale-105 transition-transform">
+              <Plus size={18} weight="bold" />
+              {t('positions.newPosition', language)}
             </Button>
-          )}
-          <Button onClick={() => setCreateDialogOpen(true)} className="gap-2 hover:scale-105 transition-transform">
-            <Plus size={18} weight="bold" />
-            {t('positions.newPosition', language)}
-          </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <DateRangeFilter
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            language={language}
+          />
         </div>
       </motion.div>
 

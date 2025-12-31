@@ -191,6 +191,16 @@ export const translations = {
       undo: 'Annuler',
       undoAction: 'Annuler l\'action',
     },
+    dateFilter: {
+      title: 'Filtrer par période',
+      description: 'Sélectionnez une plage de dates',
+      selectDates: 'Sélectionner des dates',
+      clear: 'Effacer',
+      apply: 'Appliquer',
+      from: 'Du',
+      to: 'Au',
+      allTime: 'Toutes les périodes',
+    },
   },
   en: {
     app: {
@@ -381,6 +391,16 @@ export const translations = {
       view: 'View',
       undo: 'Undo',
       undoAction: 'Undo action',
+    },
+    dateFilter: {
+      title: 'Filter by period',
+      description: 'Select a date range',
+      selectDates: 'Select dates',
+      clear: 'Clear',
+      apply: 'Apply',
+      from: 'From',
+      to: 'To',
+      allTime: 'All time',
     },
   },
 }
