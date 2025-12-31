@@ -84,10 +84,10 @@ export default function HistoryView({ positions, candidates, language }: History
       </motion.div>
 
       <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
+        <div className="relative flex-1 min-w-0">
           <MagnifyingGlass
             size={18}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
             weight="duotone"
           />
           <Input
@@ -104,11 +104,13 @@ export default function HistoryView({ positions, candidates, language }: History
         />
         <Button
           variant={showArchivedOnly ? 'default' : 'outline'}
+          size="sm"
           onClick={() => setShowArchivedOnly(!showArchivedOnly)}
           className="gap-2 whitespace-nowrap"
         >
-          <Archive size={18} weight={showArchivedOnly ? 'fill' : 'duotone'} />
-          {showArchivedOnly ? t('history.hideArchived', language) : t('history.showArchived', language)}
+          <Archive size={16} weight={showArchivedOnly ? 'fill' : 'duotone'} />
+          <span className="hidden xs:inline">{showArchivedOnly ? t('history.hideArchived', language) : t('history.showArchived', language)}</span>
+          <span className="xs:hidden">{showArchivedOnly ? 'Tous' : 'Archives'}</span>
         </Button>
       </div>
 
@@ -118,13 +120,14 @@ export default function HistoryView({ positions, candidates, language }: History
           animate={{ opacity: 1, scale: 1 }}
         >
           <Card className="border-dashed border-2">
-            <CardContent className="py-16 text-center">
-              <Users size={48} className="text-muted-foreground mx-auto mb-4" weight="duotone" />
-              <p className="text-muted-foreground text-lg font-medium mb-2">
+            <CardContent className="py-12 sm:py-16 text-center px-4">
+              <Users size={40} className="sm:hidden text-muted-foreground mx-auto mb-4" weight="duotone" />
+              <Users size={48} className="hidden sm:block text-muted-foreground mx-auto mb-4" weight="duotone" />
+              <p className="text-muted-foreground text-base sm:text-lg font-medium mb-2">
                 {positions.length === 0 ? t('history.noHistory', language) : t('history.noResults', language)}
               </p>
               {positions.length === 0 && (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {t('history.noHistoryDesc', language)}
                 </p>
               )}
@@ -148,16 +151,16 @@ export default function HistoryView({ positions, candidates, language }: History
                 >
                   <Card className="hover:border-accent/50 transition-all hover:shadow-lg">
                     <CardHeader>
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <CardTitle className="text-lg">{position.title}</CardTitle>
-                          <CardDescription className="line-clamp-2 mt-1">
+                      <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-base sm:text-lg break-words">{position.title}</CardTitle>
+                          <CardDescription className="line-clamp-2 mt-1 text-xs sm:text-sm">
                             {position.description}
                           </CardDescription>
                         </div>
                         <Badge
                           variant={position.status === 'active' ? 'default' : position.status === 'archived' ? 'outline' : 'secondary'}
-                          className="shrink-0"
+                          className="shrink-0 text-xs"
                         >
                           {position.status === 'active' 
                             ? t('history.active', language) 
@@ -174,14 +177,14 @@ export default function HistoryView({ positions, candidates, language }: History
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 text-xs sm:text-sm">
                           <div className="flex items-center gap-2">
-                            <Users size={16} className="text-muted-foreground" weight="duotone" />
+                            <Users size={14} className="text-muted-foreground shrink-0" weight="duotone" />
                             <span className="text-muted-foreground">{t('history.total', language)}:</span>
                             <span className="font-semibold">{positionCandidates.length}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <User size={16} className="text-muted-foreground" weight="duotone" />
+                            <User size={14} className="text-muted-foreground shrink-0" weight="duotone" />
                             <span className="text-muted-foreground">{t('history.evaluated', language)}:</span>
                             <span className="font-semibold">{scoredCandidates.length}</span>
                           </div>
@@ -206,20 +209,20 @@ export default function HistoryView({ positions, candidates, language }: History
                                   .map((candidate, cidx) => (
                                     <div
                                       key={candidate.id}
-                                      className="flex items-center justify-between text-sm p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors"
+                                      className="flex flex-col xs:flex-row items-start xs:items-center justify-between text-xs sm:text-sm p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors gap-2"
                                     >
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex items-center gap-2 flex-wrap">
                                         <Badge variant="outline" className="text-xs">
                                           #{cidx + 1}
                                         </Badge>
-                                        <span className="font-medium">{candidate.name}</span>
+                                        <span className="font-medium break-words">{candidate.name}</span>
                                         {candidate.status === 'selected' && (
                                           <Badge className="bg-green-600 text-white text-xs">
                                             {t('positionDetail.selected', language)}
                                           </Badge>
                                         )}
                                       </div>
-                                      <span className="font-semibold text-accent">
+                                      <span className="font-semibold text-accent shrink-0">
                                         {candidate.score}/100
                                       </span>
                                     </div>

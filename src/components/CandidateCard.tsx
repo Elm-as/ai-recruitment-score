@@ -174,7 +174,7 @@ Return a JSON object with a single property "questions" containing an array of q
   }
 
   return (
-    <motion.div whileHover={{ scale: 1.01 }} transition={{ duration: 0.2 }}>
+    <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} transition={{ duration: 0.2 }}>
       <Card
         className={`${
           candidate.status === 'selected'
@@ -187,36 +187,36 @@ Return a JSON object with a single property "questions" containing an array of q
         }`}
       >
         <CardHeader className="pb-3">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-start gap-3 flex-1">
-              <div className="flex flex-col gap-1">
-                <Badge variant={getRankBadgeVariant(rank)} className="w-fit">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
+            <div className="flex items-start gap-3 flex-1 min-w-0 w-full sm:w-auto">
+              <div className="flex flex-row sm:flex-col gap-1">
+                <Badge variant={getRankBadgeVariant(rank)} className="w-fit text-xs">
                   #{rank}
                 </Badge>
                 {isTopPick && (
-                  <Badge className="bg-accent text-accent-foreground w-fit">
+                  <Badge className="bg-accent text-accent-foreground w-fit text-xs">
                     {t('candidate.topPick', language)}
                   </Badge>
                 )}
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <User size={16} className="text-muted-foreground" />
-                  <h3 className="font-semibold text-lg">{candidate.name}</h3>
+                  <User size={14} className="text-muted-foreground shrink-0" />
+                  <h3 className="font-semibold text-base sm:text-lg break-words">{candidate.name}</h3>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Envelope size={14} />
-                  <span>{candidate.email}</span>
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                  <Envelope size={12} className="shrink-0" />
+                  <span className="truncate">{candidate.email}</span>
                 </div>
               </div>
             </div>
             <div
-              className={`flex items-center justify-center w-20 h-20 rounded-full border-4 ${getScoreBgColor(
+              className={`flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 ${getScoreBgColor(
                 candidate.score
-              )}`}
+              )} shrink-0`}
             >
               <div className="text-center">
-                <div className={`text-2xl font-bold ${getScoreColor(candidate.score)}`}>
+                <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(candidate.score)}`}>
                   {candidate.score}
                 </div>
                 <div className="text-xs text-muted-foreground">/ 100</div>
@@ -338,10 +338,11 @@ Return a JSON object with a single property "questions" containing an array of q
                 variant="outline"
                 onClick={generateInterviewQuestions}
                 disabled={generatingQuestions}
-                className="gap-2"
+                className="gap-1.5 text-xs sm:text-sm"
               >
-                <Sparkle size={16} weight="fill" />
-                {generatingQuestions ? t('candidate.generating', language) : t('candidate.generateQuestions', language)}
+                <Sparkle size={14} weight="fill" />
+                <span className="hidden xs:inline">{generatingQuestions ? t('candidate.generating', language) : t('candidate.generateQuestions', language)}</span>
+                <span className="xs:hidden">{generatingQuestions ? 'En cours...' : 'Questions'}</span>
               </Button>
             )}
 
@@ -350,10 +351,11 @@ Return a JSON object with a single property "questions" containing an array of q
                 size="sm"
                 variant="outline"
                 onClick={markAsSelected}
-                className="gap-2 border-green-500 text-green-600 hover:bg-green-50"
+                className="gap-1.5 border-green-500 text-green-600 hover:bg-green-50 text-xs sm:text-sm"
               >
-                <CheckCircle size={16} weight="bold" />
-                {t('candidate.select', language)}
+                <CheckCircle size={14} weight="bold" />
+                <span className="hidden xs:inline">{t('candidate.select', language)}</span>
+                <span className="xs:hidden">Sélect.</span>
               </Button>
             )}
 
@@ -362,10 +364,11 @@ Return a JSON object with a single property "questions" containing an array of q
                 size="sm"
                 variant="outline"
                 onClick={markAsRejected}
-                className="gap-2 border-red-500 text-red-600 hover:bg-red-50"
+                className="gap-1.5 border-red-500 text-red-600 hover:bg-red-50 text-xs sm:text-sm"
               >
-                <XCircle size={16} weight="bold" />
-                {t('candidate.reject', language)}
+                <XCircle size={14} weight="bold" />
+                <span className="hidden xs:inline">{t('candidate.reject', language)}</span>
+                <span className="xs:hidden">Rejeter</span>
               </Button>
             )}
 
@@ -374,22 +377,23 @@ Return a JSON object with a single property "questions" containing an array of q
                 <Button
                   size="sm"
                   variant="outline"
-                  className="gap-2 border-destructive text-destructive hover:bg-destructive/10"
+                  className="gap-1.5 border-destructive text-destructive hover:bg-destructive/10 text-xs sm:text-sm"
                 >
-                  <Trash size={16} weight="bold" />
-                  {t('candidate.delete', language)}
+                  <Trash size={14} weight="bold" />
+                  <span className="hidden xs:inline">{t('candidate.delete', language)}</span>
+                  <span className="xs:hidden">Suppr.</span>
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent className="max-w-[95vw] sm:max-w-lg">
                 <AlertDialogHeader>
-                  <AlertDialogTitle>{t('candidate.deleteConfirmTitle', language)}</AlertDialogTitle>
-                  <AlertDialogDescription>
+                  <AlertDialogTitle className="text-base sm:text-lg">{t('candidate.deleteConfirmTitle', language)}</AlertDialogTitle>
+                  <AlertDialogDescription className="text-sm">
                     {t('candidate.deleteConfirmDescription', language, { name: candidate.name })}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>{t('candidate.cancel', language)}</AlertDialogCancel>
-                  <AlertDialogAction onClick={deleteCandidate} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                  <AlertDialogCancel className="w-full sm:w-auto">{t('candidate.cancel', language)}</AlertDialogCancel>
+                  <AlertDialogAction onClick={deleteCandidate} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto">
                     {t('candidate.confirmDelete', language)}
                   </AlertDialogAction>
                 </AlertDialogFooter>

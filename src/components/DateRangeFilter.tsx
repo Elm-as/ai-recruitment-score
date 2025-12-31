@@ -57,10 +57,11 @@ export default function DateRangeFilter({
       <PopoverTrigger asChild>
         <Button
           variant={hasDateRange ? 'default' : 'outline'}
-          className="gap-2 min-w-[200px] justify-start relative"
+          size="sm"
+          className="gap-2 min-w-[160px] sm:min-w-[200px] justify-start relative"
         >
-          <CalendarBlank size={18} weight={hasDateRange ? 'fill' : 'duotone'} />
-          <span className="flex-1 text-left truncate">{formatDateRange()}</span>
+          <CalendarBlank size={16} weight={hasDateRange ? 'fill' : 'duotone'} />
+          <span className="flex-1 text-left truncate text-xs sm:text-sm">{formatDateRange()}</span>
           <AnimatePresence>
             {hasDateRange && (
               <motion.div
@@ -80,7 +81,7 @@ export default function DateRangeFilter({
           </AnimatePresence>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent className="w-auto p-0 max-w-[95vw]" align="start">
         <div className="p-3 border-b">
           <h4 className="font-semibold text-sm mb-1">{t('dateFilter.title', language)}</h4>
           <p className="text-xs text-muted-foreground">{t('dateFilter.description', language)}</p>
@@ -99,7 +100,7 @@ export default function DateRangeFilter({
               })
             }
           }}
-          numberOfMonths={2}
+          numberOfMonths={1}
           disabled={(date) => date > new Date()}
         />
         {hasDateRange && (

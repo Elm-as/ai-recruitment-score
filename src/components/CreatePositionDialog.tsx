@@ -69,48 +69,51 @@ export default function CreatePositionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{t('createPosition.title', language)}</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg sm:text-xl">{t('createPosition.title', language)}</DialogTitle>
+          <DialogDescription className="text-xs sm:text-sm">
             {t('createPosition.description', language)}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">{t('createPosition.jobTitle', language)} {t('createPosition.required', language)}</Label>
+            <Label htmlFor="title" className="text-sm">{t('createPosition.jobTitle', language)} {t('createPosition.required', language)}</Label>
             <Input
               id="title"
               placeholder={t('createPosition.jobTitlePlaceholder', language)}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              className="text-sm"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">{t('createPosition.jobDescription', language)} {t('createPosition.required', language)}</Label>
+            <Label htmlFor="description" className="text-sm">{t('createPosition.jobDescription', language)} {t('createPosition.required', language)}</Label>
             <Textarea
               id="description"
               placeholder={t('createPosition.jobDescriptionPlaceholder', language)}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
+              className="text-sm"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="requirements">{t('createPosition.requirements', language)} {t('createPosition.required', language)}</Label>
+            <Label htmlFor="requirements" className="text-sm">{t('createPosition.requirements', language)} {t('createPosition.required', language)}</Label>
             <Textarea
               id="requirements"
               placeholder={t('createPosition.requirementsPlaceholder', language)}
               value={requirements}
               onChange={(e) => setRequirements(e.target.value)}
               rows={4}
+              className="text-sm"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="openings">{t('createPosition.numberOfOpenings', language)} {t('createPosition.required', language)}</Label>
+            <Label htmlFor="openings" className="text-sm">{t('createPosition.numberOfOpenings', language)} {t('createPosition.required', language)}</Label>
             <Input
               id="openings"
               type="number"
@@ -118,14 +121,15 @@ export default function CreatePositionDialog({
               placeholder="1"
               value={openings}
               onChange={(e) => setOpenings(e.target.value)}
+              className="text-sm"
             />
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
               {t('createPosition.cancel', language)}
             </Button>
-            <Button type="submit">{t('createPosition.create', language)}</Button>
+            <Button type="submit" className="w-full sm:w-auto">{t('createPosition.create', language)}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

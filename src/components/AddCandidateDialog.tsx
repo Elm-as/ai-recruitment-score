@@ -240,13 +240,13 @@ Only suggest alternatives if the candidate would score significantly higher (10+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-2xl">
-            <Sparkle size={28} className="text-accent" weight="duotone" />
+          <DialogTitle className="flex items-center gap-2 text-xl sm:text-2xl">
+            <Sparkle size={24} className="text-accent" weight="duotone" />
             {t('addCandidate.title', language)}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs sm:text-sm">
             {t('addCandidate.description', language)}
           </DialogDescription>
         </DialogHeader>
@@ -359,7 +359,7 @@ Only suggest alternatives if the candidate would score significantly higher (10+
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="candidate-name">
+                <Label htmlFor="candidate-name" className="text-sm">
                   {t('addCandidate.candidateName', language)} *
                 </Label>
                 <Input
@@ -367,11 +367,12 @@ Only suggest alternatives if the candidate would score significantly higher (10+
                   placeholder={t('addCandidate.candidateNamePlaceholder', language)}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  className="text-sm"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="candidate-email">
+                <Label htmlFor="candidate-email" className="text-sm">
                   {t('addCandidate.candidateEmail', language)} *
                 </Label>
                 <Input
@@ -380,15 +381,16 @@ Only suggest alternatives if the candidate would score significantly higher (10+
                   placeholder={t('addCandidate.candidateEmailPlaceholder', language)}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="text-sm"
                 />
               </div>
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <DialogFooter className="flex-col sm:flex-row gap-2">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
                 {t('addCandidate.cancel', language)}
               </Button>
-              <Button type="submit" className="gap-2" disabled={isExtracting}>
+              <Button type="submit" className="gap-2 w-full sm:w-auto" disabled={isExtracting}>
                 <Sparkle size={18} weight="duotone" />
                 {t('addCandidate.analyze', language)}
               </Button>

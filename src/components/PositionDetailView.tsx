@@ -143,8 +143,8 @@ export default function PositionDetailView({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-        <div className="flex-1 w-full">
+      <div className="flex flex-col gap-4">
+        <div className="w-full">
           <Button
             variant="ghost"
             onClick={onBack}
@@ -154,35 +154,36 @@ export default function PositionDetailView({
             {t('positionDetail.back', language)}
           </Button>
           <div>
-            <h2 className="text-2xl font-semibold text-foreground">{position.title}</h2>
-            <p className="text-sm text-muted-foreground mt-1">{position.description}</p>
-            <div className="flex flex-wrap items-center gap-3 mt-3">
-              <Badge variant="outline" className="gap-1.5">
+            <h2 className="text-xl sm:text-2xl font-semibold text-foreground break-words">{position.title}</h2>
+            <p className="text-sm text-muted-foreground mt-1 break-words">{position.description}</p>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-3">
+              <Badge variant="outline" className="gap-1.5 text-xs">
                 {position.openings} {position.openings === 1 ? t('positions.openings', language) : t('positions.openings_plural', language)}
               </Badge>
-              <Badge variant="secondary" className="gap-1.5">
+              <Badge variant="secondary" className="gap-1.5 text-xs">
                 {candidates.length} {candidates.length === 1 ? t('positions.candidates', language) : t('positions.candidates_plural', language)}
               </Badge>
             </div>
           </div>
         </div>
-        <div className="flex gap-2 shrink-0">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           <AlertDialog open={archiveDialogOpen} onOpenChange={setArchiveDialogOpen}>
             <AlertDialogTrigger asChild>
-              <Button variant="outline" size="icon" className="border-muted-foreground text-muted-foreground hover:bg-muted">
-                <Archive size={18} weight="bold" />
+              <Button variant="outline" size="sm" className="border-muted-foreground text-muted-foreground hover:bg-muted gap-2">
+                <Archive size={16} weight="bold" />
+                <span className="hidden xs:inline">{t('positions.archive', language)}</span>
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent className="max-w-[95vw] sm:max-w-lg">
               <AlertDialogHeader>
-                <AlertDialogTitle>{t('positions.archiveConfirmTitle', language)}</AlertDialogTitle>
-                <AlertDialogDescription>
+                <AlertDialogTitle className="text-base sm:text-lg">{t('positions.archiveConfirmTitle', language)}</AlertDialogTitle>
+                <AlertDialogDescription className="text-sm">
                   {t('positions.archiveConfirmDescription', language, { title: position.title })}
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>{t('positions.cancel', language)}</AlertDialogCancel>
-                <AlertDialogAction onClick={archivePosition}>
+              <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                <AlertDialogCancel className="w-full sm:w-auto">{t('positions.cancel', language)}</AlertDialogCancel>
+                <AlertDialogAction onClick={archivePosition} className="w-full sm:w-auto">
                   {t('positions.confirmArchive', language)}
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -191,28 +192,29 @@ export default function PositionDetailView({
           
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="outline" size="icon" className="border-destructive text-destructive hover:bg-destructive/10">
-                <Trash size={18} weight="bold" />
+              <Button variant="outline" size="sm" className="border-destructive text-destructive hover:bg-destructive/10 gap-2">
+                <Trash size={16} weight="bold" />
+                <span className="hidden xs:inline">{t('positions.delete', language)}</span>
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent className="max-w-[95vw] sm:max-w-lg">
               <AlertDialogHeader>
-                <AlertDialogTitle>{t('positions.deleteConfirmTitle', language)}</AlertDialogTitle>
-                <AlertDialogDescription>
+                <AlertDialogTitle className="text-base sm:text-lg">{t('positions.deleteConfirmTitle', language)}</AlertDialogTitle>
+                <AlertDialogDescription className="text-sm">
                   {t('positions.deleteConfirmDescription', language, { title: position.title, count: candidates.length })}
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>{t('positions.cancel', language)}</AlertDialogCancel>
-                <AlertDialogAction onClick={deletePosition} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                <AlertDialogCancel className="w-full sm:w-auto">{t('positions.cancel', language)}</AlertDialogCancel>
+                <AlertDialogAction onClick={deletePosition} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto">
                   {t('positions.confirmDelete', language)}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
           
-          <Button onClick={() => setAddCandidateOpen(true)} className="gap-2 hover:scale-105 transition-transform">
-            <Plus size={18} weight="bold" />
+          <Button onClick={() => setAddCandidateOpen(true)} size="sm" className="gap-2 hover:scale-105 transition-transform flex-1 sm:flex-initial">
+            <Plus size={16} weight="bold" />
             {t('positionDetail.addCandidate', language)}
           </Button>
         </div>
@@ -222,12 +224,12 @@ export default function PositionDetailView({
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+          className="flex flex-col gap-3"
         >
-          <div className="flex items-center gap-3">
-            <Funnel size={18} className="text-muted-foreground" weight="duotone" />
+          <div className="flex items-center gap-2 overflow-x-auto">
+            <Funnel size={18} className="text-muted-foreground shrink-0" weight="duotone" />
             <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-[180px] sm:w-[200px]">
                 <SelectValue placeholder={t('history.filterAll', language)} />
               </SelectTrigger>
               <SelectContent>
@@ -240,10 +242,10 @@ export default function PositionDetailView({
             </Select>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {selectedCandidateIds.size > 0 && (
               <>
-                <Badge variant="secondary" className="gap-1.5">
+                <Badge variant="secondary" className="gap-1.5 text-xs">
                   {selectedCandidateIds.size === 1 
                     ? t('positionDetail.selectedCount', language, { count: selectedCandidateIds.size })
                     : t('positionDetail.selectedCount_plural', language, { count: selectedCandidateIds.size })
@@ -253,10 +255,11 @@ export default function PositionDetailView({
                   size="sm"
                   variant="outline"
                   onClick={() => setBulkDeleteDialogOpen(true)}
-                  className="gap-2 border-destructive text-destructive hover:bg-destructive/10"
+                  className="gap-1.5 border-destructive text-destructive hover:bg-destructive/10 text-xs sm:text-sm"
                 >
-                  <Trash size={16} weight="bold" />
-                  {t('positionDetail.bulkDelete', language)}
+                  <Trash size={14} weight="bold" />
+                  <span className="hidden xs:inline">{t('positionDetail.bulkDelete', language)}</span>
+                  <span className="xs:hidden">Supprimer</span>
                 </Button>
               </>
             )}
@@ -265,17 +268,19 @@ export default function PositionDetailView({
                 size="sm"
                 variant="outline"
                 onClick={allFilteredSelected ? deselectAllCandidates : selectAllCandidates}
-                className="gap-2"
+                className="gap-1.5 text-xs sm:text-sm"
               >
                 {allFilteredSelected ? (
                   <>
-                    <Square size={16} weight="bold" />
-                    {t('positionDetail.deselectAll', language)}
+                    <Square size={14} weight="bold" />
+                    <span className="hidden xs:inline">{t('positionDetail.deselectAll', language)}</span>
+                    <span className="xs:hidden">Désélect.</span>
                   </>
                 ) : (
                   <>
-                    <CheckSquare size={16} weight="bold" />
-                    {t('positionDetail.selectAll', language)}
+                    <CheckSquare size={14} weight="bold" />
+                    <span className="hidden xs:inline">{t('positionDetail.selectAll', language)}</span>
+                    <span className="xs:hidden">Tout</span>
                   </>
                 )}
               </Button>
@@ -288,15 +293,15 @@ export default function PositionDetailView({
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="border-2 border-dashed rounded-lg p-12 text-center bg-muted/20"
+          className="border-2 border-dashed rounded-lg p-8 sm:p-12 text-center bg-muted/20"
         >
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-base sm:text-lg">
             {candidates.length === 0
               ? t('positionDetail.noCandidates', language)
               : 'Aucun candidat ne correspond au filtre sélectionné.'}
           </p>
           {candidates.length === 0 && (
-            <p className="text-sm text-muted-foreground mt-2">
+            <p className="text-xs sm:text-sm text-muted-foreground mt-2">
               {t('positionDetail.noCandidatesDesc', language)}
             </p>
           )}
@@ -309,16 +314,16 @@ export default function PositionDetailView({
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="flex items-start gap-3"
+              className="flex items-start gap-2 sm:gap-3"
             >
-              <div className="pt-6">
+              <div className="pt-4 sm:pt-6">
                 <Checkbox
                   checked={selectedCandidateIds.has(candidate.id)}
                   onCheckedChange={() => toggleCandidateSelection(candidate.id)}
-                  className="h-5 w-5"
+                  className="h-5 w-5 sm:h-5 sm:w-5"
                 />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <CandidateCard
                   candidate={candidate}
                   rank={index + 1}
@@ -344,16 +349,16 @@ export default function PositionDetailView({
       />
 
       <AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-[95vw] sm:max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>{t('positionDetail.bulkDeleteConfirmTitle', language)}</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-base sm:text-lg">{t('positionDetail.bulkDeleteConfirmTitle', language)}</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
               {t('positionDetail.bulkDeleteConfirmDescription', language, { count: selectedCandidateIds.size })}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t('positions.cancel', language)}</AlertDialogCancel>
-            <AlertDialogAction onClick={bulkDeleteCandidates} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="w-full sm:w-auto">{t('positions.cancel', language)}</AlertDialogCancel>
+            <AlertDialogAction onClick={bulkDeleteCandidates} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto">
               {t('positions.confirmDelete', language)}
             </AlertDialogAction>
           </AlertDialogFooter>
