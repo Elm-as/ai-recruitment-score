@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
-import { t } from '@/lib/translations'
 import {
-  Dialog,
+  Dialog
+  DialogH
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -30,38 +30,38 @@ interface CompareScoresDialogProps {
   language: Language
 }
 
-export default function CompareScoresDialog({ candidates, language }: CompareScoresDialogProps) {
-  const [open, setOpen] = useState(false)
-  const [selectedCandidateIds, setSelectedCandidateIds] = useState<Set<string>>(new Set())
-
   const candidatesWithAnswers = useMemo(() => {
-    return candidates.filter(
-      (c) => c.questionAnswers && c.questionAnswers.some((qa) => qa.aiScore)
-    )
+      (c) => c.questionAnswers && c.quest
   }, [candidates])
 
-  const toggleCandidate = (candidateId: string) => {
-    setSelectedCandidateIds((prev) => {
       const newSet = new Set(prev)
-      if (newSet.has(candidateId)) {
-        newSet.delete(candidateId)
-      } else {
+        newSet.delete(candida
         newSet.add(candidateId)
-      }
-      return newSet
-    })
+     
   }
 
-  const selectedCandidates = useMemo(() => {
-    return candidatesWithAnswers.filter((c) => selectedCandidateIds.has(c.id))
   }, [candidatesWithAnswers, selectedCandidateIds])
+  const comparisonData = useMemo(() => 
 
-  const comparisonData = useMemo(() => {
-    if (selectedCandidates.length < 2) return []
-
-    const allQuestions = new Map<
       string,
-      {
+        question: string
+          stri
+            answer: string
+       
+              compl
+      
+   
+
+
+      candidate.questionAnswers?.forEach((qa) => {
+
+
+          allQuestions.set(questionKey, 
+            candidateAnswers: new Map(),
+
+        const questionData = allQ
+          ans
+       
         question: string
         candidateAnswers: Map<
           string,
@@ -297,7 +297,7 @@ export default function CompareScoresDialog({ candidates, language }: CompareSco
                         </div>
                       </motion.div>
                     ))}
-                  </div>
+            )}
                 </div>
 
                 <Separator />
@@ -343,7 +343,7 @@ export default function CompareScoresDialog({ candidates, language }: CompareSco
                                                 : 'secondary'
                                             }
                                           >
-                                            {answer.candidateName}
+
                                           </Badge>
                                           {answer.score.overallScore === bestScore && (
                                             <TrendUp size={16} className="text-green-500" />
@@ -352,7 +352,7 @@ export default function CompareScoresDialog({ candidates, language }: CompareSco
                                             bestScore * 0.7 && (
                                             <TrendDown size={16} className="text-orange-500" />
                                           )}
-                                        </div>
+
                                         <div className="text-right">
                                           <p className="text-xl font-bold text-accent">
                                             {answer.score.overallScore}
@@ -360,7 +360,7 @@ export default function CompareScoresDialog({ candidates, language }: CompareSco
                                           <p className="text-xs text-muted-foreground">
                                             {t('compareScores.score', language)}
                                           </p>
-                                        </div>
+
                                       </div>
 
                                       <div className="grid grid-cols-3 gap-2 mb-3">
@@ -434,10 +434,10 @@ export default function CompareScoresDialog({ candidates, language }: CompareSco
                   </div>
                 </div>
               </>
-            )}
+
           </div>
         </ScrollArea>
       </DialogContent>
-    </Dialog>
+
   )
-}
+
