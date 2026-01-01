@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Position, Candidate, Language } from '@/lib/types'
 import { t } from '@/lib/translations'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Plus, Funnel, Trash, Archive, CheckSquare, Square, ArrowsLeftRight, Sparkle, Info } from '@phosphor-icons/react'
+import { ArrowLeft, Plus, Funnel, Trash, Archive, CheckSquare, Square, ArrowsLeftRight, Sparkle, Info, EnvelopeSimple } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
@@ -19,6 +19,7 @@ import {
 import AddCandidateDialog from './AddCandidateDialog'
 import CandidateCard from './CandidateCard'
 import CompareScoresDialog from './CompareScoresDialog'
+import EmailTemplateDialog from './EmailTemplateDialog'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -48,6 +49,7 @@ export default function PositionDetailView({
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false)
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false)
   const [compareScoresOpen, setCompareScoresOpen] = useState(false)
+  const [emailTemplateOpen, setEmailTemplateOpen] = useState(false)
 
   const sortedCandidates = [...candidates].sort((a, b) => b.score - a.score)
   
@@ -280,22 +282,43 @@ export default function PositionDetailView({
               </Select>
             </div>
 
-            <Button 
-              onClick={() => setCompareScoresOpen(true)}
-              size="sm"
-              variant="outline"
-              className="gap-2 hover:scale-105 transition-transform"
-            >
-              <ArrowsLeftRight size={16} weight="bold" />
-              <span className="hidden sm:inline">{t('compare.buttonText', language)}</span>
-              <span className="sm:hidden">Comparer</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                onClick={() => setEmailTemplateOpen(true)}
+                size="sm"
+                variant="outline"
+                className="gap-2 hover:scale-105 transition-transform"
+              >
+                <EnvelopeSimple size={16} weight="duotone" />
+                <span className="hidden sm:inline">{t('email.button', language)}</span>
+                <span className="sm:hidden">Email</span>
+              </Button>
+
+              <Button 
+                onClick={() => setCompareScoresOpen(true)}
+                size="sm"
+                variant="outline"
+                className="gap-2 hover:scale-105 transition-transform"
+              >
+                <ArrowsLeftRight size={16} weight="bold" />
+                <span className="hidden sm:inline">{t('compare.buttonText', language)}</span>
+                <span className="sm:hidden">Comparer</span>
+              </Button>
+            </div>
 
             <CompareScoresDialog 
               open={compareScoresOpen}
               onOpenChange={setCompareScoresOpen}
               candidates={candidates} 
               language={language} 
+            />
+
+            <EmailTemplateDialog
+              open={emailTemplateOpen}
+              onOpenChange={setEmailTemplateOpen}
+              candidates={candidates}
+              position={position}
+              language={language}
             />
           </div>
 

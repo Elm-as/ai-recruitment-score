@@ -48,6 +48,13 @@ Cette application nécessite une intégration IA sophistiquée pour l'analyse de
 - **Progression**: View candidate → Click Generate Questions → AI creates 6-8 targeted technical questions → Questions appear → Click "Answer" on a question → Enter candidate's response → Save answer → Click "Score Answer" → AI evaluates answer for technical depth, accuracy, and completeness → Scoring results display with feedback → Click "Generate Follow-up Questions" → AI analyzes the answer and creates 3-5 deeper technical follow-up questions → Follow-up questions appear nested under original question → Can edit answers, rescore, and regenerate follow-ups if needed
 - **Success criteria**: Initial questions are specific to the candidate's technical background and address technical gaps or areas needing technical clarification. All questions must be technical in nature. AI scoring provides objective metrics (0-100) for technical depth, accuracy, and completeness with detailed feedback, strengths, and improvement areas. Follow-up questions probe deeper into technical details based on the candidate's answer, testing understanding beyond surface-level knowledge and exploring technical edge cases or implementation details.
 
+### Email Template Generation
+- **Functionality**: AI generates professional email templates with candidate evaluation results for sharing with hiring managers. Supports three email types: shortlist summaries (with scores and data points for hiring managers), interview invitations (to candidates), and professional rejection emails (to candidates). Users can select multiple candidates, customize instructions, and generate all emails at once. Templates include AI scores, assessment summaries, interview performance data, and key insights.
+- **Purpose**: Streamlines communication with hiring managers and candidates by automatically creating well-formatted, professional emails that include all relevant evaluation data, saving time and ensuring consistency in recruitment communications
+- **Trigger**: User clicks "Emails" button in position detail view
+- **Progression**: Click Emails → Select candidates from list (or use "Top N" quick-select) → Choose email type (shortlist/interview/rejection) → Optionally add custom instructions → Click Generate Emails → AI creates personalized emails for each selected candidate including their scores, strengths, interview performance → Preview emails → Copy individual emails to clipboard → Paste into email client
+- **Success criteria**: Generated emails are professional, include accurate candidate data (scores, assessments, interview results), follow appropriate tone for email type, support both French and English, and can be easily copied to clipboard. Shortlist emails provide data-driven summaries for hiring managers with bullet points and metrics. Interview invitations are welcoming and clear. Rejection emails are respectful and encouraging.
+
 ### Alternative Position Suggestions
 - **Functionality**: For good candidates who don't fit the current role, AI suggests other open positions that may suit them better
 - **Purpose**: Avoids losing quality candidates by redirecting them to more suitable opportunities
@@ -81,6 +88,11 @@ Cette application nécessite une intégration IA sophistiquée pour l'analyse de
 - **Bulk deletion with no selection**: Disable bulk delete button when no candidates are selected
 - **Archived position access**: Archived positions remain viewable and their candidates accessible, but hidden from active positions list
 - **Undo after navigation**: Undo functionality persists even if user navigates to different views within the 5-second window
+- **No candidates for email**: Display helpful message when trying to generate emails with no candidates
+- **Email generation failure**: Show error message and preserve selections if AI email generation fails
+- **Empty custom instructions**: Email generation works with or without custom instructions
+- **Single candidate email**: Support generating emails for just one candidate
+- **Large candidate selection**: Handle generating emails for many candidates with progress indication
 
 ## Design Direction
 
