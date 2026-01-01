@@ -42,11 +42,11 @@ Cette application nécessite une intégration IA sophistiquée pour l'analyse de
 - **Success criteria**: Candidates appear in descending score order with visual indicators for top performers. Bulk operations complete successfully with undo functionality preserving all deleted data
 
 ### Interview Question Generation
-- **Functionality**: AI generates tailored technical interview questions for each candidate based on their profile and the position. Questions focus exclusively on technical skills, technical knowledge, technical problem-solving, and technical experience verification. No behavioral, social, or soft skills questions.
-- **Purpose**: Prepares recruiters with relevant, personalized technical questions to assess candidate's technical capabilities
-- **Trigger**: User clicks "Generate Questions" on a candidate card
-- **Progression**: View candidate → Click Generate Questions → AI creates 6-8 targeted technical questions → Questions appear with rationale → Can regenerate if needed
-- **Success criteria**: Questions are specific to the candidate's technical background and address technical gaps or areas needing technical clarification. All questions must be technical in nature.
+- **Functionality**: AI generates tailored technical interview questions for each candidate based on their profile and the position. Questions focus exclusively on technical skills, technical knowledge, technical problem-solving, and technical experience verification. No behavioral, social, or soft skills questions. Recruiters can record candidate answers and generate follow-up technical questions based on those answers to probe deeper into technical capabilities.
+- **Purpose**: Prepares recruiters with relevant, personalized technical questions to assess candidate's technical capabilities, then enables deeper technical exploration based on candidate responses
+- **Trigger**: User clicks "Generate Questions" on a candidate card, then "Answer" on any question, then "Generate Follow-up Questions" after saving an answer
+- **Progression**: View candidate → Click Generate Questions → AI creates 6-8 targeted technical questions → Questions appear → Click "Answer" on a question → Enter candidate's response → Save answer → Click "Generate Follow-up Questions" → AI analyzes the answer and creates 3-5 deeper technical follow-up questions → Follow-up questions appear nested under original question → Can edit answers and regenerate follow-ups if needed
+- **Success criteria**: Initial questions are specific to the candidate's technical background and address technical gaps or areas needing technical clarification. All questions must be technical in nature. Follow-up questions probe deeper into technical details based on the candidate's answer, testing understanding beyond surface-level knowledge and exploring technical edge cases or implementation details.
 
 ### Alternative Position Suggestions
 - **Functionality**: For good candidates who don't fit the current role, AI suggests other open positions that may suit them better
@@ -70,6 +70,9 @@ Cette application nécessite une intégration IA sophistiquée pour l'analyse de
 - **Duplicate candidates**: Warn user if candidate name already exists for position and confirm before proceeding
 - **No alternative positions**: Gracefully handle case when no other positions exist or none are suitable
 - **Very long candidate profiles**: Truncate display while keeping full text for AI analysis
+- **Very long candidate answers**: Support multiline text input for detailed technical responses
+- **Follow-up generation without answer**: Disable follow-up generation button until an answer is saved for that question
+- **Empty answer submission**: Disable save button when answer field is empty to prevent blank submissions
 - **Position with no candidates**: Display empty state with call-to-action to add first candidate
 - **Accidental deletion**: Provide 5-second undo window via toast notification for all delete and archive operations
 - **Bulk deletion with no selection**: Disable bulk delete button when no candidates are selected

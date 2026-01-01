@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Separator } from '@/components/ui/separator'
 import { Progress } from '@/components/ui/progress'
+import { Textarea } from '@/components/ui/textarea'
 import {
   CheckCircle,
   XCircle,
@@ -17,6 +18,9 @@ import {
   User,
   Envelope,
   Trash,
+  ChatCircleDots,
+  PencilSimple,
+  FloppyDisk,
 } from '@phosphor-icons/react'
 import {
   AlertDialog,
@@ -52,6 +56,9 @@ export default function CandidateCard({
   language,
 }: CandidateCardProps) {
   const [generatingQuestions, setGeneratingQuestions] = useState(false)
+  const [generatingFollowUp, setGeneratingFollowUp] = useState<number | null>(null)
+  const [answeringQuestion, setAnsweringQuestion] = useState<number | null>(null)
+  const [answerText, setAnswerText] = useState('')
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600'
@@ -134,6 +141,155 @@ Return a JSON object with a single property "questions" containing an array of q
     } finally {
       setGeneratingQuestions(false)
     }
+  }
+
+  const saveAnswer = (questionIndex: number) => {
+    if (!answerText.trim()) return
+
+    const question = candidate.interviewQuestions?.[questionIndex] || ''
+    
+    setCandidates((prev) =>
+      prev.map((c) => {
+        if (c.id === candidate.id) {
+          const existingAnswers = c.questionAnswers || []
+          const existingAnswerIndex = existingAnswers.findIndex(
+            (a) => a.questionIndex === questionIndex
+          )
+
+          let updatedAnswers
+          if (existingAnswerIndex >= 0) {
+            updatedAnswers = [...existingAnswers]
+            updatedAnswers[existingAnswerIndex] = {
+              questionIndex,
+              question,
+              answer: answerText,
+              answeredAt: Date.now(),
+            }
+          } else {
+            updatedAnswers = [
+              ...existingAnswers,
+              {
+                questionIndex,
+                question,
+                answer: answerText,
+                answeredAt: Date.now(),
+              },
+            ]
+          }
+
+          return { ...c, questionAnswers: updatedAnswers }
+        }
+        return c
+      })
+    )
+
+    setAnsweringQuestion(null)
+    setAnswerText('')
+    toast.success(t('common.save', language))
+  }
+
+  const generateFollowUpQuestions = async (questionIndex: number) => {
+    const answer = candidate.questionAnswers?.find(
+      (a) => a.questionIndex === questionIndex
+    )
+    if (!answer) return
+
+    setGeneratingFollowUp(questionIndex)
+    try {
+      const isEnglish = language === 'en'
+      const followUpPrompt = (window as any).spark.llmPrompt`You are an expert technical interviewer conducting a deep-dive technical interview. Based on the candidate's answer to a technical question, generate 3-5 targeted TECHNICAL follow-up questions.
+
+CRITICAL: Generate ONLY technical follow-up questions. Do NOT include:
+- Behavioral questions
+- Social questions
+- Soft skills questions
+- Cultural fit questions
+
+ONLY INCLUDE: Technical depth questions, technical clarification questions, technical problem-solving questions, technical edge-case questions, and technical implementation questions.
+
+IMPORTANT: Generate all questions in ${isEnglish ? 'ENGLISH' : 'FRENCH'} language.
+
+ORIGINAL TECHNICAL QUESTION:
+${answer.question}
+
+CANDIDATE'S ANSWER:
+${answer.answer}
+
+JOB CONTEXT:
+Position: ${position.title}
+Key Requirements: ${position.requirements}
+
+CANDIDATE PROFILE:
+Strengths: ${candidate.strengths.join(', ')}
+Weaknesses: ${candidate.weaknesses.join(', ')}
+
+Generate follow-up TECHNICAL questions that:
+1. Probe deeper into the technical details of their answer
+2. Test their technical understanding beyond surface-level knowledge
+3. Challenge any technical assumptions or technical gaps in their response
+4. Explore technical edge cases or technical scenarios related to their answer
+5. Verify technical expertise with specific implementation details
+
+Return a JSON object with a single property "questions" containing an array of follow-up question strings in ${isEnglish ? 'ENGLISH' : 'FRENCH'}:
+{
+  "questions": ["follow-up question 1", "follow-up question 2", ...]
+}`
+
+      const result = await (window as any).spark.llm(followUpPrompt, 'gpt-4o', true)
+      const data = JSON.parse(result)
+
+      setCandidates((prev) =>
+        prev.map((c) => {
+          if (c.id === candidate.id) {
+            const existingFollowUps = c.followUpQuestions || []
+            const existingFollowUpIndex = existingFollowUps.findIndex(
+              (f) => f.originalQuestionIndex === questionIndex
+            )
+
+            let updatedFollowUps
+            if (existingFollowUpIndex >= 0) {
+              updatedFollowUps = [...existingFollowUps]
+              updatedFollowUps[existingFollowUpIndex] = {
+                originalQuestionIndex: questionIndex,
+                originalQuestion: answer.question,
+                originalAnswer: answer.answer,
+                followUpQuestions: data.questions,
+                generatedAt: Date.now(),
+              }
+            } else {
+              updatedFollowUps = [
+                ...existingFollowUps,
+                {
+                  originalQuestionIndex: questionIndex,
+                  originalQuestion: answer.question,
+                  originalAnswer: answer.answer,
+                  followUpQuestions: data.questions,
+                  generatedAt: Date.now(),
+                },
+              ]
+            }
+
+            return { ...c, followUpQuestions: updatedFollowUps }
+          }
+          return c
+        })
+      )
+
+      toast.success(t('candidate.followUpGenerated', language))
+    } catch (error) {
+      console.error('Error generating follow-up questions:', error)
+      toast.error(t('candidate.followUpError', language))
+    } finally {
+      setGeneratingFollowUp(null)
+    }
+  }
+
+  const startAnswering = (questionIndex: number) => {
+    const existingAnswer = candidate.questionAnswers?.find(
+      (a) => a.questionIndex === questionIndex
+    )
+    setAnsweringQuestion(questionIndex)
+    setAnswerText(existingAnswer?.answer || '')
   }
 
   const markAsSelected = () => {
@@ -304,14 +460,128 @@ Return a JSON object with a single property "questions" containing an array of q
                   {t('candidate.interviewQuestions', language, { count: candidate.interviewQuestions.length })}
                 </AccordionTrigger>
                 <AccordionContent>
-                  <ul className="space-y-3 pt-2">
-                    {candidate.interviewQuestions.map((question, index) => (
-                      <li key={index} className="text-sm text-foreground">
-                        <span className="font-semibold text-accent mr-2">{index + 1}.</span>
-                        {question}
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="space-y-4 pt-2">
+                    {candidate.interviewQuestions.map((question, index) => {
+                      const answer = candidate.questionAnswers?.find((a) => a.questionIndex === index)
+                      const followUp = candidate.followUpQuestions?.find((f) => f.originalQuestionIndex === index)
+                      const isAnswering = answeringQuestion === index
+
+                      return (
+                        <div key={index} className="border rounded-lg p-3 space-y-3 bg-card">
+                          <div className="space-y-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <p className="text-sm text-foreground flex-1">
+                                <span className="font-semibold text-accent mr-2">{index + 1}.</span>
+                                {question}
+                              </p>
+                            </div>
+
+                            {!isAnswering && answer && (
+                              <div className="mt-2 p-3 bg-muted/50 rounded-md space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-xs text-muted-foreground">
+                                    {t('candidate.answeredOn', language)} {new Date(answer.answeredAt).toLocaleDateString()}
+                                  </p>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => startAnswering(index)}
+                                    className="h-7 gap-1 text-xs"
+                                  >
+                                    <PencilSimple size={12} />
+                                    {t('candidate.editAnswer', language)}
+                                  </Button>
+                                </div>
+                                <p className="text-sm text-foreground whitespace-pre-wrap">{answer.answer}</p>
+                              </div>
+                            )}
+
+                            {!isAnswering && !answer && (
+                              <div className="mt-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => startAnswering(index)}
+                                  className="gap-1.5 text-xs"
+                                >
+                                  <ChatCircleDots size={14} />
+                                  {t('candidate.answerQuestion', language)}
+                                </Button>
+                              </div>
+                            )}
+
+                            {isAnswering && (
+                              <div className="mt-2 space-y-2">
+                                <Textarea
+                                  value={answerText}
+                                  onChange={(e) => setAnswerText(e.target.value)}
+                                  placeholder={t('candidate.answerPlaceholder', language)}
+                                  className="min-h-24 text-sm"
+                                />
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => saveAnswer(index)}
+                                    disabled={!answerText.trim()}
+                                    className="gap-1.5 text-xs"
+                                  >
+                                    <FloppyDisk size={14} />
+                                    {t('candidate.saveAnswer', language)}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      setAnsweringQuestion(null)
+                                      setAnswerText('')
+                                    }}
+                                    className="text-xs"
+                                  >
+                                    {t('candidate.cancel', language)}
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+
+                            {answer && !isAnswering && (
+                              <div className="mt-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => generateFollowUpQuestions(index)}
+                                  disabled={generatingFollowUp === index}
+                                  className="gap-1.5 text-xs"
+                                >
+                                  <Sparkle size={14} weight="fill" />
+                                  {generatingFollowUp === index
+                                    ? t('candidate.generating', language)
+                                    : t('candidate.generateFollowUp', language)}
+                                </Button>
+                              </div>
+                            )}
+
+                            {followUp && followUp.followUpQuestions.length > 0 && (
+                              <div className="mt-3 pl-4 border-l-2 border-accent space-y-2">
+                                <p className="text-xs font-semibold text-accent">
+                                  {t('candidate.followUpQuestions', language)}
+                                </p>
+                                <ul className="space-y-2">
+                                  {followUp.followUpQuestions.map((fq, fqIndex) => (
+                                    <li key={fqIndex} className="text-sm text-foreground">
+                                      <span className="font-semibold text-accent mr-2">
+                                        {index + 1}.{fqIndex + 1}
+                                      </span>
+                                      {fq}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             )}

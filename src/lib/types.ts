@@ -27,6 +27,19 @@ export interface Candidate {
   weaknesses: string[]
   overallAssessment: string
   interviewQuestions?: string[]
+  questionAnswers?: {
+    questionIndex: number
+    question: string
+    answer: string
+    answeredAt: number
+  }[]
+  followUpQuestions?: {
+    originalQuestionIndex: number
+    originalQuestion: string
+    originalAnswer: string
+    followUpQuestions: string[]
+    generatedAt: number
+  }[]
   alternativePositions?: {
     positionId: string
     positionTitle: string
