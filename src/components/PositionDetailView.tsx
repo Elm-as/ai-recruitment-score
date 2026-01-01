@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import AddCandidateDialog from './AddCandidateDialog'
 import CandidateCard from './CandidateCard'
+import CompareScoresDialog from './CompareScoresDialog'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -226,20 +227,24 @@ export default function PositionDetailView({
           animate={{ opacity: 1 }}
           className="flex flex-col gap-3"
         >
-          <div className="flex items-center gap-2 overflow-x-auto">
-            <Funnel size={18} className="text-muted-foreground shrink-0" weight="duotone" />
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-[180px] sm:w-[200px]">
-                <SelectValue placeholder={t('history.filterAll', language)} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t('history.filterAll', language)}</SelectItem>
-                <SelectItem value="scored">{t('status.scored', language)}</SelectItem>
-                <SelectItem value="selected">{t('history.filterSelected', language)}</SelectItem>
-                <SelectItem value="rejected">{t('history.filterRejected', language)}</SelectItem>
-                <SelectItem value="analyzing">{t('status.analyzing', language)}</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto">
+              <Funnel size={18} className="text-muted-foreground shrink-0" weight="duotone" />
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="w-[180px] sm:w-[200px]">
+                  <SelectValue placeholder={t('history.filterAll', language)} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('history.filterAll', language)}</SelectItem>
+                  <SelectItem value="scored">{t('status.scored', language)}</SelectItem>
+                  <SelectItem value="selected">{t('history.filterSelected', language)}</SelectItem>
+                  <SelectItem value="rejected">{t('history.filterRejected', language)}</SelectItem>
+                  <SelectItem value="analyzing">{t('status.analyzing', language)}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <CompareScoresDialog candidates={candidates} language={language} />
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
