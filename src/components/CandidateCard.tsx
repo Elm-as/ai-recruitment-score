@@ -2,25 +2,16 @@ import { useState } from 'react'
 import { Candidate, Position, Language } from '@/lib/types'
 import { t } from '@/lib/translations'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Separator } from '@/components/ui/separator'
-import { Progress } from '@/components/ui/progress'
-import { Textarea } from '@/components/ui/textarea'
+import { Badge } from '@/components/ui/badge'
 import {
   CheckCircle,
   XCircle,
   Sparkle,
-  TrendUp,
-  TrendDown,
   ArrowsLeftRight,
-  User,
-  Envelope,
   Trash,
-  ChatCircleDots,
-  PencilSimple,
-  FloppyDisk,
 } from '@phosphor-icons/react'
 import {
   AlertDialog,
@@ -35,6 +26,10 @@ import {
 } from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
+import CandidateHeader from './candidate-details/CandidateHeader'
+import ScoreBreakdownSection from './candidate-details/ScoreBreakdownSection'
+import StrengthsWeaknessesSection from './candidate-details/StrengthsWeaknessesSection'
+import QuestionItem from './candidate-details/QuestionItem'
 
 interface CandidateCardProps {
   candidate: Candidate
@@ -57,28 +52,7 @@ export default function CandidateCard({
 }: CandidateCardProps) {
   const [generatingQuestions, setGeneratingQuestions] = useState(false)
   const [generatingFollowUp, setGeneratingFollowUp] = useState<number | null>(null)
-  const [answeringQuestion, setAnsweringQuestion] = useState<number | null>(null)
-  const [answerText, setAnswerText] = useState('')
   const [scoringAnswer, setScoringAnswer] = useState<number | null>(null)
-
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600'
-    if (score >= 60) return 'text-yellow-600'
-    return 'text-red-600'
-  }
-
-  const getScoreBgColor = (score: number) => {
-    if (score >= 80) return 'bg-green-100 border-green-300'
-    if (score >= 60) return 'bg-yellow-100 border-yellow-300'
-    return 'bg-red-100 border-red-300'
-  }
-
-  const getRankBadgeVariant = (rank: number) => {
-    if (rank === 1) return 'default'
-    if (rank === 2) return 'secondary'
-    if (rank === 3) return 'outline'
-    return 'outline'
-  }
 
   const generateInterviewQuestions = async () => {
     setGeneratingQuestions(true)
@@ -142,57 +116,6 @@ Return a JSON object with a single property "questions" containing an array of q
     } finally {
       setGeneratingQuestions(false)
     }
-  }
-
-  const saveAnswer = (questionIndex: number) => {
-    if (!answerText.trim()) return
-
-    const question = candidate.interviewQuestions?.[questionIndex] || ''
-    
-    setCandidates((prev) =>
-      prev.map((c) => {
-        if (c.id === candidate.id) {
-          const existingAnswers = c.questionAnswers || []
-          const existingAnswerIndex = existingAnswers.findIndex(
-            (a) => a.questionIndex === questionIndex
-          )
-
-          let updatedAnswers
-          if (existingAnswerIndex >= 0) {
-            updatedAnswers = [...existingAnswers]
-            updatedAnswers[existingAnswerIndex] = {
-              questionIndex,
-              question,
-              answer: answerText,
-              answeredAt: Date.now(),
-            }
-          } else {
-            updatedAnswers = [
-              ...existingAnswers,
-              {
-                questionIndex,
-                question,
-                answer: answerText,
-                answeredAt: Date.now(),
-              },
-            ]
-          }
-
-          return { ...c, questionAnswers: updatedAnswers }
-        }
-        return c
-      })
-    )
-
-    setAnsweringQuestion(null)
-    setAnswerText('')
-    
-    toast.success(t('common.save', language), {
-      description: language === 'fr' 
-        ? 'Cliquez sur "Évaluer la Réponse" pour obtenir une analyse IA détaillée' 
-        : 'Click "Score Answer" to get detailed AI analysis',
-      duration: 4000,
-    })
   }
 
   const generateFollowUpQuestions = async (questionIndex: number) => {
@@ -387,14 +310,6 @@ Return a JSON object:
     }
   }
 
-  const startAnswering = (questionIndex: number) => {
-    const existingAnswer = candidate.questionAnswers?.find(
-      (a) => a.questionIndex === questionIndex
-    )
-    setAnsweringQuestion(questionIndex)
-    setAnswerText(existingAnswer?.answer || '')
-  }
-
   const markAsSelected = () => {
     setCandidates((prev) =>
       prev.map((c) => (c.id === candidate.id ? { ...c, status: 'selected' as const } : c))
@@ -411,9 +326,9 @@ Return a JSON object:
 
   const deleteCandidate = () => {
     const deletedCandidate = candidate
-    
+
     setCandidates((prev) => prev.filter((c) => c.id !== candidate.id))
-    
+
     toast.success(t('candidate.deleteSuccess', language), {
       action: {
         label: t('common.undo', language),
@@ -441,6 +356,12 @@ Return a JSON object:
     )
   }
 
+  const answeredButNotScoredCount = (() => {
+    const answered = candidate.questionAnswers?.length || 0
+    const scored = candidate.questionAnswers?.filter(qa => qa.aiScore).length || 0
+    return answered - scored
+  })()
+
   return (
     <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} transition={{ duration: 0.2 }}>
       <Card
@@ -455,42 +376,12 @@ Return a JSON object:
         }`}
       >
         <CardHeader className="pb-3">
-          <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
-            <div className="flex items-start gap-3 flex-1 min-w-0 w-full sm:w-auto">
-              <div className="flex flex-row sm:flex-col gap-1">
-                <Badge variant={getRankBadgeVariant(rank)} className="w-fit text-xs">
-                  #{rank}
-                </Badge>
-                {isTopPick && (
-                  <Badge className="bg-accent text-accent-foreground w-fit text-xs">
-                    {t('candidate.topPick', language)}
-                  </Badge>
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <User size={14} className="text-muted-foreground shrink-0" />
-                  <h3 className="font-semibold text-base sm:text-lg break-words">{candidate.name}</h3>
-                </div>
-                <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
-                  <Envelope size={12} className="shrink-0" />
-                  <span className="truncate">{candidate.email}</span>
-                </div>
-              </div>
-            </div>
-            <div
-              className={`flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 ${getScoreBgColor(
-                candidate.score
-              )} shrink-0`}
-            >
-              <div className="text-center">
-                <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(candidate.score)}`}>
-                  {candidate.score}
-                </div>
-                <div className="text-xs text-muted-foreground">/ 100</div>
-              </div>
-            </div>
-          </div>
+          <CandidateHeader
+            candidate={candidate}
+            rank={rank}
+            isTopPick={isTopPick}
+            language={language}
+          />
         </CardHeader>
 
         <CardContent className="space-y-4">
@@ -498,75 +389,21 @@ Return a JSON object:
             <p className="text-sm text-foreground">{candidate.overallAssessment}</p>
           </div>
 
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="breakdown">
-              <AccordionTrigger className="text-sm font-medium">
-                {t('candidate.scoreBreakdown', language)}
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-3 pt-2">
-                  {candidate.scoreBreakdown.map((item, index) => (
-                    <div key={index} className="space-y-1">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium">{item.category}</span>
-                        <span className={getScoreColor(item.score)}>{item.score}/100</span>
-                      </div>
-                      <Progress value={item.score} className="h-2" />
-                      <p className="text-xs text-muted-foreground">{item.reasoning}</p>
-                    </div>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="strengths-weaknesses">
-              <AccordionTrigger className="text-sm font-medium">
-                {t('candidate.strengthsWeaknesses', language)}
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <TrendUp size={16} className="text-green-600" weight="bold" />
-                      <h4 className="text-sm font-semibold text-green-600">{t('candidate.strengths', language)}</h4>
-                    </div>
-                    <ul className="space-y-1">
-                      {candidate.strengths.map((strength, index) => (
-                        <li key={index} className="text-sm text-foreground flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>{strength}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <TrendDown size={16} className="text-red-600" weight="bold" />
-                      <h4 className="text-sm font-semibold text-red-600">{t('candidate.weaknesses', language)}</h4>
-                    </div>
-                    <ul className="space-y-1">
-                      {candidate.weaknesses.map((weakness, index) => (
-                        <li key={index} className="text-sm text-foreground flex items-start gap-2">
-                          <span className="text-red-600 mt-0.5">•</span>
-                          <span>{weakness}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
+          <Accordion type="multiple" className="w-full">
+            <ScoreBreakdownSection candidate={candidate} language={language} />
+            
+            <StrengthsWeaknessesSection candidate={candidate} language={language} />
 
             {candidate.interviewQuestions && candidate.interviewQuestions.length > 0 && (
               <AccordionItem value="questions">
-                <AccordionTrigger className="text-sm font-medium">
+                <AccordionTrigger className="text-sm font-medium hover:no-underline">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span>{t('candidate.interviewQuestions', language, { count: candidate.interviewQuestions.length })}</span>
                     {(() => {
                       const answeredCount = candidate.questionAnswers?.length || 0
                       const scoredCount = candidate.questionAnswers?.filter(qa => qa.aiScore).length || 0
                       const pendingScores = answeredCount - scoredCount
-                      
+
                       return (
                         <div className="flex items-center gap-1.5">
                           {answeredCount > 0 && (
@@ -591,303 +428,20 @@ Return a JSON object:
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-4 pt-2">
-                    {candidate.interviewQuestions.map((question, index) => {
-                      const answer = candidate.questionAnswers?.find((a) => a.questionIndex === index)
-                      const followUp = candidate.followUpQuestions?.find((f) => f.originalQuestionIndex === index)
-                      const isAnswering = answeringQuestion === index
-
-                      return (
-                        <div key={index} className="border rounded-lg p-3 space-y-3 bg-card">
-                          <div className="space-y-2">
-                            <div className="flex items-start justify-between gap-2 flex-wrap">
-                              <p className="text-sm text-foreground flex-1">
-                                <span className="font-semibold text-accent mr-2">{index + 1}.</span>
-                                {question}
-                              </p>
-                              {answer && (
-                                <Badge 
-                                  variant={answer.aiScore ? "default" : "secondary"} 
-                                  className="shrink-0 gap-1 text-xs"
-                                >
-                                  {answer.aiScore ? (
-                                    <>
-                                      <CheckCircle size={12} weight="fill" />
-                                      {language === 'fr' ? 'Évaluée' : 'Scored'}
-                                    </>
-                                  ) : (
-                                    <>
-                                      <ChatCircleDots size={12} weight="fill" />
-                                      {language === 'fr' ? 'Répondue' : 'Answered'}
-                                    </>
-                                  )}
-                                </Badge>
-                              )}
-                            </div>
-
-                            {!isAnswering && answer && (
-                              <div className="mt-2 space-y-3">
-                                <div className="p-3 bg-muted/50 rounded-md space-y-2">
-                                  <div className="flex items-center justify-between flex-wrap gap-2">
-                                    <p className="text-xs text-muted-foreground">
-                                      {t('candidate.answeredOn', language)} {new Date(answer.answeredAt).toLocaleDateString()}
-                                    </p>
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      onClick={() => startAnswering(index)}
-                                      className="h-7 gap-1 text-xs"
-                                    >
-                                      <PencilSimple size={12} />
-                                      {t('candidate.editAnswer', language)}
-                                    </Button>
-                                  </div>
-                                  <p className="text-sm text-foreground whitespace-pre-wrap">{answer.answer}</p>
-                                </div>
-
-                                {answer.aiScore && (
-                                  <div className="p-4 bg-gradient-to-br from-accent/10 to-accent/5 border-2 border-accent/30 rounded-lg space-y-3">
-                                    <div className="flex items-center justify-between flex-wrap gap-2">
-                                      <div className="flex items-center gap-2">
-                                        <div className={`flex items-center justify-center w-12 h-12 rounded-full border-4 ${
-                                          answer.aiScore.overallScore >= 80 
-                                            ? 'bg-green-100 border-green-300' 
-                                            : answer.aiScore.overallScore >= 60 
-                                            ? 'bg-yellow-100 border-yellow-300' 
-                                            : 'bg-red-100 border-red-300'
-                                        }`}>
-                                          <span className={`text-lg font-bold ${
-                                            answer.aiScore.overallScore >= 80 
-                                              ? 'text-green-600' 
-                                              : answer.aiScore.overallScore >= 60 
-                                              ? 'text-yellow-600' 
-                                              : 'text-red-600'
-                                          }`}>
-                                            {answer.aiScore.overallScore}
-                                          </span>
-                                        </div>
-                                        <div>
-                                          <h5 className="text-sm font-semibold text-accent flex items-center gap-1.5">
-                                            <Sparkle size={16} weight="fill" />
-                                            {t('candidate.aiFeedback', language)}
-                                          </h5>
-                                          <p className="text-xs text-muted-foreground">
-                                            {language === 'fr' ? 'Évaluation technique' : 'Technical evaluation'}
-                                          </p>
-                                        </div>
-                                      </div>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => scoreAnswer(index)}
-                                        disabled={scoringAnswer === index}
-                                        className="h-8 gap-1 text-xs border-accent/30 hover:bg-accent/10"
-                                      >
-                                        <Sparkle size={12} weight="fill" />
-                                        {scoringAnswer === index ? t('candidate.scoringAnswer', language) : t('candidate.rescore', language)}
-                                      </Button>
-                                    </div>
-
-                                    <div className="grid grid-cols-3 gap-2">
-                                      <div className="space-y-1">
-                                        <div className="text-xs text-muted-foreground">{t('candidate.technicalDepth', language)}</div>
-                                        <div className="flex items-center gap-2">
-                                          <Progress value={answer.aiScore.technicalDepth} className="h-1.5 flex-1" />
-                                          <span className={`text-xs font-semibold ${getScoreColor(answer.aiScore.technicalDepth)}`}>
-                                            {answer.aiScore.technicalDepth}
-                                          </span>
-                                        </div>
-                                      </div>
-                                      <div className="space-y-1">
-                                        <div className="text-xs text-muted-foreground">{t('candidate.accuracy', language)}</div>
-                                        <div className="flex items-center gap-2">
-                                          <Progress value={answer.aiScore.accuracy} className="h-1.5 flex-1" />
-                                          <span className={`text-xs font-semibold ${getScoreColor(answer.aiScore.accuracy)}`}>
-                                            {answer.aiScore.accuracy}
-                                          </span>
-                                        </div>
-                                      </div>
-                                      <div className="space-y-1">
-                                        <div className="text-xs text-muted-foreground">{t('candidate.completeness', language)}</div>
-                                        <div className="flex items-center gap-2">
-                                          <Progress value={answer.aiScore.completeness} className="h-1.5 flex-1" />
-                                          <span className={`text-xs font-semibold ${getScoreColor(answer.aiScore.completeness)}`}>
-                                            {answer.aiScore.completeness}
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <p className="text-xs text-foreground leading-relaxed">{answer.aiScore.feedback}</p>
-
-                                    {answer.aiScore.strengths && answer.aiScore.strengths.length > 0 && (
-                                      <div>
-                                        <div className="flex items-center gap-1.5 mb-1.5">
-                                          <TrendUp size={14} className="text-green-600" weight="bold" />
-                                          <h6 className="text-xs font-semibold text-green-600">{t('candidate.answerStrengths', language)}</h6>
-                                        </div>
-                                        <ul className="space-y-0.5 ml-4">
-                                          {answer.aiScore.strengths.map((strength, sIdx) => (
-                                            <li key={sIdx} className="text-xs text-foreground flex items-start gap-1.5">
-                                              <span className="text-green-600 mt-0.5">•</span>
-                                              <span>{strength}</span>
-                                            </li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    )}
-
-                                    {answer.aiScore.improvements && answer.aiScore.improvements.length > 0 && (
-                                      <div>
-                                        <div className="flex items-center gap-1.5 mb-1.5">
-                                          <TrendDown size={14} className="text-orange-600" weight="bold" />
-                                          <h6 className="text-xs font-semibold text-orange-600">{t('candidate.answerImprovements', language)}</h6>
-                                        </div>
-                                        <ul className="space-y-0.5 ml-4">
-                                          {answer.aiScore.improvements.map((improvement, iIdx) => (
-                                            <li key={iIdx} className="text-xs text-foreground flex items-start gap-1.5">
-                                              <span className="text-orange-600 mt-0.5">•</span>
-                                              <span>{improvement}</span>
-                                            </li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-
-                                {!answer.aiScore && (
-                                  <div className="p-3 bg-accent/5 border-2 border-dashed border-accent/30 rounded-lg">
-                                    <div className="flex items-center justify-between gap-3 flex-wrap">
-                                      <div className="flex items-center gap-2">
-                                        <Sparkle size={18} weight="fill" className="text-accent shrink-0" />
-                                        <div>
-                                          <p className="text-sm font-semibold text-foreground">
-                                            {language === 'fr' ? 'Évaluation IA disponible' : 'AI Evaluation Available'}
-                                          </p>
-                                          <p className="text-xs text-muted-foreground">
-                                            {language === 'fr' 
-                                              ? 'Obtenez une analyse détaillée de cette réponse' 
-                                              : 'Get detailed analysis of this answer'}
-                                          </p>
-                                        </div>
-                                      </div>
-                                      <Button
-                                        size="sm"
-                                        onClick={() => scoreAnswer(index)}
-                                        disabled={scoringAnswer === index}
-                                        className="gap-1.5 text-xs bg-accent hover:bg-accent/90 shrink-0"
-                                      >
-                                        <Sparkle size={14} weight="fill" />
-                                        {scoringAnswer === index
-                                          ? t('candidate.scoringAnswer', language)
-                                          : t('candidate.scoreAnswer', language)}
-                                      </Button>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-
-                            {!isAnswering && !answer && (
-                              <div className="mt-2 p-3 bg-muted/30 border border-dashed rounded-md">
-                                <div className="flex items-center justify-between gap-3 flex-wrap">
-                                  <p className="text-xs text-muted-foreground">
-                                    {language === 'fr' 
-                                      ? 'Aucune réponse enregistrée pour cette question' 
-                                      : 'No answer recorded for this question'}
-                                  </p>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => startAnswering(index)}
-                                    className="gap-1.5 text-xs"
-                                  >
-                                    <ChatCircleDots size={14} />
-                                    {t('candidate.answerQuestion', language)}
-                                  </Button>
-                                </div>
-                              </div>
-                            )}
-
-                            {isAnswering && (
-                              <div className="mt-2 space-y-2">
-                                <div className="flex items-start gap-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
-                                  <Sparkle size={14} className="text-blue-600 shrink-0 mt-0.5" weight="fill" />
-                                  <p className="text-xs text-blue-800">
-                                    {language === 'fr'
-                                      ? 'Après avoir enregistré la réponse, vous pourrez la faire évaluer par l\'IA pour obtenir des scores détaillés et des recommandations.'
-                                      : 'After saving the answer, you can have it evaluated by AI to get detailed scores and recommendations.'}
-                                  </p>
-                                </div>
-                                <Textarea
-                                  value={answerText}
-                                  onChange={(e) => setAnswerText(e.target.value)}
-                                  placeholder={t('candidate.answerPlaceholder', language)}
-                                  className="min-h-24 text-sm"
-                                />
-                                <div className="flex gap-2">
-                                  <Button
-                                    size="sm"
-                                    onClick={() => saveAnswer(index)}
-                                    disabled={!answerText.trim()}
-                                    className="gap-1.5 text-xs"
-                                  >
-                                    <FloppyDisk size={14} />
-                                    {t('candidate.saveAnswer', language)}
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => {
-                                      setAnsweringQuestion(null)
-                                      setAnswerText('')
-                                    }}
-                                    className="text-xs"
-                                  >
-                                    {t('candidate.cancel', language)}
-                                  </Button>
-                                </div>
-                              </div>
-                            )}
-
-                            {answer && !isAnswering && (
-                              <div className="mt-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => generateFollowUpQuestions(index)}
-                                  disabled={generatingFollowUp === index}
-                                  className="gap-1.5 text-xs"
-                                >
-                                  <Sparkle size={14} weight="fill" />
-                                  {generatingFollowUp === index
-                                    ? t('candidate.generating', language)
-                                    : t('candidate.generateFollowUp', language)}
-                                </Button>
-                              </div>
-                            )}
-
-                            {followUp && followUp.followUpQuestions.length > 0 && (
-                              <div className="mt-3 pl-4 border-l-2 border-accent space-y-2">
-                                <p className="text-xs font-semibold text-accent">
-                                  {t('candidate.followUpQuestions', language)}
-                                </p>
-                                <ul className="space-y-2">
-                                  {followUp.followUpQuestions.map((fq, fqIndex) => (
-                                    <li key={fqIndex} className="text-sm text-foreground">
-                                      <span className="font-semibold text-accent mr-2">
-                                        {index + 1}.{fqIndex + 1}
-                                      </span>
-                                      {fq}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })}
+                    {candidate.interviewQuestions.map((question, index) => (
+                      <QuestionItem
+                        key={index}
+                        candidate={candidate}
+                        questionIndex={index}
+                        question={question}
+                        setCandidates={setCandidates}
+                        onGenerateFollowUp={generateFollowUpQuestions}
+                        onScoreAnswer={scoreAnswer}
+                        generatingFollowUp={generatingFollowUp}
+                        scoringAnswer={scoringAnswer}
+                        language={language}
+                      />
+                    ))}
                   </div>
                 </AccordionContent>
               </AccordionItem>
@@ -895,7 +449,7 @@ Return a JSON object:
 
             {candidate.alternativePositions && candidate.alternativePositions.length > 0 && (
               <AccordionItem value="alternatives">
-                <AccordionTrigger className="text-sm font-medium">
+                <AccordionTrigger className="text-sm font-medium hover:no-underline">
                   <div className="flex items-center gap-2">
                     <ArrowsLeftRight size={16} />
                     {t('candidate.alternativePositions', language)}

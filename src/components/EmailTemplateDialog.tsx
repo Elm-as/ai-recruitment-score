@@ -1,24 +1,24 @@
 import { useState } from 'react'
 import { Candidate, Position, Language } from '@/lib/types'
+import { t } from '@/lib/translations'
 import {
-import {
-  DialogD
+  Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
-import { Badge
-import { Copy, Sparkle, Envelop
-import { motion, AnimatePresence } from 'framer
-interface EmailTemplateDialogProps {
-  onOpenChange: (open: boolean) => void
-  position: Position
-}
-export default function EmailTemplateDialog({
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Copy, Sparkle, EnvelopeSimple, Check, Clipboard } from '@phosphor-icons/react'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Copy, Sparkle, EnvelopeSimple, Check } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 interface EmailTemplateDialogProps {
   open: boolean
@@ -30,56 +30,65 @@ interface EmailTemplateDialogProps {
 
 export default function EmailTemplateDialog({
   open,
-        const i
-Question: ${q
-Feedback: $
-          :
-        const strengthsSection
+  onOpenChange,
+  candidates,
+  position,
+  language,
+}: EmailTemplateDialogProps) {
+  const [selectedCandidates, setSelectedCandidates] = useState<string[]>([])
+  const [emailType, setEmailType] = useState<'shortlist' | 'invitation' | 'rejection'>('shortlist')
+  const [customInstructions, setCustomInstructions] = useState('')
+  const [generating, setGenerating] = useState(false)
+  const [generatedEmails, setGeneratedEmails] = useState<Record<string, string>>({})
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  const sortedCandidates = [...candidates].sort((a, b) => b.score - a.score)
+
+  const generateEmails = async () => {
+    if (selectedCandidates.length === 0) {
+      toast.error(language === 'fr' ? 'Sélectionnez au moins un candidat' : 'Select at least one candidate')
+      return
+    }
+
+    setGenerating(true)
+    try {
+      const newEmails: Record<string, string> = {}
+
+      for (const candidateId of selectedCandidates) {
+        const candidate = candidates.find(c => c.id === candidateId)
+        if (!candidate) continue
+
+        const strengthsSection = candidate.strengths.length > 0
+          ? `Strengths:\n${candidate.strengths.map(s => `- ${s}`).join('\n')}`
           : ''
-        const emailPurpose = emailType === 'shortlist' 
-          : emailType === 'rejection' 
-          : 'interview invitation email to the candidate. Include 
-        const formatInstructions = emailType === 'shortlist' 
-          : 'Format: Start with "Subject: " line, then the emai
-        const prompt = `You are an HR professional creatin
 
-Email: ${candidate.email}
-Overall Assessment: ${candidate.overallAssessment}${strengthsSecti
-Email Type: ${emailType === 'shortlist
-${customInstructions ? `Addition
+        const questionsSection = candidate.questionAnswers && candidate.questionAnswers.length > 0
+          ? `\nInterview Performance:\n${candidate.questionAnswers.filter(qa => qa.aiScore).map(qa => `
+Question: ${qa.question}
+Answer Score: ${qa.aiScore?.overallScore}/100
+Feedback: ${qa.aiScore?.feedback}
+`).join('\n')}`
+          : ''
 
-Create a professional ${emailPurpose} 
-${formatInstructions}
-Write the complete email ready to send.`
-        cons
-     
+        const emailPurpose = emailType === 'shortlist'
+          ? 'email to the hiring manager summarizing this candidate\'s qualifications, scores, and why they should be considered. Include specific data points and assessment results.'
+          : emailType === 'rejection'
+          ? 'rejection email to the candidate. Be respectful and encouraging.'
+          : 'interview invitation email to the candidate. Include next steps.'
 
-    } catch (error) {
-      console.error('Email generation error:', e
+        const formatInstructions = emailType === 'shortlist'
+          ? 'Format: Start with "Subject: " line, then the email body. Include bullet points with their scores and key strengths. Be data-driven and professional.'
+          : 'Format: Start with "Subject: " line, then the email body.'
 
-  }
-  const copyToClipboard = async (text: string, candid
-      await navigator.clipboard.writeText(text)
-      toast.success(t('email.cop
-
-        const prompt = spark.llmPrompt`You are an HR professional creating email templates for recruitment.
+        const prompt = (window as any).spark.llmPrompt`You are an HR professional creating email templates for recruitment.
 
 Position: ${position.title}
 Candidate: ${candidate.name}
 Email: ${candidate.email}
 Score: ${candidate.score}/100
 Overall Assessment: ${candidate.overallAssessment}
-
-${candidate.strengths.length > 0 ? `Strengths:\n${candidate.strengths.map(s => `- ${s}`).join('\n')}` : ''}
-
-${candidate.questionAnswers && candidate.questionAnswers.length > 0 ? `
-Interview Performance:
-${candidate.questionAnswers.filter(qa => qa.aiScore).map(qa => `
-Question: ${qa.question}
-Answer Score: ${qa.aiScore?.overallScore}/100
-Feedback: ${qa.aiScore?.feedback}
-`).join('\n')}
-` : ''}
+${strengthsSection}
+${questionsSection}
 
 Email Type: ${emailType === 'shortlist' ? 'Shortlist notification for hiring manager' : emailType === 'rejection' ? 'Professional rejection' : 'Interview invitation'}
 
@@ -87,13 +96,11 @@ ${customInstructions ? `Additional instructions: ${customInstructions}` : ''}
 
 Language: ${language === 'fr' ? 'French' : 'English'}
 
-Create a professional ${emailType === 'shortlist' ? 'email to the hiring manager summarizing this candidate\'s qualifications, scores, and why they should be considered. Include specific data points and assessment results.' : emailType === 'rejection' ? 'rejection email to the candidate. Be respectful and encouraging.' : 'interview invitation email to the candidate. Include next steps.'} 
-
-${emailType === 'shortlist' ? 'Format: Start with "Subject: " line, then the email body. Include bullet points with their scores and key strengths. Be data-driven and professional.' : 'Format: Start with "Subject: " line, then the email body.'}
-
+Create a professional ${emailPurpose} 
+${formatInstructions}
 Write the complete email ready to send.`
 
-        const result = await spark.llm(prompt, 'gpt-4o')
+        const result = await (window as any).spark.llm(prompt, 'gpt-4o')
         newEmails[candidateId] = result
       }
 
@@ -126,11 +133,12 @@ Write the complete email ready to send.`
     )
   }
 
-                        key={candidat
+  const selectTopCandidates = () => {
+    const topCandidates = sortedCandidates.slice(0, Math.min(5, sortedCandidates.length))
     setSelectedCandidates(topCandidates.map(c => c.id))
   }
 
-          
+  return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
@@ -138,7 +146,7 @@ Write the complete email ready to send.`
             <EnvelopeSimple size={24} weight="duotone" className="text-accent" />
             {t('email.title', language)}
           </DialogTitle>
-                          </div>
+          <DialogDescription className="text-sm">
             {t('email.description', language)}
           </DialogDescription>
         </DialogHeader>
@@ -146,234 +154,215 @@ Write the complete email ready to send.`
         <Tabs defaultValue="select" className="flex-1 flex flex-col overflow-hidden">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="select" className="text-xs sm:text-sm">
-                    ))
-              </ScrollArea
-            <TabsTrigger value="customize" className="text-xs sm:text-sm">
-              {t('email.customizeTab', language)}
+              {language === 'fr' ? 'Sélectionner' : 'Select'}
             </TabsTrigger>
-            <TabsTrigger value="preview" className="text-xs sm:text-sm" disabled={Object.keys(generatedEmails).length === 0}>
-              {t('email.previewTab', language)}
+            <TabsTrigger value="configure" className="text-xs sm:text-sm">
+              {language === 'fr' ? 'Configurer' : 'Configure'}
             </TabsTrigger>
-                </Lab
+            <TabsTrigger value="preview" className="text-xs sm:text-sm">
+              {language === 'fr' ? 'Aperçu' : 'Preview'}
+            </TabsTrigger>
+          </TabsList>
 
-          <TabsContent value="select" className="flex-1 overflow-auto space-y-4 mt-4">
+          <TabsContent value="select" className="flex-1 overflow-hidden">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-semibold">{t('email.selectCandidates', language)}</Label>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'fr' 
+                    ? `${selectedCandidates.length} candidat(s) sélectionné(s)` 
+                    : `${selectedCandidates.length} candidate(s) selected`}
+                </p>
                 <Button
-                  variant="outline"
                   size="sm"
+                  variant="outline"
                   onClick={selectTopCandidates}
-                    <EnvelopeSimple s
+                  className="text-xs"
                 >
-                  {t('email.selectTop', language, { count: topCandidates.length })}
+                  {language === 'fr' ? 'Top 5' : 'Select Top 5'}
                 </Button>
-                    
-
-              <ScrollArea className="h-[300px] rounded-md border p-4">
-                <div className="space-y-2">
               </div>
-                    <p className="text-sm text-muted-foreground text-center py-8">
-                      {t('email.noCandidates', language)}
-                    </p>
-                  </Lab
-                    candidates.map((candidate) => (
-                      <motion.div
-                        key={candidate.id}
-                    onChange={(e) => setRecipientEma
-                        className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                          selectedCandidates.includes(candidate.id)
-                            ? 'bg-accent/10 border-accent'
-                            : 'bg-card hover:bg-muted/50'
-                        }`}
-                        onClick={() => toggleCandidate(candidate.id)}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h4 className="font-semibold text-sm">{candidate.name}</h4>
-                              <Badge variant={candidate.score >= 80 ? 'default' : 'secondary'} className="text-xs">
-                                {candidate.score}/100
-                              </Badge>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1">{candidate.email}</p>
-                          </div>
-                          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 ${
-                            selectedCandidates.includes(candidate.id)
-                              ? 'bg-accent border-accent'
-                              : 'border-muted-foreground'
-                    {t('email.
-                            {selectedCandidates.includes(candidate.id) && (
-                              <Check size={14} weight="bold" className="text-accent-foreground" />
-                            )}
-                          </div>
+
+              <ScrollArea className="h-[300px] sm:h-[400px] pr-4">
+                <div className="space-y-2">
+                  {sortedCandidates.map((candidate, index) => (
+                    <motion.div
+                      key={candidate.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className={`flex items-start gap-3 p-3 rounded-lg border ${
+                        selectedCandidates.includes(candidate.id)
+                          ? 'bg-accent/10 border-accent'
+                          : 'bg-card border-border'
+                      }`}
+                    >
+                      <Checkbox
+                        checked={selectedCandidates.includes(candidate.id)}
+                        onCheckedChange={() => toggleCandidate(candidate.id)}
+                        className="mt-1"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Badge variant={index < 3 ? 'default' : 'secondary'} className="text-xs">
+                            #{index + 1}
+                          </Badge>
+                          <p className="font-semibold text-sm truncate">{candidate.name}</p>
+                          <Badge
+                            className={`text-xs ${
+                              candidate.score >= 80
+                                ? 'bg-green-100 text-green-700'
+                                : candidate.score >= 60
+                                ? 'bg-yellow-100 text-yellow-700'
+                                : 'bg-red-100 text-red-700'
+                            }`}
+                          >
+                            {candidate.score}/100
+                          </Badge>
                         </div>
-                      </motion.div>
-                    ))
-                  )}
+                        <p className="text-xs text-muted-foreground truncate">{candidate.email}</p>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               </ScrollArea>
             </div>
           </TabsContent>
 
-          <TabsContent value="customize" className="flex-1 overflow-auto space-y-4 mt-4">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email-type" className="text-sm font-semibold">
-                  {t('email.emailType', language)}
+          <TabsContent value="configure" className="flex-1 overflow-auto space-y-4">
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm font-semibold mb-2 block">
+                  {language === 'fr' ? 'Type d\'email' : 'Email Type'}
                 </Label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <Button
                     variant={emailType === 'shortlist' ? 'default' : 'outline'}
-                    className="justify-start text-xs sm:text-sm"
                     onClick={() => setEmailType('shortlist')}
+                    className="text-xs sm:text-sm"
                   >
-                    <Sparkle size={16} weight="duotone" className="mr-2" />
-                    {t('email.typeShortlist', language)}
-                           
+                    {language === 'fr' ? 'Liste restreinte' : 'Shortlist'}
+                  </Button>
                   <Button
-                    variant={emailType === 'interview' ? 'default' : 'outline'}
-                    className="justify-start text-xs sm:text-sm"
-                    onClick={() => setEmailType('interview')}
+                    variant={emailType === 'invitation' ? 'default' : 'outline'}
+                    onClick={() => setEmailType('invitation')}
+                    className="text-xs sm:text-sm"
                   >
-                    <EnvelopeSimple size={16} weight="duotone" className="mr-2" />
-                    {t('email.typeInterview', language)}
-                           
+                    {language === 'fr' ? 'Invitation' : 'Invitation'}
+                  </Button>
                   <Button
                     variant={emailType === 'rejection' ? 'default' : 'outline'}
-                    className="justify-start text-xs sm:text-sm"
                     onClick={() => setEmailType('rejection')}
+                    className="text-xs sm:text-sm"
                   >
-                    <EnvelopeSimple size={16} weight="duotone" className="mr-2" />
-                    {t('email.typeRejection', language)}
-                      <div 
+                    {language === 'fr' ? 'Rejet' : 'Rejection'}
+                  </Button>
                 </div>
               </div>
 
-              {emailType === 'shortlist' && (
-                <div className="space-y-2">
-                  <Label htmlFor="recipient-email" className="text-sm">
-                    {t('email.recipientEmail', language)}
-          </TabsContent>
-                  <Input
-    </Dialog>
-                    type="email"
-                    placeholder={language === 'fr' ? 'manager@entreprise.com' : 'manager@company.com'}
-                    value={recipientEmail}
-                    onChange={(e) => setRecipientEmail(e.target.value)}
-                    className="text-sm"
-                  />
-                </div>
+              <Separator />
 
-
-
-                <Label htmlFor="custom-instructions" className="text-sm">
-                  {t('email.customInstructions', language)}
+              <div>
+                <Label htmlFor="instructions" className="text-sm font-semibold mb-2 block">
+                  {language === 'fr' ? 'Instructions personnalisées (optionnel)' : 'Custom Instructions (optional)'}
                 </Label>
-
-                  id="custom-instructions"
-                  placeholder={t('email.customInstructionsPlaceholder', language)}
+                <Textarea
+                  id="instructions"
                   value={customInstructions}
                   onChange={(e) => setCustomInstructions(e.target.value)}
-                  rows={4}
-                  className="text-sm resize-none"
+                  placeholder={
+                    language === 'fr'
+                      ? 'Ajoutez des instructions spécifiques pour la génération d\'email...'
+                      : 'Add specific instructions for email generation...'
+                  }
+                  className="min-h-24 text-sm"
                 />
-
-
-
-                onClick={handleGenerateEmail}
-                disabled={generating || selectedCandidates.length === 0}
-                className="w-full gap-2"
-
-                {generating ? (
-                  <>
-                    <motion.div
-
-                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-
-                      <Sparkle size={18} weight="duotone" />
-
-                    {t('email.generating', language)}
-
-                ) : (
-
-                    <Sparkle size={18} weight="duotone" />
-
-                  </>
-
-              </Button>
-
-          </TabsContent>
-
-          <TabsContent value="preview" className="flex-1 overflow-auto space-y-4 mt-4">
-
-              <div className="space-y-6 pr-4">
-                {selectedCandidates.map((candidateId) => {
-                  const candidate = candidates.find(c => c.id === candidateId)
-                  const email = generatedEmails[candidateId]
-                  
-                  if (!candidate || !email) return null
-
-
-                    <motion.div
-
-                      initial={{ opacity: 0, y: 20 }}
-
-                      className="space-y-3"
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-semibold text-sm">{candidate.name}</h4>
-                          <Badge variant="outline" className="text-xs">
-                            {candidate.email}
-                          </Badge>
-                        </div>
-
-                          variant="outline"
-
-                          onClick={() => copyToClipboard(email, candidateId)}
-                          className="gap-2"
-                        >
-
-                            {copiedId === candidateId ? (
-                              <motion.div
-                                key="check"
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                exit={{ scale: 0 }}
-                              >
-                                <Check size={16} weight="bold" className="text-green-600" />
-                              </motion.div>
-
-                              <motion.div
-
-                                initial={{ scale: 0 }}
-
-                                exit={{ scale: 0 }}
-
-                                <Copy size={16} weight="bold" />
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                          <span className="text-xs">{t('email.copy', language)}</span>
-
-                      </div>
-
-                      <div className="bg-muted/50 rounded-lg p-4 border">
-                        <pre className="whitespace-pre-wrap text-xs sm:text-sm font-mono leading-relaxed">
-                          {email}
-
-                      </div>
-
-                      <Separator />
-
-                  )
-
               </div>
 
+              <Button
+                onClick={generateEmails}
+                disabled={generating || selectedCandidates.length === 0}
+                className="w-full gap-2"
+              >
+                <Sparkle size={16} weight="fill" />
+                {generating
+                  ? language === 'fr'
+                    ? 'Génération en cours...'
+                    : 'Generating...'
+                  : language === 'fr'
+                  ? 'Générer les emails'
+                  : 'Generate Emails'}
+              </Button>
+            </div>
           </TabsContent>
 
+          <TabsContent value="preview" className="flex-1 overflow-hidden">
+            <ScrollArea className="h-[300px] sm:h-[500px] pr-4">
+              {Object.keys(generatedEmails).length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center text-muted-foreground">
+                    <EnvelopeSimple size={48} className="mx-auto mb-3 opacity-50" />
+                    <p className="text-sm">
+                      {language === 'fr'
+                        ? 'Aucun email généré. Configurez et générez d\'abord.'
+                        : 'No emails generated. Configure and generate first.'}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {selectedCandidates.map((candidateId) => {
+                    const candidate = candidates.find(c => c.id === candidateId)
+                    const email = generatedEmails[candidateId]
+                    if (!candidate || !email) return null
+
+                    return (
+                      <motion.div
+                        key={candidateId}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="border rounded-lg p-4 space-y-3 bg-card"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-semibold text-sm">{candidate.name}</p>
+                            <p className="text-xs text-muted-foreground">{candidate.email}</p>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => copyToClipboard(email, candidateId)}
+                            className="gap-2"
+                          >
+                            {copiedId === candidateId ? (
+                              <>
+                                <Check size={14} weight="bold" />
+                                <span className="text-xs">
+                                  {language === 'fr' ? 'Copié' : 'Copied'}
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy size={14} />
+                                <span className="text-xs">
+                                  {language === 'fr' ? 'Copier' : 'Copy'}
+                                </span>
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                        <Separator />
+                        <pre className="text-xs whitespace-pre-wrap font-sans text-foreground bg-muted/30 p-3 rounded">
+                          {email}
+                        </pre>
+                      </motion.div>
+                    )
+                  })}
+                </div>
+              )}
+            </ScrollArea>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
-
+    </Dialog>
   )
-
+}
