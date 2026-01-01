@@ -76,7 +76,16 @@ export default function CandidateCard({
     setGeneratingQuestions(true)
     try {
       const isEnglish = language === 'en'
-      const questionsPrompt = (window as any).spark.llmPrompt`You are an expert HR interviewer. Generate 6-8 targeted interview questions for this candidate based on their profile and the job requirements.
+      const questionsPrompt = (window as any).spark.llmPrompt`You are an expert technical interviewer. Generate 6-8 targeted TECHNICAL interview questions for this candidate based on their profile and the job requirements.
+
+CRITICAL: Generate ONLY technical questions. Do NOT include:
+- Behavioral questions (e.g., "Tell me about a time when...")
+- Social questions (e.g., "How do you work in a team?")
+- Soft skills questions (e.g., "How do you handle conflict?")
+- Cultural fit questions
+- Motivation questions
+
+ONLY INCLUDE: Technical skills, technical knowledge, technical problem-solving, technical experience verification, technical capabilities, tools/technologies mastery, and technical challenges.
 
 IMPORTANT: Generate all questions in ${isEnglish ? 'ENGLISH' : 'FRENCH'} language.
 
@@ -95,12 +104,12 @@ Overall Assessment: ${candidate.overallAssessment}
 Profile:
 ${candidate.profileText}
 
-Generate questions that:
-1. Probe their claimed experience and skills
-2. Address any gaps or weaknesses identified
-3. Assess cultural fit and soft skills
-4. Verify their technical capabilities
-5. Explore their achievements in detail
+Generate TECHNICAL questions that:
+1. Probe their claimed technical experience and technical skills
+2. Address any technical gaps or technical weaknesses identified
+3. Verify their technical capabilities with specific tools, languages, frameworks, or technologies
+4. Explore their technical achievements and technical problem-solving
+5. Test their understanding of technical concepts relevant to the role
 
 Return a JSON object with a single property "questions" containing an array of question strings in ${isEnglish ? 'ENGLISH' : 'FRENCH'}:
 {

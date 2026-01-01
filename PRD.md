@@ -42,11 +42,11 @@ Cette application nécessite une intégration IA sophistiquée pour l'analyse de
 - **Success criteria**: Candidates appear in descending score order with visual indicators for top performers. Bulk operations complete successfully with undo functionality preserving all deleted data
 
 ### Interview Question Generation
-- **Functionality**: AI generates tailored interview questions for each candidate based on their profile and the position
-- **Purpose**: Prepares recruiters with relevant, personalized questions to assess candidate fit
+- **Functionality**: AI generates tailored technical interview questions for each candidate based on their profile and the position. Questions focus exclusively on technical skills, technical knowledge, technical problem-solving, and technical experience verification. No behavioral, social, or soft skills questions.
+- **Purpose**: Prepares recruiters with relevant, personalized technical questions to assess candidate's technical capabilities
 - **Trigger**: User clicks "Generate Questions" on a candidate card
-- **Progression**: View candidate → Click Generate Questions → AI creates 5-8 targeted questions → Questions appear with rationale → Can regenerate if needed
-- **Success criteria**: Questions are specific to the candidate's background and address gaps or areas needing clarification
+- **Progression**: View candidate → Click Generate Questions → AI creates 6-8 targeted technical questions → Questions appear with rationale → Can regenerate if needed
+- **Success criteria**: Questions are specific to the candidate's technical background and address technical gaps or areas needing technical clarification. All questions must be technical in nature.
 
 ### Alternative Position Suggestions
 - **Functionality**: For good candidates who don't fit the current role, AI suggests other open positions that may suit them better
