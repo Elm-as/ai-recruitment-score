@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Position, Candidate, Language } from '@/lib/types'
 import { t } from '@/lib/translations'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Plus, Funnel, Trash, Archive, CheckSquare, Square } from '@phosphor-icons/react'
+import { ArrowLeft, Plus, Funnel, Trash, Archive, CheckSquare, Square, ArrowsLeftRight } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
@@ -47,6 +47,7 @@ export default function PositionDetailView({
   const [selectedCandidateIds, setSelectedCandidateIds] = useState<Set<string>>(new Set())
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false)
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false)
+  const [compareScoresOpen, setCompareScoresOpen] = useState(false)
 
   const sortedCandidates = [...candidates].sort((a, b) => b.score - a.score)
   
@@ -227,7 +228,7 @@ export default function PositionDetailView({
           animate={{ opacity: 1 }}
           className="flex flex-col gap-3"
         >
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2 overflow-x-auto">
               <Funnel size={18} className="text-muted-foreground shrink-0" weight="duotone" />
               <Select value={filterStatus} onValueChange={setFilterStatus}>
@@ -244,7 +245,23 @@ export default function PositionDetailView({
               </Select>
             </div>
 
-            <CompareScoresDialog candidates={candidates} language={language} />
+            <Button 
+              onClick={() => setCompareScoresOpen(true)}
+              size="sm"
+              variant="outline"
+              className="gap-2 hover:scale-105 transition-transform"
+            >
+              <ArrowsLeftRight size={16} weight="bold" />
+              <span className="hidden sm:inline">{t('compare.buttonText', language)}</span>
+              <span className="sm:hidden">Comparer</span>
+            </Button>
+
+            <CompareScoresDialog 
+              open={compareScoresOpen}
+              onOpenChange={setCompareScoresOpen}
+              candidates={candidates} 
+              language={language} 
+            />
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
