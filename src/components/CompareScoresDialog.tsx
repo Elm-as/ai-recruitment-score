@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { TrendUp, TrendDown, CheckCircle, XCircle } from '@phosphor-icons/react'
+import { TrendUp, TrendDown, CheckCircle, XCircle, Sparkle } from '@phosphor-icons/react'
 
 interface CompareScoresDialogProps {
   open: boolean
@@ -63,8 +63,22 @@ export default function CompareScoresDialog({
 
         <ScrollArea className="h-[calc(90vh-180px)] pr-4">
           {sortedCandidates.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <p>{t('compare.noData', language)}</p>
+            <div className="text-center py-12 space-y-4">
+              <div className="flex justify-center">
+                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                  <Sparkle size={32} className="text-muted-foreground" weight="duotone" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-lg font-semibold text-foreground">
+                  {language === 'fr' ? 'Aucune évaluation disponible' : 'No Evaluations Available'}
+                </p>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  {language === 'fr' 
+                    ? 'Pour comparer les scores, vous devez d\'abord : 1) Générer des questions d\'entretien, 2) Enregistrer les réponses des candidats, 3) Évaluer ces réponses avec l\'IA.' 
+                    : 'To compare scores, you need to: 1) Generate interview questions, 2) Record candidate answers, 3) Evaluate those answers with AI.'}
+                </p>
+              </div>
             </div>
           ) : (
             <div className="space-y-6">
@@ -242,9 +256,16 @@ export default function CompareScoresDialog({
                           </div>
                         ))
                       ) : (
-                        <p className="text-sm text-muted-foreground text-center py-4">
-                          {t('compare.noScores', language)}
-                        </p>
+                        <div className="text-center py-6 space-y-2">
+                          <p className="text-sm font-semibold text-foreground">
+                            {language === 'fr' ? 'Aucune réponse évaluée' : 'No Scored Answers'}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {language === 'fr' 
+                              ? 'Ce candidat a des réponses qui n\'ont pas encore été évaluées par l\'IA.' 
+                              : 'This candidate has answers that haven\'t been scored by AI yet.'}
+                          </p>
+                        </div>
                       )}
                     </CardContent>
                   </Card>

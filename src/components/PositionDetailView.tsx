@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Position, Candidate, Language } from '@/lib/types'
 import { t } from '@/lib/translations'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Plus, Funnel, Trash, Archive, CheckSquare, Square, ArrowsLeftRight } from '@phosphor-icons/react'
+import { ArrowLeft, Plus, Funnel, Trash, Archive, CheckSquare, Square, ArrowsLeftRight, Sparkle, Info } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
@@ -143,6 +143,12 @@ export default function PositionDetailView({
 
   const allFilteredSelected = filteredCandidates.length > 0 && filteredCandidates.every((c) => selectedCandidateIds.has(c.id))
 
+  const answeredButNotScoredCount = candidates.reduce((count, candidate) => {
+    const answered = candidate.questionAnswers?.length || 0
+    const scored = candidate.questionAnswers?.filter(qa => qa.aiScore).length || 0
+    return count + (answered - scored)
+  }, 0)
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
@@ -165,6 +171,11 @@ export default function PositionDetailView({
               <Badge variant="secondary" className="gap-1.5 text-xs">
                 {candidates.length} {candidates.length === 1 ? t('positions.candidates', language) : t('positions.candidates_plural', language)}
               </Badge>
+              {answeredButNotScoredCount > 0 && (
+                <Badge className="gap-1.5 text-xs bg-orange-500 hover:bg-orange-600 animate-pulse">
+                  {answeredButNotScoredCount} {language === 'fr' ? 'réponse(s) à évaluer' : 'answer(s) to score'}
+                </Badge>
+              )}
             </div>
           </div>
         </div>
@@ -228,6 +239,30 @@ export default function PositionDetailView({
           animate={{ opacity: 1 }}
           className="flex flex-col gap-3"
         >
+          {answeredButNotScoredCount > 0 && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-4 bg-gradient-to-r from-orange-50 to-yellow-50 border-l-4 border-orange-500 rounded-lg"
+            >
+              <div className="flex items-start gap-3">
+                <Sparkle size={20} className="text-orange-600 shrink-0 mt-0.5" weight="fill" />
+                <div className="flex-1 space-y-1">
+                  <h4 className="font-semibold text-sm text-orange-900">
+                    {language === 'fr' 
+                      ? `${answeredButNotScoredCount} réponse${answeredButNotScoredCount > 1 ? 's' : ''} en attente d'évaluation` 
+                      : `${answeredButNotScoredCount} answer${answeredButNotScoredCount > 1 ? 's' : ''} awaiting evaluation`}
+                  </h4>
+                  <p className="text-xs text-orange-800">
+                    {language === 'fr' 
+                      ? 'Ouvrez les cartes des candidats ci-dessous, développez la section "Questions d\'Entretien" et cliquez sur "Évaluer la Réponse" pour obtenir une analyse IA détaillée.' 
+                      : 'Open candidate cards below, expand the "Interview Questions" section and click "Score Answer" to get detailed AI analysis.'}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+          
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2 overflow-x-auto">
               <Funnel size={18} className="text-muted-foreground shrink-0" weight="duotone" />

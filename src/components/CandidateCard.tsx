@@ -186,7 +186,13 @@ Return a JSON object with a single property "questions" containing an array of q
 
     setAnsweringQuestion(null)
     setAnswerText('')
-    toast.success(t('common.save', language))
+    
+    toast.success(t('common.save', language), {
+      description: language === 'fr' 
+        ? 'Cliquez sur "Évaluer la Réponse" pour obtenir une analyse IA détaillée' 
+        : 'Click "Score Answer" to get detailed AI analysis',
+      duration: 4000,
+    })
   }
 
   const generateFollowUpQuestions = async (questionIndex: number) => {
@@ -554,7 +560,34 @@ Return a JSON object:
             {candidate.interviewQuestions && candidate.interviewQuestions.length > 0 && (
               <AccordionItem value="questions">
                 <AccordionTrigger className="text-sm font-medium">
-                  {t('candidate.interviewQuestions', language, { count: candidate.interviewQuestions.length })}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span>{t('candidate.interviewQuestions', language, { count: candidate.interviewQuestions.length })}</span>
+                    {(() => {
+                      const answeredCount = candidate.questionAnswers?.length || 0
+                      const scoredCount = candidate.questionAnswers?.filter(qa => qa.aiScore).length || 0
+                      const pendingScores = answeredCount - scoredCount
+                      
+                      return (
+                        <div className="flex items-center gap-1.5">
+                          {answeredCount > 0 && (
+                            <Badge variant="secondary" className="text-xs">
+                              {answeredCount} {language === 'fr' ? 'réponse(s)' : 'answer(s)'}
+                            </Badge>
+                          )}
+                          {scoredCount > 0 && (
+                            <Badge variant="default" className="text-xs bg-accent">
+                              {scoredCount} {language === 'fr' ? 'évaluée(s)' : 'scored'}
+                            </Badge>
+                          )}
+                          {pendingScores > 0 && (
+                            <Badge variant="outline" className="text-xs border-orange-500 text-orange-600 animate-pulse">
+                              {pendingScores} {language === 'fr' ? 'à évaluer' : 'to score'}
+                            </Badge>
+                          )}
+                        </div>
+                      )
+                    })()}
+                  </div>
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-4 pt-2">
@@ -566,17 +599,35 @@ Return a JSON object:
                       return (
                         <div key={index} className="border rounded-lg p-3 space-y-3 bg-card">
                           <div className="space-y-2">
-                            <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-start justify-between gap-2 flex-wrap">
                               <p className="text-sm text-foreground flex-1">
                                 <span className="font-semibold text-accent mr-2">{index + 1}.</span>
                                 {question}
                               </p>
+                              {answer && (
+                                <Badge 
+                                  variant={answer.aiScore ? "default" : "secondary"} 
+                                  className="shrink-0 gap-1 text-xs"
+                                >
+                                  {answer.aiScore ? (
+                                    <>
+                                      <CheckCircle size={12} weight="fill" />
+                                      {language === 'fr' ? 'Évaluée' : 'Scored'}
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ChatCircleDots size={12} weight="fill" />
+                                      {language === 'fr' ? 'Répondue' : 'Answered'}
+                                    </>
+                                  )}
+                                </Badge>
+                              )}
                             </div>
 
                             {!isAnswering && answer && (
                               <div className="mt-2 space-y-3">
                                 <div className="p-3 bg-muted/50 rounded-md space-y-2">
-                                  <div className="flex items-center justify-between">
+                                  <div className="flex items-center justify-between flex-wrap gap-2">
                                     <p className="text-xs text-muted-foreground">
                                       {t('candidate.answeredOn', language)} {new Date(answer.answeredAt).toLocaleDateString()}
                                     </p>
@@ -594,26 +645,46 @@ Return a JSON object:
                                 </div>
 
                                 {answer.aiScore && (
-                                  <div className="p-3 bg-accent/10 border border-accent/30 rounded-md space-y-3">
-                                    <div className="flex items-center justify-between">
+                                  <div className="p-4 bg-gradient-to-br from-accent/10 to-accent/5 border-2 border-accent/30 rounded-lg space-y-3">
+                                    <div className="flex items-center justify-between flex-wrap gap-2">
                                       <div className="flex items-center gap-2">
-                                        <Sparkle size={16} className="text-accent" weight="fill" />
-                                        <h5 className="text-sm font-semibold text-accent">{t('candidate.aiFeedback', language)}</h5>
-                                      </div>
-                                      <div className="flex items-center gap-2">
-                                        <div className={`text-lg font-bold ${getScoreColor(answer.aiScore.overallScore)}`}>
-                                          {answer.aiScore.overallScore}
+                                        <div className={`flex items-center justify-center w-12 h-12 rounded-full border-4 ${
+                                          answer.aiScore.overallScore >= 80 
+                                            ? 'bg-green-100 border-green-300' 
+                                            : answer.aiScore.overallScore >= 60 
+                                            ? 'bg-yellow-100 border-yellow-300' 
+                                            : 'bg-red-100 border-red-300'
+                                        }`}>
+                                          <span className={`text-lg font-bold ${
+                                            answer.aiScore.overallScore >= 80 
+                                              ? 'text-green-600' 
+                                              : answer.aiScore.overallScore >= 60 
+                                              ? 'text-yellow-600' 
+                                              : 'text-red-600'
+                                          }`}>
+                                            {answer.aiScore.overallScore}
+                                          </span>
                                         </div>
-                                        <Button
-                                          size="sm"
-                                          variant="ghost"
-                                          onClick={() => scoreAnswer(index)}
-                                          disabled={scoringAnswer === index}
-                                          className="h-7 gap-1 text-xs"
-                                        >
-                                          {scoringAnswer === index ? t('candidate.scoringAnswer', language) : t('candidate.rescore', language)}
-                                        </Button>
+                                        <div>
+                                          <h5 className="text-sm font-semibold text-accent flex items-center gap-1.5">
+                                            <Sparkle size={16} weight="fill" />
+                                            {t('candidate.aiFeedback', language)}
+                                          </h5>
+                                          <p className="text-xs text-muted-foreground">
+                                            {language === 'fr' ? 'Évaluation technique' : 'Technical evaluation'}
+                                          </p>
+                                        </div>
                                       </div>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => scoreAnswer(index)}
+                                        disabled={scoringAnswer === index}
+                                        className="h-8 gap-1 text-xs border-accent/30 hover:bg-accent/10"
+                                      >
+                                        <Sparkle size={12} weight="fill" />
+                                        {scoringAnswer === index ? t('candidate.scoringAnswer', language) : t('candidate.rescore', language)}
+                                      </Button>
                                     </div>
 
                                     <div className="grid grid-cols-3 gap-2">
@@ -685,38 +756,69 @@ Return a JSON object:
                                 )}
 
                                 {!answer.aiScore && (
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => scoreAnswer(index)}
-                                    disabled={scoringAnswer === index}
-                                    className="gap-1.5 text-xs bg-accent/5 border-accent/30 hover:bg-accent/10"
-                                  >
-                                    <Sparkle size={14} weight="fill" className="text-accent" />
-                                    {scoringAnswer === index
-                                      ? t('candidate.scoringAnswer', language)
-                                      : t('candidate.scoreAnswer', language)}
-                                  </Button>
+                                  <div className="p-3 bg-accent/5 border-2 border-dashed border-accent/30 rounded-lg">
+                                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                                      <div className="flex items-center gap-2">
+                                        <Sparkle size={18} weight="fill" className="text-accent shrink-0" />
+                                        <div>
+                                          <p className="text-sm font-semibold text-foreground">
+                                            {language === 'fr' ? 'Évaluation IA disponible' : 'AI Evaluation Available'}
+                                          </p>
+                                          <p className="text-xs text-muted-foreground">
+                                            {language === 'fr' 
+                                              ? 'Obtenez une analyse détaillée de cette réponse' 
+                                              : 'Get detailed analysis of this answer'}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <Button
+                                        size="sm"
+                                        onClick={() => scoreAnswer(index)}
+                                        disabled={scoringAnswer === index}
+                                        className="gap-1.5 text-xs bg-accent hover:bg-accent/90 shrink-0"
+                                      >
+                                        <Sparkle size={14} weight="fill" />
+                                        {scoringAnswer === index
+                                          ? t('candidate.scoringAnswer', language)
+                                          : t('candidate.scoreAnswer', language)}
+                                      </Button>
+                                    </div>
+                                  </div>
                                 )}
                               </div>
                             )}
 
                             {!isAnswering && !answer && (
-                              <div className="mt-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => startAnswering(index)}
-                                  className="gap-1.5 text-xs"
-                                >
-                                  <ChatCircleDots size={14} />
-                                  {t('candidate.answerQuestion', language)}
-                                </Button>
+                              <div className="mt-2 p-3 bg-muted/30 border border-dashed rounded-md">
+                                <div className="flex items-center justify-between gap-3 flex-wrap">
+                                  <p className="text-xs text-muted-foreground">
+                                    {language === 'fr' 
+                                      ? 'Aucune réponse enregistrée pour cette question' 
+                                      : 'No answer recorded for this question'}
+                                  </p>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => startAnswering(index)}
+                                    className="gap-1.5 text-xs"
+                                  >
+                                    <ChatCircleDots size={14} />
+                                    {t('candidate.answerQuestion', language)}
+                                  </Button>
+                                </div>
                               </div>
                             )}
 
                             {isAnswering && (
                               <div className="mt-2 space-y-2">
+                                <div className="flex items-start gap-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                                  <Sparkle size={14} className="text-blue-600 shrink-0 mt-0.5" weight="fill" />
+                                  <p className="text-xs text-blue-800">
+                                    {language === 'fr'
+                                      ? 'Après avoir enregistré la réponse, vous pourrez la faire évaluer par l\'IA pour obtenir des scores détaillés et des recommandations.'
+                                      : 'After saving the answer, you can have it evaluated by AI to get detailed scores and recommendations.'}
+                                  </p>
+                                </div>
                                 <Textarea
                                   value={answerText}
                                   onChange={(e) => setAnswerText(e.target.value)}
