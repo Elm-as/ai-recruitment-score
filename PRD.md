@@ -42,11 +42,11 @@ Cette application nécessite une intégration IA sophistiquée pour l'analyse de
 - **Success criteria**: Candidates appear in descending score order with visual indicators for top performers. Bulk operations complete successfully with undo functionality preserving all deleted data
 
 ### Interview Question Generation
-- **Functionality**: AI generates tailored technical interview questions for each candidate based on their profile and the position. Questions focus exclusively on technical skills, technical knowledge, technical problem-solving, and technical experience verification. No behavioral, social, or soft skills questions. Recruiters can record candidate answers and generate follow-up technical questions based on those answers to probe deeper into technical capabilities.
-- **Purpose**: Prepares recruiters with relevant, personalized technical questions to assess candidate's technical capabilities, then enables deeper technical exploration based on candidate responses
-- **Trigger**: User clicks "Generate Questions" on a candidate card, then "Answer" on any question, then "Generate Follow-up Questions" after saving an answer
-- **Progression**: View candidate → Click Generate Questions → AI creates 6-8 targeted technical questions → Questions appear → Click "Answer" on a question → Enter candidate's response → Save answer → Click "Generate Follow-up Questions" → AI analyzes the answer and creates 3-5 deeper technical follow-up questions → Follow-up questions appear nested under original question → Can edit answers and regenerate follow-ups if needed
-- **Success criteria**: Initial questions are specific to the candidate's technical background and address technical gaps or areas needing technical clarification. All questions must be technical in nature. Follow-up questions probe deeper into technical details based on the candidate's answer, testing understanding beyond surface-level knowledge and exploring technical edge cases or implementation details.
+- **Functionality**: AI generates tailored technical interview questions for each candidate based on their profile and the position. Questions focus exclusively on technical skills, technical knowledge, technical problem-solving, and technical experience verification. No behavioral, social, or soft skills questions. Recruiters can record candidate answers, get AI scoring of those answers for technical depth and accuracy, and generate follow-up technical questions based on responses to probe deeper into technical capabilities.
+- **Purpose**: Prepares recruiters with relevant, personalized technical questions to assess candidate's technical capabilities, provides objective AI evaluation of answer quality, then enables deeper technical exploration based on candidate responses
+- **Trigger**: User clicks "Generate Questions" on a candidate card, then "Answer" on any question, then "Score Answer" to get AI evaluation, then "Generate Follow-up Questions" after saving an answer
+- **Progression**: View candidate → Click Generate Questions → AI creates 6-8 targeted technical questions → Questions appear → Click "Answer" on a question → Enter candidate's response → Save answer → Click "Score Answer" → AI evaluates answer for technical depth, accuracy, and completeness → Scoring results display with feedback → Click "Generate Follow-up Questions" → AI analyzes the answer and creates 3-5 deeper technical follow-up questions → Follow-up questions appear nested under original question → Can edit answers, rescore, and regenerate follow-ups if needed
+- **Success criteria**: Initial questions are specific to the candidate's technical background and address technical gaps or areas needing technical clarification. All questions must be technical in nature. AI scoring provides objective metrics (0-100) for technical depth, accuracy, and completeness with detailed feedback, strengths, and improvement areas. Follow-up questions probe deeper into technical details based on the candidate's answer, testing understanding beyond surface-level knowledge and exploring technical edge cases or implementation details.
 
 ### Alternative Position Suggestions
 - **Functionality**: For good candidates who don't fit the current role, AI suggests other open positions that may suit them better
@@ -71,6 +71,9 @@ Cette application nécessite une intégration IA sophistiquée pour l'analyse de
 - **No alternative positions**: Gracefully handle case when no other positions exist or none are suitable
 - **Very long candidate profiles**: Truncate display while keeping full text for AI analysis
 - **Very long candidate answers**: Support multiline text input for detailed technical responses
+- **Answer scoring in progress**: Disable score button while AI is evaluating to prevent duplicate requests
+- **Missing answer for scoring**: Only show score button when a valid answer exists for that question
+- **Score regeneration**: Allow users to rescore answers if candidate provides additional information or edits response
 - **Follow-up generation without answer**: Disable follow-up generation button until an answer is saved for that question
 - **Empty answer submission**: Disable save button when answer field is empty to prevent blank submissions
 - **Position with no candidates**: Display empty state with call-to-action to add first candidate

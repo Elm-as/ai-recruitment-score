@@ -59,6 +59,7 @@ export default function CandidateCard({
   const [generatingFollowUp, setGeneratingFollowUp] = useState<number | null>(null)
   const [answeringQuestion, setAnsweringQuestion] = useState<number | null>(null)
   const [answerText, setAnswerText] = useState('')
+  const [scoringAnswer, setScoringAnswer] = useState<number | null>(null)
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600'
@@ -284,6 +285,102 @@ Return a JSON object with a single property "questions" containing an array of f
     }
   }
 
+  const scoreAnswer = async (questionIndex: number) => {
+    const answer = candidate.questionAnswers?.find(
+      (a) => a.questionIndex === questionIndex
+    )
+    if (!answer) return
+
+    setScoringAnswer(questionIndex)
+    try {
+      const isEnglish = language === 'en'
+      const scoringPrompt = (window as any).spark.llmPrompt`You are an expert technical interviewer evaluating a candidate's answer to a technical interview question. Assess the answer for technical depth, accuracy, and completeness.
+
+IMPORTANT: Provide all feedback in ${isEnglish ? 'ENGLISH' : 'FRENCH'} language.
+
+JOB POSITION:
+${position.title}
+${position.description}
+Requirements: ${position.requirements}
+
+CANDIDATE PROFILE:
+Name: ${candidate.name}
+Overall Score: ${candidate.score}/100
+Strengths: ${candidate.strengths.join(', ')}
+Weaknesses: ${candidate.weaknesses.join(', ')}
+
+TECHNICAL QUESTION:
+${answer.question}
+
+CANDIDATE'S ANSWER:
+${answer.answer}
+
+Evaluate this answer on the following criteria (each scored 0-100):
+
+1. **Technical Depth**: Does the answer demonstrate deep technical understanding? Does it go beyond surface-level knowledge? Does it show practical experience?
+
+2. **Accuracy**: Is the information provided technically correct? Are there any factual errors or misconceptions?
+
+3. **Completeness**: Does the answer fully address the question? Are important aspects or considerations covered?
+
+Provide:
+- Scores for each criterion (0-100)
+- An overall score (weighted average)
+- Detailed feedback explaining the scores in ${isEnglish ? 'ENGLISH' : 'FRENCH'}
+- 2-4 specific strengths of the answer in ${isEnglish ? 'ENGLISH' : 'FRENCH'}
+- 2-4 specific areas for improvement in ${isEnglish ? 'ENGLISH' : 'FRENCH'}
+
+Return a JSON object:
+{
+  "technicalDepth": 85,
+  "accuracy": 90,
+  "completeness": 80,
+  "overallScore": 85,
+  "feedback": "detailed feedback about the answer...",
+  "strengths": ["strength 1", "strength 2", ...],
+  "improvements": ["improvement 1", "improvement 2", ...]
+}`
+
+      const result = await (window as any).spark.llm(scoringPrompt, 'gpt-4o', true)
+      const scoreData = JSON.parse(result)
+
+      setCandidates((prev) =>
+        prev.map((c) => {
+          if (c.id === candidate.id) {
+            const updatedAnswers = (c.questionAnswers || []).map((ans) => {
+              if (ans.questionIndex === questionIndex) {
+                return {
+                  ...ans,
+                  aiScore: {
+                    technicalDepth: scoreData.technicalDepth,
+                    accuracy: scoreData.accuracy,
+                    completeness: scoreData.completeness,
+                    overallScore: scoreData.overallScore,
+                    feedback: scoreData.feedback,
+                    strengths: scoreData.strengths,
+                    improvements: scoreData.improvements,
+                    scoredAt: Date.now(),
+                  },
+                }
+              }
+              return ans
+            })
+
+            return { ...c, questionAnswers: updatedAnswers }
+          }
+          return c
+        })
+      )
+
+      toast.success(t('candidate.answerScored', language))
+    } catch (error) {
+      console.error('Error scoring answer:', error)
+      toast.error(t('candidate.scoringError', language))
+    } finally {
+      setScoringAnswer(null)
+    }
+  }
+
   const startAnswering = (questionIndex: number) => {
     const existingAnswer = candidate.questionAnswers?.find(
       (a) => a.questionIndex === questionIndex
@@ -477,22 +574,130 @@ Return a JSON object with a single property "questions" containing an array of f
                             </div>
 
                             {!isAnswering && answer && (
-                              <div className="mt-2 p-3 bg-muted/50 rounded-md space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <p className="text-xs text-muted-foreground">
-                                    {t('candidate.answeredOn', language)} {new Date(answer.answeredAt).toLocaleDateString()}
-                                  </p>
+                              <div className="mt-2 space-y-3">
+                                <div className="p-3 bg-muted/50 rounded-md space-y-2">
+                                  <div className="flex items-center justify-between">
+                                    <p className="text-xs text-muted-foreground">
+                                      {t('candidate.answeredOn', language)} {new Date(answer.answeredAt).toLocaleDateString()}
+                                    </p>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => startAnswering(index)}
+                                      className="h-7 gap-1 text-xs"
+                                    >
+                                      <PencilSimple size={12} />
+                                      {t('candidate.editAnswer', language)}
+                                    </Button>
+                                  </div>
+                                  <p className="text-sm text-foreground whitespace-pre-wrap">{answer.answer}</p>
+                                </div>
+
+                                {answer.aiScore && (
+                                  <div className="p-3 bg-accent/10 border border-accent/30 rounded-md space-y-3">
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-2">
+                                        <Sparkle size={16} className="text-accent" weight="fill" />
+                                        <h5 className="text-sm font-semibold text-accent">{t('candidate.aiFeedback', language)}</h5>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <div className={`text-lg font-bold ${getScoreColor(answer.aiScore.overallScore)}`}>
+                                          {answer.aiScore.overallScore}
+                                        </div>
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          onClick={() => scoreAnswer(index)}
+                                          disabled={scoringAnswer === index}
+                                          className="h-7 gap-1 text-xs"
+                                        >
+                                          {scoringAnswer === index ? t('candidate.scoringAnswer', language) : t('candidate.rescore', language)}
+                                        </Button>
+                                      </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-3 gap-2">
+                                      <div className="space-y-1">
+                                        <div className="text-xs text-muted-foreground">{t('candidate.technicalDepth', language)}</div>
+                                        <div className="flex items-center gap-2">
+                                          <Progress value={answer.aiScore.technicalDepth} className="h-1.5 flex-1" />
+                                          <span className={`text-xs font-semibold ${getScoreColor(answer.aiScore.technicalDepth)}`}>
+                                            {answer.aiScore.technicalDepth}
+                                          </span>
+                                        </div>
+                                      </div>
+                                      <div className="space-y-1">
+                                        <div className="text-xs text-muted-foreground">{t('candidate.accuracy', language)}</div>
+                                        <div className="flex items-center gap-2">
+                                          <Progress value={answer.aiScore.accuracy} className="h-1.5 flex-1" />
+                                          <span className={`text-xs font-semibold ${getScoreColor(answer.aiScore.accuracy)}`}>
+                                            {answer.aiScore.accuracy}
+                                          </span>
+                                        </div>
+                                      </div>
+                                      <div className="space-y-1">
+                                        <div className="text-xs text-muted-foreground">{t('candidate.completeness', language)}</div>
+                                        <div className="flex items-center gap-2">
+                                          <Progress value={answer.aiScore.completeness} className="h-1.5 flex-1" />
+                                          <span className={`text-xs font-semibold ${getScoreColor(answer.aiScore.completeness)}`}>
+                                            {answer.aiScore.completeness}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <p className="text-xs text-foreground leading-relaxed">{answer.aiScore.feedback}</p>
+
+                                    {answer.aiScore.strengths && answer.aiScore.strengths.length > 0 && (
+                                      <div>
+                                        <div className="flex items-center gap-1.5 mb-1.5">
+                                          <TrendUp size={14} className="text-green-600" weight="bold" />
+                                          <h6 className="text-xs font-semibold text-green-600">{t('candidate.answerStrengths', language)}</h6>
+                                        </div>
+                                        <ul className="space-y-0.5 ml-4">
+                                          {answer.aiScore.strengths.map((strength, sIdx) => (
+                                            <li key={sIdx} className="text-xs text-foreground flex items-start gap-1.5">
+                                              <span className="text-green-600 mt-0.5">•</span>
+                                              <span>{strength}</span>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+
+                                    {answer.aiScore.improvements && answer.aiScore.improvements.length > 0 && (
+                                      <div>
+                                        <div className="flex items-center gap-1.5 mb-1.5">
+                                          <TrendDown size={14} className="text-orange-600" weight="bold" />
+                                          <h6 className="text-xs font-semibold text-orange-600">{t('candidate.answerImprovements', language)}</h6>
+                                        </div>
+                                        <ul className="space-y-0.5 ml-4">
+                                          {answer.aiScore.improvements.map((improvement, iIdx) => (
+                                            <li key={iIdx} className="text-xs text-foreground flex items-start gap-1.5">
+                                              <span className="text-orange-600 mt-0.5">•</span>
+                                              <span>{improvement}</span>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+
+                                {!answer.aiScore && (
                                   <Button
                                     size="sm"
-                                    variant="ghost"
-                                    onClick={() => startAnswering(index)}
-                                    className="h-7 gap-1 text-xs"
+                                    variant="outline"
+                                    onClick={() => scoreAnswer(index)}
+                                    disabled={scoringAnswer === index}
+                                    className="gap-1.5 text-xs bg-accent/5 border-accent/30 hover:bg-accent/10"
                                   >
-                                    <PencilSimple size={12} />
-                                    {t('candidate.editAnswer', language)}
+                                    <Sparkle size={14} weight="fill" className="text-accent" />
+                                    {scoringAnswer === index
+                                      ? t('candidate.scoringAnswer', language)
+                                      : t('candidate.scoreAnswer', language)}
                                   </Button>
-                                </div>
-                                <p className="text-sm text-foreground whitespace-pre-wrap">{answer.answer}</p>
+                                )}
                               </div>
                             )}
 

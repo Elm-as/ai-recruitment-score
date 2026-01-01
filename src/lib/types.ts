@@ -32,6 +32,16 @@ export interface Candidate {
     question: string
     answer: string
     answeredAt: number
+    aiScore?: {
+      technicalDepth: number
+      accuracy: number
+      completeness: number
+      overallScore: number
+      feedback: string
+      strengths: string[]
+      improvements: string[]
+      scoredAt: number
+    }
   }[]
   followUpQuestions?: {
     originalQuestionIndex: number
