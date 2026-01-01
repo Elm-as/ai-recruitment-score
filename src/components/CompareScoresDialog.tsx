@@ -14,23 +14,23 @@ import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { ChartBar, User, Sparkle, TrendUp, TrendDown, CaretDown } from '@phosphor-icons/react'
+import { Collapsible, CollapsibleContent, Collapsible
 import { motion } from 'framer-motion'
-
 interface CompareScoresDialogProps {
-  candidates: Candidate[]
   language: Language
-}
 
-export default function CompareScoresDialog({ candidates, language }: CompareScoresDialogProps) {
-  const [open, setOpen] = useState(false)
-  const [selectedCandidateIds, setSelectedCandidateIds] = useState<Set<string>>(new Set())
+  const [open, setOpen] = useState(f
 
-  const candidatesWithAnswers = useMemo(() => {
-    return candidates.filter(
-      (c) => c.questionAnswers && c.questionAnswers.some((a) => a.aiScore)
+    return candidate
+ 
+
+    return candidatesWithAnswers.filter((c) => selectedCandidateIds.has(c.id))
+
+    setSelectedCandidateIds((prev) => {
+
+      } else {
+      }
+    })
     )
   }, [candidates])
 
@@ -64,33 +64,33 @@ export default function CompareScoresDialog({ candidates, language }: CompareSco
             answer: string
             score: {
               technicalDepth: number
-              accuracy: number
-              completeness: number
-              overallScore: number
-              feedback: string
-            }
+            candidateAnswers: 
+        }
+        allQuestions.get(questionK
+          answer: answer.answe
+        })
           }
-        >
-      }
-    >()
+    retur
+       
+       
 
-    selectedCandidates.forEach((candidate) => {
-      candidate.questionAnswers?.forEach((answer) => {
-        if (!answer.aiScore) return
+      }))
+  }, [selectedCandidates])
+  const overallComparison = useMemo
 
-        const questionKey = `${answer.questionIndex}`
-        if (!allQuestions.has(questionKey)) {
-          allQuestions.set(questionKey, {
-            question: answer.question,
-            candidateAnswers: new Map(),
+      .map((candidate) => {
+
+          return {
+            candidateName: candidate.n
+            averageAnswerScore: 0,
           })
         }
 
-        allQuestions.get(questionKey)!.candidateAnswers.set(candidate.id, {
-          candidateName: candidate.name,
-          answer: answer.answer,
-          score: answer.aiScore,
-        })
+
+          scoredAnswers.reduce((sum, a) 
+          scoredAnswers.reduce((
+          scoredAnswers.reduce((
+          
       })
     })
 
@@ -109,46 +109,46 @@ export default function CompareScoresDialog({ candidates, language }: CompareSco
   const overallComparison = useMemo(() => {
     if (selectedCandidates.length === 0) return []
 
-    return selectedCandidates
-      .map((candidate) => {
-        const scoredAnswers = candidate.questionAnswers?.filter((a) => a.aiScore) || []
+          {t('compareScores.t
+      </DialogTrigger>
+        <DialogHeader>
 
-        if (scoredAnswers.length === 0) {
-          return {
-            candidateId: candidate.id,
-            candidateName: candidate.name,
-            overallScore: candidate.score,
-            averageAnswerScore: 0,
-            answeredCount: 0,
-            totalQuestions: candidate.interviewQuestions?.length || 0,
-            avgTechnicalDepth: 0,
-            avgAccuracy: 0,
-            avgCompleteness: 0,
-          }
-        }
+          </DialogTitle>
+            {t('co
+        </DialogHeader>
+        <ScrollArea className="h-[calc(90v
+            <div>
+                {t('compareScores.
+              <div className=
+                  const scoredCount =
+                  return (
+                      key={
+                      className
+           
+         
 
-        const avgAnswerScore =
-          scoredAnswers.reduce((sum, a) => sum + a.aiScore!.overallScore, 0) / scoredAnswers.length
-        const avgTechnicalDepth =
-          scoredAnswers.reduce((sum, a) => sum + a.aiScore!.technicalDepth, 0) / scoredAnswers.length
-        const avgAccuracy =
-          scoredAnswers.reduce((sum, a) => sum + a.aiScore!.accuracy, 0) / scoredAnswers.length
-        const avgCompleteness =
-          scoredAnswers.reduce((sum, a) => sum + a.aiScore!.completeness, 0) / scoredAnswers.length
+                      <div cla
+                        <p className="text-sm text-muted-foreground">
+                        </p>
+                      <Badge variant="secondary" className="shrink-0">
+                      </Bad
+                  )
+              </div>
+
 
         return {
           candidateId: candidate.id,
           candidateName: candidate.name,
           overallScore: candidate.score,
-          averageAnswerScore: Math.round(avgAnswerScore),
-          answeredCount: scoredAnswers.length,
+
+              <>
           totalQuestions: candidate.interviewQuestions?.length || 0,
-          avgTechnicalDepth: Math.round(avgTechnicalDepth),
-          avgAccuracy: Math.round(avgAccuracy),
-          avgCompleteness: Math.round(avgCompleteness),
+                    <Sparkle size={20} weight="duotone" />
+                  </h3>
+                    {overallComparison.map((comp, index
         }
-      })
-      .sort((a, b) => b.averageAnswerScore - a.averageAnswerScore)
+        
+                        className="border rounded-lg p-4 bg-card"
   }, [selectedCandidates])
 
   const getScoreColor = (score: number) => {
@@ -221,7 +221,7 @@ export default function CompareScoresDialog({ candidates, language }: CompareSco
               <div className="text-center py-8 text-muted-foreground">
                 {t('compareScores.selectAtLeastTwo', language)}
               </div>
-            )}
+              
 
             {selectedCandidates.length === 1 && (
               <div className="text-center py-8 text-muted-foreground">
@@ -231,8 +231,8 @@ export default function CompareScoresDialog({ candidates, language }: CompareSco
 
             {selectedCandidates.length >= 2 && (
               <>
-                <Separator />
-                <div>
+                        {t('c
+                     
                   <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                     <Sparkle size={20} weight="duotone" />
                     {t('compareScores.overallComparison', language)}
@@ -240,9 +240,9 @@ export default function CompareScoresDialog({ candidates, language }: CompareSco
                   <div className="grid gap-4">
                     {overallComparison.map((comp, index) => (
                       <motion.div
-                        key={comp.candidateId}
+                                      {item.qu
                         initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
+                                  <CaretDown size={20}
                         transition={{ delay: index * 0.1 }}
                         className="border rounded-lg p-4 bg-card"
                       >
@@ -258,7 +258,7 @@ export default function CompareScoresDialog({ candidates, language }: CompareSco
                                 </Badge>
                               )}
                             </div>
-                          </div>
+                                
                           <div className="text-right shrink-0">
                             <p className="text-xs text-muted-foreground">
                               {t('compareScores.profileScore', language)}
@@ -266,7 +266,7 @@ export default function CompareScoresDialog({ candidates, language }: CompareSco
                             <p className={`text-lg font-bold ${getScoreColor(comp.overallScore)}`}>
                               {comp.overallScore}/100
                             </p>
-                          </div>
+                                
                         </div>
 
                         <div className="space-y-3">
@@ -284,7 +284,7 @@ export default function CompareScoresDialog({ candidates, language }: CompareSco
                               {comp.answeredCount} {t('compareScores.of', language)} {comp.totalQuestions}{' '}
                               {t('compareScores.questionsScored', language)}
                             </p>
-                          </div>
+
 
                           <div className="grid grid-cols-3 gap-2 text-center">
                             <div className="flex items-center gap-1.5">
@@ -322,13 +322,13 @@ export default function CompareScoresDialog({ candidates, language }: CompareSco
                             </div>
                           </div>
                         </div>
-                      </motion.div>
+
                     ))}
-                  </div>
+
                 </div>
 
                 {comparisonData.length > 0 && (
-                  <>
+
                     <Separator />
                     <div>
                       <h3 className="text-lg font-semibold mb-4">
@@ -441,7 +441,7 @@ export default function CompareScoresDialog({ candidates, language }: CompareSco
                                             )}
                                           </CollapsibleContent>
                                         </Collapsible>
-                                      </div>
+
                                     ))}
                                 </div>
                               </CollapsibleContent>
@@ -449,14 +449,14 @@ export default function CompareScoresDialog({ candidates, language }: CompareSco
                           )
                         })}
                       </div>
-                    </div>
+
                   </>
                 )}
               </>
-            )}
+
           </div>
         </ScrollArea>
       </DialogContent>
-    </Dialog>
+
   )
-}
+
