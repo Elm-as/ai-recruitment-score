@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react'
 import {
-  Dialog
-  DialogH
+  Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -24,44 +23,43 @@ import {
   CaretDown,
 } from '@phosphor-icons/react'
 import { Candidate, Language } from '@/lib/types'
+import { t } from '@/lib/translations'
 
 interface CompareScoresDialogProps {
   candidates: Candidate[]
   language: Language
 }
 
+export default function CompareScoresDialog({ candidates, language }: CompareScoresDialogProps) {
+  const [open, setOpen] = useState(false)
+  const [selectedCandidateIds, setSelectedCandidateIds] = useState<Set<string>>(new Set())
+
   const candidatesWithAnswers = useMemo(() => {
-      (c) => c.questionAnswers && c.quest
+    return candidates.filter(
+      (c) => c.questionAnswers && c.questionAnswers.some((qa) => qa.aiScore)
+    )
   }, [candidates])
 
+  const toggleCandidate = (candidateId: string) => {
+    setSelectedCandidateIds((prev) => {
       const newSet = new Set(prev)
-        newSet.delete(candida
+      if (newSet.has(candidateId)) {
+        newSet.delete(candidateId)
+      } else {
         newSet.add(candidateId)
-     
+      }
+      return newSet
+    })
   }
 
+  const selectedCandidates = useMemo(() => {
+    return candidatesWithAnswers.filter((c) => selectedCandidateIds.has(c.id))
   }, [candidatesWithAnswers, selectedCandidateIds])
-  const comparisonData = useMemo(() => 
 
+  const comparisonData = useMemo(() => {
+    const allQuestions = new Map<
       string,
-        question: string
-          stri
-            answer: string
-       
-              compl
-      
-   
-
-
-      candidate.questionAnswers?.forEach((qa) => {
-
-
-          allQuestions.set(questionKey, 
-            candidateAnswers: new Map(),
-
-        const questionData = allQ
-          ans
-       
+      {
         question: string
         candidateAnswers: Map<
           string,
@@ -297,7 +295,7 @@ interface CompareScoresDialogProps {
                         </div>
                       </motion.div>
                     ))}
-            )}
+                  </div>
                 </div>
 
                 <Separator />
@@ -328,7 +326,7 @@ interface CompareScoresDialogProps {
                             <div className="border-t">
                               {item.answers
                                 .sort((a, b) => b.score.overallScore - a.score.overallScore)
-                                .map((answer, answerIndex) => (
+                                .map((answer) => (
                                   <Collapsible
                                     key={answer.candidateId}
                                     className="border-b last:border-b-0"
@@ -343,7 +341,7 @@ interface CompareScoresDialogProps {
                                                 : 'secondary'
                                             }
                                           >
-
+                                            {answer.candidateName}
                                           </Badge>
                                           {answer.score.overallScore === bestScore && (
                                             <TrendUp size={16} className="text-green-500" />
@@ -352,6 +350,7 @@ interface CompareScoresDialogProps {
                                             bestScore * 0.7 && (
                                             <TrendDown size={16} className="text-orange-500" />
                                           )}
+                                        </div>
 
                                         <div className="text-right">
                                           <p className="text-xl font-bold text-accent">
@@ -360,7 +359,7 @@ interface CompareScoresDialogProps {
                                           <p className="text-xs text-muted-foreground">
                                             {t('compareScores.score', language)}
                                           </p>
-
+                                        </div>
                                       </div>
 
                                       <div className="grid grid-cols-3 gap-2 mb-3">
@@ -434,10 +433,10 @@ interface CompareScoresDialogProps {
                   </div>
                 </div>
               </>
-
+            )}
           </div>
         </ScrollArea>
       </DialogContent>
-
+    </Dialog>
   )
-
+}
