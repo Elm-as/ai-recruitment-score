@@ -1,46 +1,45 @@
 import { useState, useMemo } from 'react'
+import { Candidate, Language } from '@/lib/types'
 import { t } from '@/lib/translations'
+import {
   Dialog,
-  Dialog
-  DialogT
-} from '@/compon
-import { Progress } 
-import { Checkb
-import { Separ
-import { motion 
-  ChartBar,
-  Sparkle,
-  TrendDown,
-} from '@phosphor-icons/react'
-interface CompareScoresDialogProps {
-  language: Language
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Progress } from '@/components/ui/progress'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { motion } from 'framer-motion'
+import {
+  ChartBar,
+  User,
+  Sparkle,
+  TrendUp,
+  TrendDown,
+  CaretDown,
+} from '@phosphor-icons/react'
 
-    retu
-        can
-  }, [c
-  const se
-  }, [cand
-  const togg
-      const 
-        newSet.delete(candidat
+interface CompareScoresDialogProps {
+  candidates: Candidate[]
+  language: Language
+}
 
-      return newSet
-  }
-  const comparisonDa
+export default function CompareScoresDialog({ candidates, language }: CompareScoresDialogProps) {
+  const [open, setOpen] = useState(false)
+  const [selectedCandidateIds, setSelectedCandidateIds] = useState<Set<string>>(new Set())
 
-
-        question: string
-          string,
-            candidateName: string
-
-              accuracy: number
-              overallScore: n
-            }
-        >
-    >
-    selectedCandid
+  const candidatesWithAnswers = useMemo(() => {
+    return candidates.filter(
+      (c) => c.questionAnswers && c.questionAnswers.length > 0 && c.questionAnswers.some((a) => a.aiScore)
+    )
+  }, [candidates])
 
   const selectedCandidates = useMemo(() => {
     return candidatesWithAnswers.filter((c) => selectedCandidateIds.has(c.id))
@@ -55,7 +54,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
         newSet.add(candidateId)
       }
       return newSet
-      
+    })
   }
 
   const comparisonData = useMemo(() => {
@@ -72,40 +71,40 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
             answer: string
             score: {
               technicalDepth: number
-          overallScore: candid
-            scoredAnswers.reduce((
-          avgTechnicalDepth: Math.
-          ),
-            s
+              accuracy: number
+              completeness: number
+              overallScore: number
+              feedback?: string
+            }
           }
-         
-       
+        >
       }
+    >()
 
-  const getScoreColor = (score: number) => {
-    if (score >= 60) return 'text-yellow-600'
-  }
+    selectedCandidates.forEach((candidate) => {
+      candidate.questionAnswers?.forEach((qa) => {
+        if (!qa.aiScore) return
 
-  }
-  return (
-      <DialogTrigger asChild>
-          <ChartBar size={18} weight="
-        </Button>
+        const questionKey = qa.questionIndex.toString()
+        if (!allQuestions.has(questionKey)) {
+          allQuestions.set(questionKey, {
+            question: qa.question,
+            candidateAnswers: new Map(),
           })
         }
 
-          <DialogDescription>
-          </DialogDescription>
-
-          <div className="space-
-              <h3 
-              </h3>
-                {candidatesWithAnswers.map((ca
-                    candidate.questionAnswers?.filter(
-                    <motion.div
-                      whileHover={{ scale: 1.0
-            
-          
+        const questionData = allQuestions.get(questionKey)!
+        questionData.candidateAnswers.set(candidate.id, {
+          candidateName: candidate.name,
+          answer: qa.answer,
+          score: {
+            technicalDepth: qa.aiScore.technicalDepth,
+            accuracy: qa.aiScore.accuracy,
+            completeness: qa.aiScore.completeness,
+            overallScore: qa.aiScore.overallScore,
+            feedback: qa.aiScore.feedback,
+          },
+        })
       })
     })
 
@@ -124,46 +123,51 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
   const overallComparison = useMemo(() => {
     if (selectedCandidates.length === 0) return []
 
-                  </h3>
-                    {overal
-                        key={
-                        animate={{ opacity: 1, x: 0 }}
-
-                        <div className="f
-                  
-                              <p class
-                                <Badge var
-                                  {t('comp
-                              )}
-                          </div>
-                           
-                            </p
-                             
-                          </div>
-
-         
+    return selectedCandidates
+      .map((candidate) => {
+        const scoredAnswers = candidate.questionAnswers?.filter((a) => a.aiScore) || []
+        const avgTechnicalDepth =
+          scoredAnswers.length > 0
+            ? Math.round(
+                scoredAnswers.reduce((sum, a) => sum + (a.aiScore?.technicalDepth || 0), 0) /
+                  scoredAnswers.length
+              )
+            : 0
+        const avgAccuracy =
+          scoredAnswers.length > 0
+            ? Math.round(
+                scoredAnswers.reduce((sum, a) => sum + (a.aiScore?.accuracy || 0), 0) /
+                  scoredAnswers.length
+              )
+            : 0
+        const avgCompleteness =
+          scoredAnswers.length > 0
+            ? Math.round(
+                scoredAnswers.reduce((sum, a) => sum + (a.aiScore?.completeness || 0), 0) /
+                  scoredAnswers.length
+              )
+            : 0
+        const averageAnswerScore =
+          scoredAnswers.length > 0
+            ? Math.round(
+                scoredAnswers.reduce((sum, a) => sum + (a.aiScore?.overallScore || 0), 0) /
+                  scoredAnswers.length
+              )
+            : 0
 
         return {
           candidateId: candidate.id,
           candidateName: candidate.name,
           overallScore: candidate.score,
-                              {t('compare
-                          </div>
-            
-                              <div class
-                                  {t('candidate.technicalDepth', language)}
-            
-                              <spa
-                              </span>
-            
-                                <p cla
-                                </p>
-            
-                                {comp.avgAccur
+          averageAnswerScore,
+          answeredCount: scoredAnswers.length,
           totalQuestions: candidate.interviewQuestions?.length || 0,
+          avgTechnicalDepth,
+          avgAccuracy,
+          avgCompleteness,
         }
-        
-                                <Progress value={comp.avgCompleten
+      })
+      .sort((a, b) => b.averageAnswerScore - a.averageAnswerScore)
   }, [selectedCandidates])
 
   const getScoreColor = (score: number) => {
@@ -271,7 +275,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
                                   {t('compareScores.topPerformer', language)}
                                 </Badge>
                               )}
-                                  
+                            </div>
                           </div>
                           <div className="text-right shrink-0">
                             <p className="text-xs text-muted-foreground">
@@ -281,7 +285,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
                               {comp.overallScore}/100
                             </p>
                           </div>
-                              
+                        </div>
 
                         <div className="space-y-3">
                           <div>
@@ -337,17 +341,18 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
                           </div>
                         </div>
                       </motion.div>
-
+                    ))}
                   </div>
-
+                </div>
 
                 {comparisonData.length > 0 && (
                   <>
                     <Separator />
                     <div>
-
+                      <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <ChartBar size={20} weight="duotone" />
                         {t('compareScores.questionByQuestion', language)}
-
+                      </h3>
                       <div className="space-y-4">
                         {comparisonData.map((item, qIndex) => {
                           const bestScore = getBestScoreForQuestion(item.answers)
@@ -359,9 +364,9 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
                                     <p className="text-sm font-medium mb-1">
                                       Question {item.questionIndex + 1}
                                     </p>
-
+                                    <p className="text-sm text-muted-foreground">
                                       {item.question}
-
+                                    </p>
                                   </div>
                                   <CaretDown size={20} className="shrink-0 text-muted-foreground" />
                                 </div>
@@ -385,7 +390,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
                                               <TrendUp size={12} />
                                               {t('compareScores.best', language)}
                                             </Badge>
-
+                                          )}
                                           {answer.score.overallScore < 50 && (
                                             <Badge variant="outline" className="text-xs gap-1">
                                               <TrendDown size={12} />
@@ -399,7 +404,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
                                         </div>
 
                                         <div className="grid grid-cols-3 gap-2 mb-3">
-
+                                          <div>
                                             <p className="text-xs text-muted-foreground">
                                               {t('candidate.technicalDepth', language)}
                                             </p>
@@ -409,7 +414,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
                                                 {answer.score.technicalDepth}
                                               </span>
                                             </div>
-
+                                          </div>
                                           <div>
                                             <p className="text-xs text-muted-foreground">
                                               {t('candidate.accuracy', language)}
@@ -419,9 +424,9 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
                                               <span className={`text-xs font-semibold ${getScoreColor(answer.score.accuracy)}`}>
                                                 {answer.score.accuracy}
                                               </span>
-
+                                            </div>
                                           </div>
-
+                                          <div>
                                             <p className="text-xs text-muted-foreground">
                                               {t('candidate.completeness', language)}
                                             </p>
@@ -429,7 +434,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
                                               <Progress value={answer.score.completeness} className="h-1.5" />
                                               <span className={`text-xs font-semibold ${getScoreColor(answer.score.completeness)}`}>
                                                 {answer.score.completeness}
-
+                                              </span>
                                             </div>
                                           </div>
                                         </div>
@@ -437,7 +442,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
                                         <Collapsible>
                                           <CollapsibleTrigger className="text-xs text-primary hover:underline">
                                             {t('compareScores.viewAnswer', language)}
-
+                                          </CollapsibleTrigger>
                                           <CollapsibleContent className="mt-2 space-y-2">
                                             <div className="text-sm bg-muted/50 p-2 rounded">
                                               <p className="text-xs text-muted-foreground mb-1">
@@ -455,7 +460,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
                                             )}
                                           </CollapsibleContent>
                                         </Collapsible>
-
+                                      </div>
                                     ))}
                                 </div>
                               </CollapsibleContent>
@@ -463,14 +468,14 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
                           )
                         })}
                       </div>
-
+                    </div>
                   </>
                 )}
               </>
-
+            )}
           </div>
         </ScrollArea>
       </DialogContent>
-
+    </Dialog>
   )
-
+}
