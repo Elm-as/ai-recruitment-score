@@ -33,13 +33,13 @@ function App() {
         animate={{ y: 0, opacity: 1 }}
         className="border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-50 shadow-sm"
       >
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-3 sm:py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground tracking-tight break-words">
+              <h1 className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground tracking-tight break-words">
                 {t('app.title', lang)}
               </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1 hidden xs:block">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 hidden xs:block">
                 {t('app.subtitle', lang)}
               </p>
             </div>
@@ -47,8 +47,8 @@ function App() {
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="hover:scale-105 transition-transform h-8 w-8 sm:h-10 sm:w-10">
-                    <Globe size={16} className="sm:hidden" weight="duotone" />
+                  <Button variant="outline" size="icon" className="hover:scale-105 transition-transform h-9 w-9 sm:h-10 sm:w-10">
+                    <Globe size={18} className="sm:hidden" weight="duotone" />
                     <Globe size={18} className="hidden sm:block" weight="duotone" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -64,13 +64,13 @@ function App() {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="hover:scale-105 transition-transform h-8 w-8 sm:h-10 sm:w-10">
+                  <Button variant="outline" size="icon" className="hover:scale-105 transition-transform h-9 w-9 sm:h-10 sm:w-10">
                     {theme === 'dark' ? (
-                      <Moon size={16} className="sm:hidden" weight="duotone" />
+                      <Moon size={18} className="sm:hidden" weight="duotone" />
                     ) : theme === 'light' ? (
-                      <Sun size={16} className="sm:hidden" weight="duotone" />
+                      <Sun size={18} className="sm:hidden" weight="duotone" />
                     ) : (
-                      <Monitor size={16} className="sm:hidden" weight="duotone" />
+                      <Monitor size={18} className="sm:hidden" weight="duotone" />
                     )}
                     {theme === 'dark' ? (
                       <Moon size={18} className="hidden sm:block" weight="duotone" />
@@ -101,18 +101,20 @@ function App() {
         </div>
       </motion.header>
 
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-xs sm:max-w-md grid-cols-2 mb-4 sm:mb-6">
-            <TabsTrigger value="positions" className="gap-1.5 sm:gap-2 text-xs sm:text-sm">
-              <Briefcase size={16} className="sm:hidden" weight="duotone" />
+          <TabsList className="grid w-full max-w-full xs:max-w-xs sm:max-w-md grid-cols-2 mb-4 sm:mb-6 h-11">
+            <TabsTrigger value="positions" className="gap-1.5 sm:gap-2 text-sm sm:text-sm">
+              <Briefcase size={18} className="sm:hidden" weight="duotone" />
               <Briefcase size={18} className="hidden sm:block" weight="duotone" />
               <span className="hidden xs:inline">{t('nav.positions', lang)}</span>
+              <span className="xs:hidden">Postes</span>
             </TabsTrigger>
-            <TabsTrigger value="history" className="gap-1.5 sm:gap-2 text-xs sm:text-sm">
-              <Clock size={16} className="sm:hidden" weight="duotone" />
+            <TabsTrigger value="history" className="gap-1.5 sm:gap-2 text-sm sm:text-sm">
+              <Clock size={18} className="sm:hidden" weight="duotone" />
               <Clock size={18} className="hidden sm:block" weight="duotone" />
               <span className="hidden xs:inline">{t('nav.history', lang)}</span>
+              <span className="xs:hidden">Historique</span>
             </TabsTrigger>
           </TabsList>
 

@@ -72,18 +72,18 @@ export default function HistoryView({ positions, candidates, language }: History
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h2 className="text-2xl font-semibold text-foreground mb-2">{t('history.title', language)}</h2>
-        <p className="text-sm text-muted-foreground">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-foreground mb-1 sm:mb-2">{t('history.title', language)}</h2>
+        <p className="text-xs sm:text-sm text-muted-foreground">
           {t('history.description', language)}
         </p>
       </motion.div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col gap-2 sm:gap-3">
         <div className="relative flex-1 min-w-0">
           <MagnifyingGlass
             size={18}
@@ -94,24 +94,28 @@ export default function HistoryView({ positions, candidates, language }: History
             placeholder={t('history.search', language)}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 h-10"
           />
         </div>
-        <DateRangeFilter
-          dateRange={dateRange}
-          onDateRangeChange={setDateRange}
-          language={language}
-        />
-        <Button
-          variant={showArchivedOnly ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setShowArchivedOnly(!showArchivedOnly)}
-          className="gap-2 whitespace-nowrap"
-        >
-          <Archive size={16} weight={showArchivedOnly ? 'fill' : 'duotone'} />
-          <span className="hidden xs:inline">{showArchivedOnly ? t('history.hideArchived', language) : t('history.showArchived', language)}</span>
-          <span className="xs:hidden">{showArchivedOnly ? 'Tous' : 'Archives'}</span>
-        </Button>
+        <div className="flex flex-col xs:flex-row gap-2">
+          <div className="flex-1">
+            <DateRangeFilter
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+              language={language}
+            />
+          </div>
+          <Button
+            variant={showArchivedOnly ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setShowArchivedOnly(!showArchivedOnly)}
+            className="gap-2 whitespace-nowrap h-10"
+          >
+            <Archive size={18} weight={showArchivedOnly ? 'fill' : 'duotone'} />
+            <span className="hidden xs:inline">{showArchivedOnly ? t('history.hideArchived', language) : t('history.showArchived', language)}</span>
+            <span className="xs:hidden">{showArchivedOnly ? 'Tous' : 'Archives'}</span>
+          </Button>
+        </div>
       </div>
 
       {filteredPositions.length === 0 ? (
@@ -120,10 +124,10 @@ export default function HistoryView({ positions, candidates, language }: History
           animate={{ opacity: 1, scale: 1 }}
         >
           <Card className="border-dashed border-2">
-            <CardContent className="py-12 sm:py-16 text-center px-4">
-              <Users size={40} className="sm:hidden text-muted-foreground mx-auto mb-4" weight="duotone" />
+            <CardContent className="py-10 sm:py-12 md:py-16 text-center px-4">
+              <Users size={36} className="sm:hidden text-muted-foreground mx-auto mb-3" weight="duotone" />
               <Users size={48} className="hidden sm:block text-muted-foreground mx-auto mb-4" weight="duotone" />
-              <p className="text-muted-foreground text-base sm:text-lg font-medium mb-2">
+              <p className="text-muted-foreground text-sm sm:text-base md:text-lg font-medium mb-2">
                 {positions.length === 0 ? t('history.noHistory', language) : t('history.noResults', language)}
               </p>
               {positions.length === 0 && (
@@ -136,7 +140,7 @@ export default function HistoryView({ positions, candidates, language }: History
         </motion.div>
       ) : (
         <ScrollArea className="h-[calc(100vh-300px)]">
-          <div className="space-y-4 pr-4">
+          <div className="space-y-3 sm:space-y-4 pr-2 sm:pr-4">
             {filteredPositions.map((position, index) => {
               const positionCandidates = getCandidatesForPosition(position.id)
               const scoredCandidates = positionCandidates.filter((c) => c.status === 'scored' || c.status === 'selected' || c.status === 'rejected')
@@ -150,17 +154,17 @@ export default function HistoryView({ positions, candidates, language }: History
                   transition={{ delay: index * 0.05 }}
                 >
                   <Card className="hover:border-accent/50 transition-all hover:shadow-lg">
-                    <CardHeader>
-                      <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
+                    <CardHeader className="pb-3">
+                      <div className="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4">
                         <div className="flex-1 min-w-0">
-                          <CardTitle className="text-base sm:text-lg break-words">{position.title}</CardTitle>
-                          <CardDescription className="line-clamp-2 mt-1 text-xs sm:text-sm">
+                          <CardTitle className="text-base sm:text-lg break-words leading-tight">{position.title}</CardTitle>
+                          <CardDescription className="line-clamp-2 mt-1 text-xs sm:text-sm leading-relaxed">
                             {position.description}
                           </CardDescription>
                         </div>
                         <Badge
                           variant={position.status === 'active' ? 'default' : position.status === 'archived' ? 'outline' : 'secondary'}
-                          className="shrink-0 text-xs"
+                          className="shrink-0 text-xs h-6"
                         >
                           {position.status === 'active' 
                             ? t('history.active', language) 
@@ -177,19 +181,19 @@ export default function HistoryView({ positions, candidates, language }: History
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 text-xs sm:text-sm">
+                        <div className="grid grid-cols-1 xs:grid-cols-3 gap-2 sm:gap-3 text-xs sm:text-sm">
                           <div className="flex items-center gap-2">
-                            <Users size={14} className="text-muted-foreground shrink-0" weight="duotone" />
+                            <Users size={16} className="text-muted-foreground shrink-0" weight="duotone" />
                             <span className="text-muted-foreground">{t('history.total', language)}:</span>
                             <span className="font-semibold">{positionCandidates.length}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <User size={14} className="text-muted-foreground shrink-0" weight="duotone" />
+                            <User size={16} className="text-muted-foreground shrink-0" weight="duotone" />
                             <span className="text-muted-foreground">{t('history.evaluated', language)}:</span>
                             <span className="font-semibold">{scoredCandidates.length}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Badge className="bg-green-600 text-white gap-1.5 text-xs">
+                            <Badge className="bg-green-600 text-white gap-1.5 text-xs h-6">
                               {t('history.selected', language)}: {selectedCandidates.length}
                             </Badge>
                           </div>
@@ -209,15 +213,15 @@ export default function HistoryView({ positions, candidates, language }: History
                                   .map((candidate, cidx) => (
                                     <div
                                       key={candidate.id}
-                                      className="flex flex-col xs:flex-row items-start xs:items-center justify-between text-xs sm:text-sm p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors gap-2"
+                                      className="flex flex-col xs:flex-row items-start xs:items-center justify-between text-xs sm:text-sm p-2 sm:p-2.5 rounded-md bg-muted/50 hover:bg-muted transition-colors gap-2"
                                     >
                                       <div className="flex items-center gap-2 flex-wrap">
-                                        <Badge variant="outline" className="text-xs">
+                                        <Badge variant="outline" className="text-xs h-5">
                                           #{cidx + 1}
                                         </Badge>
                                         <span className="font-medium break-words">{candidate.name}</span>
                                         {candidate.status === 'selected' && (
-                                          <Badge className="bg-green-600 text-white text-xs">
+                                          <Badge className="bg-green-600 text-white text-xs h-5">
                                             {t('positionDetail.selected', language)}
                                           </Badge>
                                         )}

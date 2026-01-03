@@ -344,10 +344,11 @@ Return a JSON object:
   if (candidate.status === 'analyzing') {
     return (
       <Card className="border-accent/50 bg-accent/5">
-        <CardContent className="py-8">
+        <CardContent className="py-6 sm:py-8">
           <div className="flex items-center justify-center gap-3">
-            <Sparkle size={24} className="text-accent animate-pulse" weight="fill" />
-            <span className="text-sm text-muted-foreground">
+            <Sparkle size={20} className="sm:hidden text-accent animate-pulse" weight="fill" />
+            <Sparkle size={24} className="hidden sm:block text-accent animate-pulse" weight="fill" />
+            <span className="text-xs sm:text-sm text-muted-foreground">
               {t('candidate.analyzing', language, { name: candidate.name })}
             </span>
           </div>
@@ -375,7 +376,7 @@ Return a JSON object:
             : ''
         }`}
       >
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-2 sm:pb-3">
           <CandidateHeader
             candidate={candidate}
             rank={rank}
@@ -384,9 +385,9 @@ Return a JSON object:
           />
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 sm:space-y-4">
           <div>
-            <p className="text-sm text-foreground">{candidate.overallAssessment}</p>
+            <p className="text-xs sm:text-sm text-foreground leading-relaxed">{candidate.overallAssessment}</p>
           </div>
 
           <Accordion type="multiple" className="w-full">
@@ -478,9 +479,9 @@ Return a JSON object:
                 variant="outline"
                 onClick={generateInterviewQuestions}
                 disabled={generatingQuestions}
-                className="gap-1.5 text-xs sm:text-sm"
+                className="gap-1.5 text-xs sm:text-sm flex-1 xs:flex-initial h-9"
               >
-                <Sparkle size={14} weight="fill" />
+                <Sparkle size={16} weight="fill" />
                 <span className="hidden xs:inline">{generatingQuestions ? t('candidate.generating', language) : t('candidate.generateQuestions', language)}</span>
                 <span className="xs:hidden">{generatingQuestions ? 'En cours...' : 'Questions'}</span>
               </Button>
@@ -491,9 +492,9 @@ Return a JSON object:
                 size="sm"
                 variant="outline"
                 onClick={markAsSelected}
-                className="gap-1.5 border-green-500 text-green-600 hover:bg-green-50 text-xs sm:text-sm"
+                className="gap-1.5 border-green-500 text-green-600 hover:bg-green-50 text-xs sm:text-sm flex-1 xs:flex-initial h-9"
               >
-                <CheckCircle size={14} weight="bold" />
+                <CheckCircle size={16} weight="bold" />
                 <span className="hidden xs:inline">{t('candidate.select', language)}</span>
                 <span className="xs:hidden">Sélect.</span>
               </Button>
@@ -504,9 +505,9 @@ Return a JSON object:
                 size="sm"
                 variant="outline"
                 onClick={markAsRejected}
-                className="gap-1.5 border-red-500 text-red-600 hover:bg-red-50 text-xs sm:text-sm"
+                className="gap-1.5 border-red-500 text-red-600 hover:bg-red-50 text-xs sm:text-sm flex-1 xs:flex-initial h-9"
               >
-                <XCircle size={14} weight="bold" />
+                <XCircle size={16} weight="bold" />
                 <span className="hidden xs:inline">{t('candidate.reject', language)}</span>
                 <span className="xs:hidden">Rejeter</span>
               </Button>
@@ -517,9 +518,9 @@ Return a JSON object:
                 <Button
                   size="sm"
                   variant="outline"
-                  className="gap-1.5 border-destructive text-destructive hover:bg-destructive/10 text-xs sm:text-sm"
+                  className="gap-1.5 border-destructive text-destructive hover:bg-destructive/10 text-xs sm:text-sm flex-1 xs:flex-initial h-9"
                 >
-                  <Trash size={14} weight="bold" />
+                  <Trash size={16} weight="bold" />
                   <span className="hidden xs:inline">{t('candidate.delete', language)}</span>
                   <span className="xs:hidden">Suppr.</span>
                 </Button>

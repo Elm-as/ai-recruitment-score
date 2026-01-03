@@ -99,46 +99,46 @@ export default function PositionsView({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <motion.div 
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-3 sm:gap-4"
       >
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-semibold text-foreground">
+          <div className="w-full sm:w-auto">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-foreground">
               {showArchived ? t('positions.archived', language) : t('positions.title', language)}
             </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">
               {showArchived
                 ? pluralize('positions.count', archivedPositions.length, language)
                 : pluralize('positions.count', activePositions.length, language)
               }
             </p>
           </div>
-          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <div className="flex gap-2 w-full sm:w-auto">
             {archivedPositions.length > 0 && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowArchived(!showArchived)}
-                className="gap-2 flex-1 sm:flex-initial"
+                className="gap-2 flex-1 sm:flex-initial h-10"
               >
-                <Archive size={16} weight="duotone" />
+                <Archive size={18} weight="duotone" />
                 <span className="hidden xs:inline">{showArchived ? t('positions.hideArchived', language) : t('positions.viewArchived', language)}</span>
                 <span className="xs:hidden">{showArchived ? 'Actifs' : 'Archives'}</span>
               </Button>
             )}
-            <Button onClick={() => setCreateDialogOpen(true)} size="sm" className="gap-2 hover:scale-105 transition-transform flex-1 sm:flex-initial">
-              <Plus size={16} weight="bold" />
+            <Button onClick={() => setCreateDialogOpen(true)} size="sm" className="gap-2 hover:scale-105 transition-transform flex-1 sm:flex-initial h-10">
+              <Plus size={18} weight="bold" />
               <span className="hidden xs:inline">{t('positions.newPosition', language)}</span>
               <span className="xs:hidden">Nouveau</span>
             </Button>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="w-full">
           <DateRangeFilter
             dateRange={dateRange}
             onDateRangeChange={setDateRange}
@@ -153,12 +153,12 @@ export default function PositionsView({
           animate={{ opacity: 1, scale: 1 }}
         >
           <Card className="border-dashed border-2">
-            <CardContent className="flex flex-col items-center justify-center py-12 sm:py-16 px-4">
-              <div className="rounded-full bg-gradient-to-br from-accent/20 to-primary/20 p-4 sm:p-6 mb-4">
+            <CardContent className="flex flex-col items-center justify-center py-10 sm:py-12 md:py-16 px-4">
+              <div className="rounded-full bg-gradient-to-br from-accent/20 to-primary/20 p-5 sm:p-6 mb-4">
                 {showArchived ? (
-                  <Archive size={32} className="sm:hidden text-accent" weight="duotone" />
+                  <Archive size={36} className="sm:hidden text-accent" weight="duotone" />
                 ) : (
-                  <Users size={32} className="sm:hidden text-accent" weight="duotone" />
+                  <Users size={36} className="sm:hidden text-accent" weight="duotone" />
                 )}
                 {showArchived ? (
                   <Archive size={40} className="hidden sm:block text-accent" weight="duotone" />
@@ -177,7 +177,7 @@ export default function PositionsView({
               </p>
               {!showArchived && (
                 <Button onClick={() => setCreateDialogOpen(true)} className="gap-2" size="sm">
-                  <Plus size={16} weight="bold" />
+                  <Plus size={18} weight="bold" />
                   {t('positions.createFirst', language)}
                 </Button>
               )}
@@ -185,7 +185,7 @@ export default function PositionsView({
           </Card>
         </motion.div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {displayPositions.map((position, index) => {
             const candidateCount = getCandidateCount(position.id)
             return (
@@ -203,23 +203,23 @@ export default function PositionsView({
                   }`}
                   onClick={() => setSelectedPosition(position)}
                 >
-                  <CardHeader>
+                  <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-2">
-                      <CardTitle className="text-base sm:text-lg break-words">{position.title}</CardTitle>
+                      <CardTitle className="text-base sm:text-lg break-words line-clamp-2 leading-snug">{position.title}</CardTitle>
                       {showArchived && (
                         <Badge variant="outline" className="shrink-0 text-xs">
                           {t('positions.archived', language)}
                         </Badge>
                       )}
                     </div>
-                    <CardDescription className="line-clamp-2 text-xs sm:text-sm">
+                    <CardDescription className="line-clamp-2 text-xs sm:text-sm leading-relaxed">
                       {position.description}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs sm:text-sm">
+                  <CardContent className="pt-0">
+                    <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2 sm:gap-3 text-xs sm:text-sm">
                       <div className="flex items-center gap-2 text-muted-foreground">
-                        <Users size={14} weight="duotone" />
+                        <Users size={16} weight="duotone" />
                         <span>
                           {candidateCount} {candidateCount === 1 ? t('positions.candidates', language) : t('positions.candidates_plural', language)}
                         </span>
@@ -229,13 +229,13 @@ export default function PositionsView({
                           size="sm"
                           variant="outline"
                           onClick={(e) => unarchivePosition(position, e)}
-                          className="gap-1.5 text-xs w-full sm:w-auto"
+                          className="gap-1.5 text-xs w-full xs:w-auto h-8"
                         >
-                          <Archive size={12} weight="bold" />
+                          <Archive size={14} weight="bold" />
                           {t('positions.unarchive', language)}
                         </Button>
                       ) : (
-                        <div className="text-accent font-medium px-2 sm:px-3 py-1 bg-accent/10 rounded-full text-xs">
+                        <div className="text-accent font-medium px-2.5 sm:px-3 py-1 bg-accent/10 rounded-full text-xs whitespace-nowrap">
                           {position.openings} {position.openings === 1 ? t('positions.openings', language) : t('positions.openings_plural', language)}
                         </div>
                       )}

@@ -152,41 +152,42 @@ export default function PositionDetailView({
   }, 0)
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:gap-4">
         <div className="w-full">
           <Button
             variant="ghost"
             onClick={onBack}
-            className="gap-2 mb-4 -ml-2 hover:scale-105 transition-transform"
+            className="gap-2 mb-3 sm:mb-4 -ml-2 hover:scale-105 transition-transform h-10"
           >
-            <ArrowLeft size={18} weight="bold" />
-            {t('positionDetail.back', language)}
+            <ArrowLeft size={20} weight="bold" />
+            <span className="text-sm sm:text-base">{t('positionDetail.back', language)}</span>
           </Button>
           <div>
-            <h2 className="text-xl sm:text-2xl font-semibold text-foreground break-words">{position.title}</h2>
-            <p className="text-sm text-muted-foreground mt-1 break-words">{position.description}</p>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-3">
-              <Badge variant="outline" className="gap-1.5 text-xs">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-foreground break-words leading-tight">{position.title}</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-1.5 break-words leading-relaxed">{position.description}</p>
+            <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-3">
+              <Badge variant="outline" className="gap-1.5 text-xs h-7">
                 {position.openings} {position.openings === 1 ? t('positions.openings', language) : t('positions.openings_plural', language)}
               </Badge>
-              <Badge variant="secondary" className="gap-1.5 text-xs">
+              <Badge variant="secondary" className="gap-1.5 text-xs h-7">
                 {candidates.length} {candidates.length === 1 ? t('positions.candidates', language) : t('positions.candidates_plural', language)}
               </Badge>
               {answeredButNotScoredCount > 0 && (
-                <Badge className="gap-1.5 text-xs bg-orange-500 hover:bg-orange-600 animate-pulse">
+                <Badge className="gap-1.5 text-xs bg-orange-500 hover:bg-orange-600 animate-pulse h-7">
                   {answeredButNotScoredCount} {language === 'fr' ? 'réponse(s) à évaluer' : 'answer(s) to score'}
                 </Badge>
               )}
             </div>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+        <div className="flex flex-wrap gap-2 w-full">
           <AlertDialog open={archiveDialogOpen} onOpenChange={setArchiveDialogOpen}>
             <AlertDialogTrigger asChild>
-              <Button variant="outline" size="sm" className="border-muted-foreground text-muted-foreground hover:bg-muted gap-2">
-                <Archive size={16} weight="bold" />
+              <Button variant="outline" size="sm" className="border-muted-foreground text-muted-foreground hover:bg-muted gap-2 flex-1 xs:flex-initial h-10">
+                <Archive size={18} weight="bold" />
                 <span className="hidden xs:inline">{t('positions.archive', language)}</span>
+                <span className="xs:hidden">Archiver</span>
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent className="max-w-[95vw] sm:max-w-lg">
@@ -207,9 +208,10 @@ export default function PositionDetailView({
           
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="outline" size="sm" className="border-destructive text-destructive hover:bg-destructive/10 gap-2">
-                <Trash size={16} weight="bold" />
+              <Button variant="outline" size="sm" className="border-destructive text-destructive hover:bg-destructive/10 gap-2 flex-1 xs:flex-initial h-10">
+                <Trash size={18} weight="bold" />
                 <span className="hidden xs:inline">{t('positions.delete', language)}</span>
+                <span className="xs:hidden">Supprimer</span>
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent className="max-w-[95vw] sm:max-w-lg">
@@ -228,9 +230,10 @@ export default function PositionDetailView({
             </AlertDialogContent>
           </AlertDialog>
           
-          <Button onClick={() => setAddCandidateOpen(true)} size="sm" className="gap-2 hover:scale-105 transition-transform flex-1 sm:flex-initial">
-            <Plus size={16} weight="bold" />
-            {t('positionDetail.addCandidate', language)}
+          <Button onClick={() => setAddCandidateOpen(true)} size="sm" className="gap-2 hover:scale-105 transition-transform flex-1 xs:flex-initial h-10">
+            <Plus size={18} weight="bold" />
+            <span className="hidden xs:inline">{t('positionDetail.addCandidate', language)}</span>
+            <span className="xs:hidden">Ajouter</span>
           </Button>
         </div>
       </div>
@@ -239,23 +242,24 @@ export default function PositionDetailView({
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex flex-col gap-3"
+          className="flex flex-col gap-3 sm:gap-3"
         >
           {answeredButNotScoredCount > 0 && (
             <motion.div 
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-4 bg-gradient-to-r from-orange-50 to-yellow-50 border-l-4 border-orange-500 rounded-lg"
+              className="p-3 sm:p-4 bg-gradient-to-r from-orange-50 to-yellow-50 border-l-4 border-orange-500 rounded-lg"
             >
-              <div className="flex items-start gap-3">
-                <Sparkle size={20} className="text-orange-600 shrink-0 mt-0.5" weight="fill" />
+              <div className="flex items-start gap-2 sm:gap-3">
+                <Sparkle size={18} className="sm:hidden text-orange-600 shrink-0 mt-0.5" weight="fill" />
+                <Sparkle size={20} className="hidden sm:block text-orange-600 shrink-0 mt-0.5" weight="fill" />
                 <div className="flex-1 space-y-1">
-                  <h4 className="font-semibold text-sm text-orange-900">
+                  <h4 className="font-semibold text-xs sm:text-sm text-orange-900">
                     {language === 'fr' 
                       ? `${answeredButNotScoredCount} réponse${answeredButNotScoredCount > 1 ? 's' : ''} en attente d'évaluation` 
                       : `${answeredButNotScoredCount} answer${answeredButNotScoredCount > 1 ? 's' : ''} awaiting evaluation`}
                   </h4>
-                  <p className="text-xs text-orange-800">
+                  <p className="text-xs text-orange-800 leading-relaxed">
                     {language === 'fr' 
                       ? 'Ouvrez les cartes des candidats ci-dessous, développez la section "Questions d\'Entretien" et cliquez sur "Évaluer la Réponse" pour obtenir une analyse IA détaillée.' 
                       : 'Open candidate cards below, expand the "Interview Questions" section and click "Score Answer" to get detailed AI analysis.'}
@@ -265,11 +269,11 @@ export default function PositionDetailView({
             </motion.div>
           )}
           
-          <div className="flex items-center justify-between gap-2 flex-wrap">
-            <div className="flex items-center gap-2 overflow-x-auto">
+          <div className="flex flex-col xs:flex-row items-stretch xs:items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2 w-full xs:w-auto">
               <Funnel size={18} className="text-muted-foreground shrink-0" weight="duotone" />
               <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-[180px] sm:w-[200px]">
+                <SelectTrigger className="w-full xs:w-[180px] sm:w-[200px] h-10">
                   <SelectValue placeholder={t('history.filterAll', language)} />
                 </SelectTrigger>
                 <SelectContent>
@@ -282,14 +286,14 @@ export default function PositionDetailView({
               </Select>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full xs:w-auto">
               <Button 
                 onClick={() => setEmailTemplateOpen(true)}
                 size="sm"
                 variant="outline"
-                className="gap-2 hover:scale-105 transition-transform"
+                className="gap-2 hover:scale-105 transition-transform flex-1 xs:flex-initial h-10"
               >
-                <EnvelopeSimple size={16} weight="duotone" />
+                <EnvelopeSimple size={18} weight="duotone" />
                 <span className="hidden sm:inline">{t('email.button', language)}</span>
                 <span className="sm:hidden">Email</span>
               </Button>
@@ -298,9 +302,9 @@ export default function PositionDetailView({
                 onClick={() => setCompareScoresOpen(true)}
                 size="sm"
                 variant="outline"
-                className="gap-2 hover:scale-105 transition-transform"
+                className="gap-2 hover:scale-105 transition-transform flex-1 xs:flex-initial h-10"
               >
-                <ArrowsLeftRight size={16} weight="bold" />
+                <ArrowsLeftRight size={18} weight="bold" />
                 <span className="hidden sm:inline">{t('compare.buttonText', language)}</span>
                 <span className="sm:hidden">Comparer</span>
               </Button>
@@ -325,7 +329,7 @@ export default function PositionDetailView({
           <div className="flex flex-wrap items-center gap-2">
             {selectedCandidateIds.size > 0 && (
               <>
-                <Badge variant="secondary" className="gap-1.5 text-xs">
+                <Badge variant="secondary" className="gap-1.5 text-xs h-7">
                   {selectedCandidateIds.size === 1 
                     ? t('positionDetail.selectedCount', language, { count: selectedCandidateIds.size })
                     : t('positionDetail.selectedCount_plural', language, { count: selectedCandidateIds.size })
@@ -335,9 +339,9 @@ export default function PositionDetailView({
                   size="sm"
                   variant="outline"
                   onClick={() => setBulkDeleteDialogOpen(true)}
-                  className="gap-1.5 border-destructive text-destructive hover:bg-destructive/10 text-xs sm:text-sm"
+                  className="gap-1.5 border-destructive text-destructive hover:bg-destructive/10 text-xs sm:text-sm h-8"
                 >
-                  <Trash size={14} weight="bold" />
+                  <Trash size={16} weight="bold" />
                   <span className="hidden xs:inline">{t('positionDetail.bulkDelete', language)}</span>
                   <span className="xs:hidden">Supprimer</span>
                 </Button>
@@ -348,17 +352,17 @@ export default function PositionDetailView({
                 size="sm"
                 variant="outline"
                 onClick={allFilteredSelected ? deselectAllCandidates : selectAllCandidates}
-                className="gap-1.5 text-xs sm:text-sm"
+                className="gap-1.5 text-xs sm:text-sm h-8"
               >
                 {allFilteredSelected ? (
                   <>
-                    <Square size={14} weight="bold" />
+                    <Square size={16} weight="bold" />
                     <span className="hidden xs:inline">{t('positionDetail.deselectAll', language)}</span>
                     <span className="xs:hidden">Désélect.</span>
                   </>
                 ) : (
                   <>
-                    <CheckSquare size={14} weight="bold" />
+                    <CheckSquare size={16} weight="bold" />
                     <span className="hidden xs:inline">{t('positionDetail.selectAll', language)}</span>
                     <span className="xs:hidden">Tout</span>
                   </>
@@ -373,9 +377,9 @@ export default function PositionDetailView({
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="border-2 border-dashed rounded-lg p-8 sm:p-12 text-center bg-muted/20"
+          className="border-2 border-dashed rounded-lg p-6 sm:p-8 md:p-12 text-center bg-muted/20"
         >
-          <p className="text-muted-foreground text-base sm:text-lg">
+          <p className="text-muted-foreground text-sm sm:text-base md:text-lg">
             {candidates.length === 0
               ? t('positionDetail.noCandidates', language)
               : 'Aucun candidat ne correspond au filtre sélectionné.'}
@@ -387,7 +391,7 @@ export default function PositionDetailView({
           )}
         </motion.div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {filteredCandidates.map((candidate, index) => (
             <motion.div
               key={candidate.id}
@@ -396,11 +400,11 @@ export default function PositionDetailView({
               transition={{ delay: index * 0.05 }}
               className="flex items-start gap-2 sm:gap-3"
             >
-              <div className="pt-4 sm:pt-6">
+              <div className="pt-4 sm:pt-5">
                 <Checkbox
                   checked={selectedCandidateIds.has(candidate.id)}
                   onCheckedChange={() => toggleCandidateSelection(candidate.id)}
-                  className="h-5 w-5 sm:h-5 sm:w-5"
+                  className="h-5 w-5"
                 />
               </div>
               <div className="flex-1 min-w-0">
