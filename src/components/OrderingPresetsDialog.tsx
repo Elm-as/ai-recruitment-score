@@ -24,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { FloppyDisk, ArrowClockwise, Trash, ClockCounterClockwise } from '@phosphor-icons/react'
+import { FloppyDisk, ArrowClockwise, Trash, ClockCounterClockwise, CheckCircle } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
 
@@ -35,6 +35,7 @@ interface OrderingPresetsDialogProps {
   candidates: Candidate[]
   onApplyPreset: (preset: OrderingPreset) => void
   language: Language
+  activePresetId: string | null
 }
 
 export default function OrderingPresetsDialog({
@@ -44,6 +45,7 @@ export default function OrderingPresetsDialog({
   candidates,
   onApplyPreset,
   language,
+  activePresetId,
 }: OrderingPresetsDialogProps) {
   const [presets, setPresets] = useKV<OrderingPreset[]>('ordering-presets', [])
   const [presetName, setPresetName] = useState('')
@@ -230,73 +232,96 @@ export default function OrderingPresetsDialog({
               ) : (
                 <ScrollArea className="h-[300px] rounded-lg border">
                   <div className="p-2 space-y-2">
-                    {positionPresets.map((preset, index) => (
-                      <motion.div
-                        key={preset.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="flex items-start gap-2 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-                      >
-                        <div className="flex-1 min-w-0 space-y-1">
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-semibold text-sm truncate">
-                              {preset.name}
-                            </h4>
-                            {preset.updatedAt !== preset.createdAt && (
-                              <Badge variant="outline" className="text-xs shrink-0">
-                                {language === 'fr' ? 'Modifié' : 'Updated'}
+                    {positionPresets.map((preset, index) => {
+                      const isActive = preset.id === activePresetId
+                      
+                      return (
+                        <motion.div
+                          key={preset.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className={`flex items-start gap-2 p-3 rounded-lg border transition-all ${
+                            isActive
+                              ? 'bg-accent border-primary shadow-md ring-2 ring-primary/20'
+                              : 'bg-card hover:bg-accent/50'
+                          }`}
+                        >
+                          <div className="flex-1 min-w-0 space-y-1">
+                            <div className="flex items-center gap-2">
+                              {isActive && (
+                                <CheckCircle
+                                  size={18}
+                                  weight="fill"
+                                  className="text-primary shrink-0 animate-in fade-in zoom-in duration-300"
+                                />
+                              )}
+                              <h4 className={`font-semibold text-sm truncate ${
+                                isActive ? 'text-primary' : ''
+                              }`}>
+                                {preset.name}
+                              </h4>
+                              {isActive && (
+                                <Badge className="bg-primary text-primary-foreground text-xs shrink-0 animate-in fade-in slide-in-from-left-2 duration-300">
+                                  {language === 'fr' ? 'Actif' : 'Active'}
+                                </Badge>
+                              )}
+                              {preset.updatedAt !== preset.createdAt && !isActive && (
+                                <Badge variant="outline" className="text-xs shrink-0">
+                                  {language === 'fr' ? 'Modifié' : 'Updated'}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <ClockCounterClockwise size={12} />
+                                {formatDate(preset.createdAt)}
+                              </span>
+                              <Badge variant="secondary" className="text-xs">
+                                {preset.candidateOrder.length}{' '}
+                                {language === 'fr' ? 'candidats' : 'candidates'}
                               </Badge>
-                            )}
+                            </div>
                           </div>
-                          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <ClockCounterClockwise size={12} />
-                              {formatDate(preset.createdAt)}
-                            </span>
-                            <Badge variant="secondary" className="text-xs">
-                              {preset.candidateOrder.length}{' '}
-                              {language === 'fr' ? 'candidats' : 'candidates'}
-                            </Badge>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <Button
+                              size="sm"
+                              variant={isActive ? 'default' : 'ghost'}
+                              onClick={() => loadPreset(preset)}
+                              disabled={isActive}
+                              className="h-8 gap-1.5"
+                            >
+                              <ArrowClockwise size={16} weight="bold" />
+                              <span className="hidden sm:inline text-xs">
+                                {language === 'fr' ? 'Charger' : 'Load'}
+                              </span>
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => updatePreset(preset)}
+                              className="h-8 gap-1.5"
+                            >
+                              <FloppyDisk size={16} weight="bold" />
+                              <span className="hidden sm:inline text-xs">
+                                {language === 'fr' ? 'Mettre à jour' : 'Update'}
+                              </span>
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setPresetToDelete(preset)
+                                setDeleteDialogOpen(true)
+                              }}
+                              className="h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              <Trash size={16} weight="bold" />
+                            </Button>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => loadPreset(preset)}
-                            className="h-8 gap-1.5"
-                          >
-                            <ArrowClockwise size={16} weight="bold" />
-                            <span className="hidden sm:inline text-xs">
-                              {language === 'fr' ? 'Charger' : 'Load'}
-                            </span>
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => updatePreset(preset)}
-                            className="h-8 gap-1.5"
-                          >
-                            <FloppyDisk size={16} weight="bold" />
-                            <span className="hidden sm:inline text-xs">
-                              {language === 'fr' ? 'Mettre à jour' : 'Update'}
-                            </span>
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => {
-                              setPresetToDelete(preset)
-                              setDeleteDialogOpen(true)
-                            }}
-                            className="h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                          >
-                            <Trash size={16} weight="bold" />
-                          </Button>
-                        </div>
-                      </motion.div>
-                    ))}
+                        </motion.div>
+                      )
+                    })}
                   </div>
                 </ScrollArea>
               )}

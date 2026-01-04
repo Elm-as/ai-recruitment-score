@@ -1,8 +1,9 @@
 import { useState } from 'react'
+import { useKV } from '@github/spark/hooks'
 import { Position, Candidate, Language, OrderingPreset } from '@/lib/types'
 import { t } from '@/lib/translations'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Plus, Funnel, Trash, Archive, CheckSquare, Square, ArrowsLeftRight, Sparkle, Info, EnvelopeSimple, ArrowsDownUp, FloppyDisk } from '@phosphor-icons/react'
+import { ArrowLeft, Plus, Funnel, Trash, Archive, CheckSquare, Square, ArrowsLeftRight, Sparkle, Info, EnvelopeSimple, ArrowsDownUp, FloppyDisk, CheckCircle } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
@@ -159,6 +160,8 @@ export default function PositionDetailView({
   const [emailTemplateOpen, setEmailTemplateOpen] = useState(false)
   const [presetsDialogOpen, setPresetsDialogOpen] = useState(false)
   const [useCustomOrder, setUseCustomOrder] = useState(false)
+  const [activePresetId, setActivePresetId] = useState<string | null>(null)
+  const [presets, setPresets] = useKV<OrderingPreset[]>('ordering-presets', [])
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -209,6 +212,8 @@ export default function PositionDetailView({
         setUseCustomOrder(true)
       }
 
+      setActivePresetId(null)
+
       toast.success(language === 'fr' ? 'Ordre des candidats mis à jour' : 'Candidate order updated')
     }
   }
@@ -221,6 +226,7 @@ export default function PositionDetailView({
       })
     )
     setUseCustomOrder(false)
+    setActivePresetId(null)
     toast.success(language === 'fr' ? 'Ordre réinitialisé par score' : 'Order reset to score-based')
   }
 
@@ -235,6 +241,7 @@ export default function PositionDetailView({
       })
     })
     setUseCustomOrder(true)
+    setActivePresetId(preset.id)
   }
 
   const toggleCandidateSelection = (candidateId: string) => {
@@ -500,11 +507,21 @@ export default function PositionDetailView({
               <Button 
                 onClick={() => setPresetsDialogOpen(true)}
                 size="sm"
-                variant="outline"
-                className="gap-2 hover:scale-105 transition-transform flex-1 xs:flex-initial h-10"
+                variant={activePresetId ? 'default' : 'outline'}
+                className={`gap-2 hover:scale-105 transition-transform flex-1 xs:flex-initial h-10 ${
+                  activePresetId ? 'shadow-md ring-2 ring-primary/20' : ''
+                }`}
               >
-                <FloppyDisk size={18} weight="duotone" />
-                <span className="hidden sm:inline">{language === 'fr' ? 'Presets d\'ordre' : 'Order presets'}</span>
+                {activePresetId ? (
+                  <CheckCircle size={18} weight="fill" />
+                ) : (
+                  <FloppyDisk size={18} weight="duotone" />
+                )}
+                <span className="hidden sm:inline">
+                  {activePresetId
+                    ? (presets || []).find((p) => p.id === activePresetId)?.name || (language === 'fr' ? 'Presets' : 'Presets')
+                    : (language === 'fr' ? 'Presets d\'ordre' : 'Order presets')}
+                </span>
                 <span className="sm:hidden">{language === 'fr' ? 'Presets' : 'Presets'}</span>
               </Button>
 
@@ -553,6 +570,7 @@ export default function PositionDetailView({
               candidates={candidates}
               onApplyPreset={applyPreset}
               language={language}
+              activePresetId={activePresetId}
             />
           </div>
 
