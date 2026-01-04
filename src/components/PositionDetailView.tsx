@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Position, Candidate, Language } from '@/lib/types'
+import { Position, Candidate, Language, OrderingPreset } from '@/lib/types'
 import { t } from '@/lib/translations'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Plus, Funnel, Trash, Archive, CheckSquare, Square, ArrowsLeftRight, Sparkle, Info, EnvelopeSimple, ArrowsDownUp } from '@phosphor-icons/react'
+import { ArrowLeft, Plus, Funnel, Trash, Archive, CheckSquare, Square, ArrowsLeftRight, Sparkle, Info, EnvelopeSimple, ArrowsDownUp, FloppyDisk } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
@@ -20,6 +20,7 @@ import AddCandidateDialog from './AddCandidateDialog'
 import CandidateCard from './CandidateCard'
 import CompareScoresDialog from './CompareScoresDialog'
 import EmailTemplateDialog from './EmailTemplateDialog'
+import OrderingPresetsDialog from './OrderingPresetsDialog'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -156,6 +157,7 @@ export default function PositionDetailView({
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false)
   const [compareScoresOpen, setCompareScoresOpen] = useState(false)
   const [emailTemplateOpen, setEmailTemplateOpen] = useState(false)
+  const [presetsDialogOpen, setPresetsDialogOpen] = useState(false)
   const [useCustomOrder, setUseCustomOrder] = useState(false)
 
   const sensors = useSensors(
@@ -220,6 +222,19 @@ export default function PositionDetailView({
     )
     setUseCustomOrder(false)
     toast.success(language === 'fr' ? 'Ordre réinitialisé par score' : 'Order reset to score-based')
+  }
+
+  const applyPreset = (preset: OrderingPreset) => {
+    setCandidates((prev) => {
+      return prev.map((c) => {
+        const orderIndex = preset.candidateOrder.indexOf(c.id)
+        if (orderIndex !== -1) {
+          return { ...c, customOrder: orderIndex }
+        }
+        return c
+      })
+    })
+    setUseCustomOrder(true)
   }
 
   const toggleCandidateSelection = (candidateId: string) => {
@@ -483,6 +498,17 @@ export default function PositionDetailView({
               )}
 
               <Button 
+                onClick={() => setPresetsDialogOpen(true)}
+                size="sm"
+                variant="outline"
+                className="gap-2 hover:scale-105 transition-transform flex-1 xs:flex-initial h-10"
+              >
+                <FloppyDisk size={18} weight="duotone" />
+                <span className="hidden sm:inline">{language === 'fr' ? 'Presets d\'ordre' : 'Order presets'}</span>
+                <span className="sm:hidden">{language === 'fr' ? 'Presets' : 'Presets'}</span>
+              </Button>
+
+              <Button 
                 onClick={() => setEmailTemplateOpen(true)}
                 size="sm"
                 variant="outline"
@@ -517,6 +543,15 @@ export default function PositionDetailView({
               onOpenChange={setEmailTemplateOpen}
               candidates={candidates}
               position={position}
+              language={language}
+            />
+
+            <OrderingPresetsDialog
+              open={presetsDialogOpen}
+              onOpenChange={setPresetsDialogOpen}
+              positionId={position.id}
+              candidates={candidates}
+              onApplyPreset={applyPreset}
               language={language}
             />
           </div>

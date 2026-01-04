@@ -65,4 +65,13 @@ export interface PositionWithCandidates extends Position {
   candidates: Candidate[]
 }
 
+export interface OrderingPreset {
+  id: string
+  positionId: string
+  name: string
+  candidateOrder: string[]
+  createdAt: number
+  updatedAt: number
+}
+
 export type Language = 'fr' | 'en'
