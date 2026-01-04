@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Position, Candidate, Language } from '@/lib/types'
 import { t } from '@/lib/translations'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Plus, Funnel, Trash, Archive, CheckSquare, Square, ArrowsLeftRight, Sparkle, Info, EnvelopeSimple } from '@phosphor-icons/react'
+import { ArrowLeft, Plus, Funnel, Trash, Archive, CheckSquare, Square, ArrowsLeftRight, Sparkle, Info, EnvelopeSimple, ArrowsDownUp } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
@@ -23,6 +23,112 @@ import EmailTemplateDialog from './EmailTemplateDialog'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { Checkbox } from '@/components/ui/checkbox'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
+interface SortableCandidateItemProps {
+  candidate: Candidate
+  index: number
+  topPicksCount: number
+  selectedCandidateIds: Set<string>
+  toggleCandidateSelection: (id: string) => void
+  setCandidates: (updater: (prev: Candidate[]) => Candidate[]) => void
+  position: Position
+  positions: Position[]
+  language: Language
+}
+
+function SortableCandidateItem({
+  candidate,
+  index,
+  topPicksCount,
+  selectedCandidateIds,
+  toggleCandidateSelection,
+  setCandidates,
+  position,
+  positions,
+  language,
+}: SortableCandidateItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: candidate.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <motion.div
+      ref={setNodeRef}
+      style={style}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: isDragging ? 0.5 : 1, x: 0 }}
+      transition={{ delay: index * 0.05 }}
+      className="flex items-start gap-2 sm:gap-3"
+    >
+      <div className="pt-4 sm:pt-5 flex items-center gap-2">
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded transition-colors touch-none"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            className="text-muted-foreground"
+          >
+            <circle cx="5" cy="4" r="1" fill="currentColor" />
+            <circle cx="5" cy="8" r="1" fill="currentColor" />
+            <circle cx="5" cy="12" r="1" fill="currentColor" />
+            <circle cx="11" cy="4" r="1" fill="currentColor" />
+            <circle cx="11" cy="8" r="1" fill="currentColor" />
+            <circle cx="11" cy="12" r="1" fill="currentColor" />
+          </svg>
+        </div>
+        <Checkbox
+          checked={selectedCandidateIds.has(candidate.id)}
+          onCheckedChange={() => toggleCandidateSelection(candidate.id)}
+          className="h-5 w-5"
+        />
+      </div>
+      <div className="flex-1 min-w-0">
+        <CandidateCard
+          candidate={candidate}
+          rank={index + 1}
+          isTopPick={index < topPicksCount}
+          setCandidates={setCandidates}
+          position={position}
+          positions={positions}
+          language={language}
+        />
+      </div>
+    </motion.div>
+  )
+}
 
 interface PositionDetailViewProps {
   position: Position
@@ -50,8 +156,25 @@ export default function PositionDetailView({
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false)
   const [compareScoresOpen, setCompareScoresOpen] = useState(false)
   const [emailTemplateOpen, setEmailTemplateOpen] = useState(false)
+  const [useCustomOrder, setUseCustomOrder] = useState(false)
 
-  const sortedCandidates = [...candidates].sort((a, b) => b.score - a.score)
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
+
+  const sortedCandidates = [...candidates].sort((a, b) => {
+    if (useCustomOrder && a.customOrder !== undefined && b.customOrder !== undefined) {
+      return a.customOrder - b.customOrder
+    }
+    return b.score - a.score
+  })
   
   const filteredCandidates = sortedCandidates.filter((c) => {
     if (filterStatus === 'all') return true
@@ -59,6 +182,45 @@ export default function PositionDetailView({
   })
 
   const topPicksCount = Math.min(position.openings, candidates.length)
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (over && active.id !== over.id) {
+      const oldIndex = filteredCandidates.findIndex((c) => c.id === active.id)
+      const newIndex = filteredCandidates.findIndex((c) => c.id === over.id)
+
+      const reorderedFiltered = arrayMove(filteredCandidates, oldIndex, newIndex)
+
+      setCandidates((prev) => {
+        const updated = prev.map((c) => {
+          const newPosition = reorderedFiltered.findIndex((fc) => fc.id === c.id)
+          if (newPosition !== -1) {
+            return { ...c, customOrder: newPosition }
+          }
+          return c
+        })
+        return updated
+      })
+
+      if (!useCustomOrder) {
+        setUseCustomOrder(true)
+      }
+
+      toast.success(language === 'fr' ? 'Ordre des candidats mis à jour' : 'Candidate order updated')
+    }
+  }
+
+  const resetToScoreOrder = () => {
+    setCandidates((prev) =>
+      prev.map((c) => {
+        const { customOrder, ...rest } = c
+        return rest
+      })
+    )
+    setUseCustomOrder(false)
+    toast.success(language === 'fr' ? 'Ordre réinitialisé par score' : 'Order reset to score-based')
+  }
 
   const toggleCandidateSelection = (candidateId: string) => {
     setSelectedCandidateIds((prev) => {
@@ -268,6 +430,26 @@ export default function PositionDetailView({
               </div>
             </motion.div>
           )}
+
+          {candidates.length > 1 && filteredCandidates.length > 1 && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-cyan-50 border-l-4 border-blue-500 rounded-lg"
+            >
+              <div className="flex items-start gap-2 sm:gap-3">
+                <ArrowsDownUp size={18} className="sm:hidden text-blue-600 shrink-0 mt-0.5" weight="duotone" />
+                <ArrowsDownUp size={20} className="hidden sm:block text-blue-600 shrink-0 mt-0.5" weight="duotone" />
+                <div className="flex-1">
+                  <p className="text-xs text-blue-800 leading-relaxed">
+                    {language === 'fr' 
+                      ? 'Glissez-déposez les candidats pour les réorganiser manuellement. Utilisez la poignée ⋮⋮ à gauche de chaque carte.' 
+                      : 'Drag and drop candidates to reorder them manually. Use the ⋮⋮ handle on the left of each card.'}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
           
           <div className="flex flex-col xs:flex-row items-stretch xs:items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2 w-full xs:w-auto">
@@ -286,7 +468,20 @@ export default function PositionDetailView({
               </Select>
             </div>
 
-            <div className="flex items-center gap-2 w-full xs:w-auto">
+            <div className="flex items-center gap-2 w-full xs:w-auto flex-wrap">
+              {useCustomOrder && (
+                <Button 
+                  onClick={resetToScoreOrder}
+                  size="sm"
+                  variant="outline"
+                  className="gap-2 hover:scale-105 transition-transform flex-1 xs:flex-initial h-10"
+                >
+                  <ArrowsDownUp size={18} weight="duotone" />
+                  <span className="hidden sm:inline">{language === 'fr' ? 'Réinitialiser ordre' : 'Reset order'}</span>
+                  <span className="sm:hidden">{language === 'fr' ? 'Réinit.' : 'Reset'}</span>
+                </Button>
+              )}
+
               <Button 
                 onClick={() => setEmailTemplateOpen(true)}
                 size="sm"
@@ -391,36 +586,33 @@ export default function PositionDetailView({
           )}
         </motion.div>
       ) : (
-        <div className="space-y-3 sm:space-y-4">
-          {filteredCandidates.map((candidate, index) => (
-            <motion.div
-              key={candidate.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
-              className="flex items-start gap-2 sm:gap-3"
-            >
-              <div className="pt-4 sm:pt-5">
-                <Checkbox
-                  checked={selectedCandidateIds.has(candidate.id)}
-                  onCheckedChange={() => toggleCandidateSelection(candidate.id)}
-                  className="h-5 w-5"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <CandidateCard
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={filteredCandidates.map((c) => c.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-3 sm:space-y-4">
+              {filteredCandidates.map((candidate, index) => (
+                <SortableCandidateItem
+                  key={candidate.id}
                   candidate={candidate}
-                  rank={index + 1}
-                  isTopPick={index < topPicksCount}
+                  index={index}
+                  topPicksCount={topPicksCount}
+                  selectedCandidateIds={selectedCandidateIds}
+                  toggleCandidateSelection={toggleCandidateSelection}
                   setCandidates={setCandidates}
                   position={position}
                   positions={positions}
                   language={language}
                 />
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       <AddCandidateDialog

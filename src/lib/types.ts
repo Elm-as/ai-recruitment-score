@@ -58,6 +58,7 @@ export interface Candidate {
   status: 'pending' | 'analyzing' | 'scored' | 'selected' | 'rejected'
   createdAt: number
   analyzedAt?: number
+  customOrder?: number
 }
 
 export interface PositionWithCandidates extends Position {
