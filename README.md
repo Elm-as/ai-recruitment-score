@@ -246,6 +246,16 @@ Lorsqu'un candidat est soumis, l'IA analyse automatiquement :
 - **Formats supportés** : PDF et HTML uniquement
 - **Extraction automatique** : le texte est extrait et analysé par l'IA
 - **Taille recommandée** : fichiers CV standards (1-5 pages)
+- **⚡ Optimisation intelligente des CV volumineux** :
+  - Les CV trop longs sont automatiquement optimisés pour éviter les erreurs de limite de tokens
+  - Le système extrait et priorise les sections les plus pertinentes :
+    - 🎯 Profil et résumé professionnel
+    - 💼 Compétences techniques
+    - 📋 Expérience professionnelle
+    - 🎓 Formation et diplômes
+  - Les informations non essentielles sont filtrées (métadonnées PDF, formatage excessif)
+  - Garantit une analyse rapide et précise même pour les CVs de plusieurs pages
+  - Message informatif affiché lors de l'upload pour informer l'utilisateur
 
 ### 3. 🎯 Classement et gestion des candidats
 

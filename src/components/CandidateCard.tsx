@@ -61,45 +61,19 @@ export default function CandidateCard({
     setGeneratingQuestions(true)
     try {
       const isEnglish = language === 'en'
-      const questionsPrompt = (window as any).spark.llmPrompt`You are an expert technical interviewer. Generate 6-8 targeted TECHNICAL interview questions for this candidate based on their profile and the job requirements.
+      const questionsPrompt = (window as any).spark.llmPrompt`Expert technical interviewer: Generate 6-8 TECHNICAL questions only. No behavioral/social/soft skills. Respond in ${isEnglish ? 'ENGLISH' : 'FRENCH'}.
 
-CRITICAL: Generate ONLY technical questions. Do NOT include:
-- Behavioral questions (e.g., "Tell me about a time when...")
-- Social questions (e.g., "How do you work in a team?")
-- Soft skills questions (e.g., "How do you handle conflict?")
-- Cultural fit questions
-- Motivation questions
+JOB: ${position.title}
+REQ: ${position.requirements}
 
-ONLY INCLUDE: Technical skills, technical knowledge, technical problem-solving, technical experience verification, technical capabilities, tools/technologies mastery, and technical challenges.
+CANDIDATE: ${candidate.name} (${candidate.score}/100)
+Strengths: ${candidate.strengths.slice(0, 3).join(', ')}
+Weaknesses: ${candidate.weaknesses.slice(0, 3).join(', ')}
 
-IMPORTANT: Generate all questions in ${isEnglish ? 'ENGLISH' : 'FRENCH'} language.
+Focus: Technical skills, knowledge, problem-solving, experience verification, tools/tech mastery.
 
-JOB POSITION:
-${position.title}
-${position.description}
-Requirements: ${position.requirements}
-
-CANDIDATE:
-Name: ${candidate.name}
-Score: ${candidate.score}/100
-Strengths: ${candidate.strengths.join(', ')}
-Weaknesses: ${candidate.weaknesses.join(', ')}
-Overall Assessment: ${candidate.overallAssessment}
-
-Profile:
-${candidate.profileText}
-
-Generate TECHNICAL questions that:
-1. Probe their claimed technical experience and technical skills
-2. Address any technical gaps or technical weaknesses identified
-3. Verify their technical capabilities with specific tools, languages, frameworks, or technologies
-4. Explore their technical achievements and technical problem-solving
-5. Test their understanding of technical concepts relevant to the role
-
-Return ONLY valid JSON with a single property "questions" containing an array of question strings in ${isEnglish ? 'ENGLISH' : 'FRENCH'}:
-{
-  "questions": ["question 1", "question 2", ...]
-}`
+Return JSON in ${isEnglish ? 'ENGLISH' : 'FRENCH'}:
+{"questions":["q1","q2",...]}`
 
       console.log('Generating interview questions...')
       const result = await (window as any).spark.llm(questionsPrompt, 'gpt-4o-mini', true)
@@ -136,43 +110,18 @@ Return ONLY valid JSON with a single property "questions" containing an array of
     setGeneratingFollowUp(questionIndex)
     try {
       const isEnglish = language === 'en'
-      const followUpPrompt = (window as any).spark.llmPrompt`You are an expert technical interviewer conducting a deep-dive technical interview. Based on the candidate's answer to a technical question, generate 3-5 targeted TECHNICAL follow-up questions.
+      const followUpPrompt = (window as any).spark.llmPrompt`Technical interviewer: Generate 3-5 TECHNICAL follow-up questions. No behavioral/social/soft skills. Respond in ${isEnglish ? 'ENGLISH' : 'FRENCH'}.
 
-CRITICAL: Generate ONLY technical follow-up questions. Do NOT include:
-- Behavioral questions
-- Social questions
-- Soft skills questions
-- Cultural fit questions
+QUESTION: ${answer.question}
+ANSWER: ${answer.answer}
 
-ONLY INCLUDE: Technical depth questions, technical clarification questions, technical problem-solving questions, technical edge-case questions, and technical implementation questions.
+JOB: ${position.title}
+CANDIDATE: ${candidate.name}
 
-IMPORTANT: Generate all questions in ${isEnglish ? 'ENGLISH' : 'FRENCH'} language.
+Focus: Technical depth, understanding, edge cases, implementation details.
 
-ORIGINAL TECHNICAL QUESTION:
-${answer.question}
-
-CANDIDATE'S ANSWER:
-${answer.answer}
-
-JOB CONTEXT:
-Position: ${position.title}
-Key Requirements: ${position.requirements}
-
-CANDIDATE PROFILE:
-Strengths: ${candidate.strengths.join(', ')}
-Weaknesses: ${candidate.weaknesses.join(', ')}
-
-Generate follow-up TECHNICAL questions that:
-1. Probe deeper into the technical details of their answer
-2. Test their technical understanding beyond surface-level knowledge
-3. Challenge any technical assumptions or technical gaps in their response
-4. Explore technical edge cases or technical scenarios related to their answer
-5. Verify technical expertise with specific implementation details
-
-Return ONLY valid JSON with a single property "questions" containing an array of follow-up question strings in ${isEnglish ? 'ENGLISH' : 'FRENCH'}:
-{
-  "questions": ["follow-up question 1", "follow-up question 2", ...]
-}`
+Return JSON in ${isEnglish ? 'ENGLISH' : 'FRENCH'}:
+{"questions":["q1","q2",...]}`
 
       console.log('Generating follow-up questions...')
       const result = await (window as any).spark.llm(followUpPrompt, 'gpt-4o-mini', true)
@@ -238,51 +187,28 @@ Return ONLY valid JSON with a single property "questions" containing an array of
     setScoringAnswer(questionIndex)
     try {
       const isEnglish = language === 'en'
-      const scoringPrompt = (window as any).spark.llmPrompt`You are an expert technical interviewer evaluating a candidate's answer to a technical interview question. Assess the answer for technical depth, accuracy, and completeness.
+      const scoringPrompt = (window as any).spark.llmPrompt`Technical interviewer: Evaluate answer for technical depth, accuracy, completeness. Respond in ${isEnglish ? 'ENGLISH' : 'FRENCH'}.
 
-IMPORTANT: Provide all feedback in ${isEnglish ? 'ENGLISH' : 'FRENCH'} language.
+JOB: ${position.title}
+CANDIDATE: ${candidate.name} (${candidate.score}/100)
 
-JOB POSITION:
-${position.title}
-${position.description}
-Requirements: ${position.requirements}
+QUESTION: ${answer.question}
+ANSWER: ${answer.answer}
 
-CANDIDATE PROFILE:
-Name: ${candidate.name}
-Overall Score: ${candidate.score}/100
-Strengths: ${candidate.strengths.join(', ')}
-Weaknesses: ${candidate.weaknesses.join(', ')}
+Score 0-100 each:
+1. Technical Depth
+2. Accuracy
+3. Completeness
 
-TECHNICAL QUESTION:
-${answer.question}
-
-CANDIDATE'S ANSWER:
-${answer.answer}
-
-Evaluate this answer on the following criteria (each scored 0-100):
-
-1. **Technical Depth**: Does the answer demonstrate deep technical understanding? Does it go beyond surface-level knowledge? Does it show practical experience?
-
-2. **Accuracy**: Is the information provided technically correct? Are there any factual errors or misconceptions?
-
-3. **Completeness**: Does the answer fully address the question? Are important aspects or considerations covered?
-
-Provide:
-- Scores for each criterion (0-100)
-- An overall score (weighted average)
-- Detailed feedback explaining the scores in ${isEnglish ? 'ENGLISH' : 'FRENCH'}
-- 2-4 specific strengths of the answer in ${isEnglish ? 'ENGLISH' : 'FRENCH'}
-- 2-4 specific areas for improvement in ${isEnglish ? 'ENGLISH' : 'FRENCH'}
-
-Return ONLY valid JSON:
+Return JSON in ${isEnglish ? 'ENGLISH' : 'FRENCH'}:
 {
-  "technicalDepth": 85,
-  "accuracy": 90,
-  "completeness": 80,
-  "overallScore": 85,
-  "feedback": "detailed feedback about the answer...",
-  "strengths": ["strength 1", "strength 2", ...],
-  "improvements": ["improvement 1", "improvement 2", ...]
+  "technicalDepth":85,
+  "accuracy":90,
+  "completeness":80,
+  "overallScore":85,
+  "feedback":"",
+  "strengths":[""],
+  "improvements":[""]
 }`
 
       console.log('Scoring answer...')

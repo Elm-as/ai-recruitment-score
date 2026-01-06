@@ -1,3 +1,57 @@
+export function optimizeTextForAnalysis(text: string, maxTokens: number = 3000): string {
+  const words = text.split(/\s+/)
+  const estimatedTokens = Math.ceil(words.length * 1.3)
+  
+  if (estimatedTokens <= maxTokens) {
+    return text
+  }
+  
+  const maxWords = Math.floor(maxTokens / 1.3)
+  
+  const sections: { [key: string]: string[] } = {
+    skills: [],
+    experience: [],
+    education: [],
+    profile: [],
+    other: []
+  }
+  
+  const skillKeywords = /\b(compétence|skill|technolog|langage|language|framework|tool|outil|maîtrise|expertise|certification)/i
+  const experienceKeywords = /\b(expérience|experience|poste|position|travail|work|emploi|job|projet|project|mission|réalisation|achievement)/i
+  const educationKeywords = /\b(formation|education|diplôme|degree|université|university|école|school|étude|master|licence|bachelor)/i
+  const profileKeywords = /\b(profil|profile|résumé|summary|objectif|objective|about|à propos)/i
+  
+  const lines = text.split(/\n|\.(?=\s[A-Z])/)
+  
+  for (const line of lines) {
+    const trimmedLine = line.trim()
+    if (trimmedLine.length < 10) continue
+    
+    if (skillKeywords.test(trimmedLine)) {
+      sections.skills.push(trimmedLine)
+    } else if (experienceKeywords.test(trimmedLine)) {
+      sections.experience.push(trimmedLine)
+    } else if (educationKeywords.test(trimmedLine)) {
+      sections.education.push(trimmedLine)
+    } else if (profileKeywords.test(trimmedLine)) {
+      sections.profile.push(trimmedLine)
+    } else if (sections.other.length < 20) {
+      sections.other.push(trimmedLine)
+    }
+  }
+  
+  const prioritizedText = [
+    ...sections.profile.slice(0, 5),
+    ...sections.skills.slice(0, 20),
+    ...sections.experience.slice(0, 30),
+    ...sections.education.slice(0, 10),
+    ...sections.other.slice(0, 10)
+  ].join('. ')
+  
+  const finalWords = prioritizedText.split(/\s+/).slice(0, maxWords)
+  return finalWords.join(' ')
+}
+
 export async function extractTextFromPDF(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -21,6 +75,9 @@ export async function extractTextFromPDF(file: File): Promise<string> {
           .replace(/\(.*?\)/g, '')
           .replace(/<<.*?>>/g, '')
           .replace(/\/\w+/g, '')
+          .replace(/stream.*?endstream/gi, '')
+          .replace(/obj.*?endobj/gi, '')
+          .replace(/\d{10,}/g, '')
           .trim()
         
         if (cleaned.length < 50) {
@@ -28,7 +85,8 @@ export async function extractTextFromPDF(file: File): Promise<string> {
           return
         }
         
-        resolve(cleaned)
+        const optimized = optimizeTextForAnalysis(cleaned)
+        resolve(optimized)
       } catch (error) {
         reject(new Error('Erreur lors de l\'extraction du texte du PDF'))
       }
@@ -66,7 +124,8 @@ export async function extractTextFromHTML(file: File): Promise<string> {
           return
         }
         
-        resolve(cleaned)
+        const optimized = optimizeTextForAnalysis(cleaned)
+        resolve(optimized)
       } catch (error) {
         reject(new Error('Erreur lors de l\'extraction du texte du HTML'))
       }

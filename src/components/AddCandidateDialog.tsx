@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { Position, Candidate, Language } from '@/lib/types'
 import { t } from '@/lib/translations'
-import { extractTextFromFile, validateFileSize } from '@/lib/fileUtils'
+import { extractTextFromFile, validateFileSize, optimizeTextForAnalysis } from '@/lib/fileUtils'
 import {
   Dialog,
   DialogContent,
@@ -91,38 +91,24 @@ export default function AddCandidateDialog({
       const isEnglish = language === 'en'
 
       const targetLang = isEnglish ? 'ENGLISH' : 'FRENCH'
-      const analysisPrompt = (window as any).spark.llmPrompt`You are an expert HR professional and recruitment specialist. Analyze this candidate profile against the job requirements.
+      const analysisPrompt = (window as any).spark.llmPrompt`HR Expert: Evaluate candidate vs job requirements. Respond in ${targetLang}.
 
-IMPORTANT: All output text (assessments, reasoning, strengths, weaknesses) must be written in ${targetLang} language.
+JOB: ${position.title}
+DESC: ${position.description}
+REQ: ${position.requirements}
 
-JOB POSITION:
-Title: ${position.title}
-Description: ${position.description}
-Requirements: ${position.requirements}
-
-CANDIDATE PROFILE:
-Name: ${candidate.name}
-Email: ${candidate.email}
-Profile Information:
+CANDIDATE: ${candidate.name} (${candidate.email})
 ${candidate.profileText}
 
-Provide a comprehensive evaluation. Return ONLY valid JSON with this exact structure (all text in ${targetLang}):
+Return JSON only (text in ${targetLang}):
 {
-  "score": <number 0-100>,
-  "scoreBreakdown": [
-    {
-      "category": "<category name in ${targetLang}>",
-      "score": <number 0-100>,
-      "reasoning": "<brief explanation in ${targetLang}>"
-    }
-  ],
-  "strengths": ["<strength 1 in ${targetLang}>", "<strength 2>", ...],
-  "weaknesses": ["<weakness 1 in ${targetLang}>", "<weakness 2>", ...],
-  "overallAssessment": "<2-3 sentence summary of candidate fit in ${targetLang}>"
+  "score": 0-100,
+  "scoreBreakdown": [{"category":"","score":0-100,"reasoning":""}],
+  "strengths": [""],
+  "weaknesses": [""],
+  "overallAssessment": ""
 }
-
-Evaluate at least 4-5 categories such as: Technical Skills, Experience Level, Education Background, Cultural Fit, Communication Skills, etc.
-Be specific and reference actual details from the candidate's profile.`
+Evaluate 4-5 categories: Technical Skills, Experience, Education, Fit, etc.`
 
       setProgress(40)
 
@@ -137,28 +123,17 @@ Be specific and reference actual details from the candidate's profile.`
       if (otherPositions.length > 0 && analysis.score >= 50 && analysis.score < 80) {
         console.log('Generating alternative positions...')
         const targetLangAlt = isEnglish ? 'ENGLISH' : 'FRENCH'
-        const alternativesPrompt = (window as any).spark.llmPrompt`Based on this candidate's profile and their score of ${analysis.score}/100 for the ${position.title} position, evaluate if they might be a better fit for any of these other open positions:
+        const alternativesPrompt = (window as any).spark.llmPrompt`Candidate scored ${analysis.score}/100 for ${position.title}. Check better fit for other positions. Respond in ${targetLangAlt}.
 
-IMPORTANT: All reasoning text must be in ${targetLangAlt} language.
-
-CANDIDATE PROFILE:
+CANDIDATE:
 ${candidate.profileText}
 
-OTHER OPEN POSITIONS:
-${otherPositions.map((p) => `- ${p.title}: ${p.description}\n  Requirements: ${p.requirements}`).join('\n\n')}
+OTHER POSITIONS:
+${otherPositions.map((p) => `${p.title}: ${p.description}`).join('\n')}
 
-Return ONLY valid JSON. If there are suitable alternatives, return them in the "alternatives" array. If no alternatives are suitable, return an empty array:
-{
-  "alternatives": [
-    {
-      "positionId": "<position id>",
-      "positionTitle": "<position title>",
-      "reasoning": "<why this position is a better fit, in ${targetLangAlt}>"
-    }
-  ]
-}
-
-Only suggest alternatives if the candidate would score significantly higher (10+ points) for that position.`
+Return JSON (text in ${targetLangAlt}):
+{"alternatives":[{"positionId":"","positionTitle":"","reasoning":""}]}
+Empty array if no better fit (10+ points higher).`
 
         try {
           const alternativesResult = await (window as any).spark.llm(alternativesPrompt, 'gpt-4o-mini', true)
@@ -234,12 +209,14 @@ Only suggest alternatives if the candidate would score significantly higher (10+
       return
     }
 
+    const optimizedProfileText = optimizeTextForAnalysis(profileText.trim())
+
     const newCandidate: Candidate = {
       id: `cand_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       positionId: position.id,
       name: name.trim(),
       email: email.trim(),
-      profileText: profileText.trim(),
+      profileText: optimizedProfileText,
       fileName: uploadedFile?.name,
       fileType: uploadedFile?.name.endsWith('.pdf') ? 'pdf' : uploadedFile?.name.endsWith('.html') || uploadedFile?.name.endsWith('.htm') ? 'html' : undefined,
       score: 0,
@@ -361,6 +338,14 @@ Only suggest alternatives if the candidate would score significantly higher (10+
                       if (file) handleFileUpload(file)
                     }}
                   />
+                </div>
+                <div className="flex items-start gap-2 p-3 bg-accent/10 border border-accent/30 rounded-lg">
+                  <Sparkle size={18} className="text-accent mt-0.5 shrink-0" weight="duotone" />
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {language === 'fr' 
+                      ? "Les CV volumineux sont automatiquement optimisés pour une analyse IA efficace. Seules les sections les plus pertinentes (compétences, expérience, formation) sont conservées."
+                      : "Large CVs are automatically optimized for efficient AI analysis. Only the most relevant sections (skills, experience, education) are retained."}
+                  </p>
                 </div>
               </TabsContent>
 
