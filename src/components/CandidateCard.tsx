@@ -13,6 +13,7 @@ import {
   ArrowsLeftRight,
   Trash,
   Briefcase,
+  FilePdf,
 } from '@phosphor-icons/react'
 import {
   AlertDialog,
@@ -31,6 +32,7 @@ import CandidateHeader from './candidate-details/CandidateHeader'
 import ScoreBreakdownSection from './candidate-details/ScoreBreakdownSection'
 import StrengthsWeaknessesSection from './candidate-details/StrengthsWeaknessesSection'
 import QuestionItem from './candidate-details/QuestionItem'
+import { generateCandidatePDF } from '@/lib/pdfExport'
 
 interface CandidateCardProps {
   candidate: Candidate
@@ -559,6 +561,20 @@ Return ONLY valid JSON:
                 <span className="xs:hidden">Rejeter</span>
               </Button>
             )}
+
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                generateCandidatePDF(candidate, position, language)
+                toast.success(language === 'fr' ? 'Export PDF en cours...' : 'Exporting PDF...')
+              }}
+              className="gap-1.5 text-xs sm:text-sm flex-1 xs:flex-initial h-9"
+            >
+              <FilePdf size={16} weight="duotone" />
+              <span className="hidden xs:inline">{language === 'fr' ? 'Export PDF' : 'Export PDF'}</span>
+              <span className="xs:hidden">PDF</span>
+            </Button>
 
             <AlertDialog>
               <AlertDialogTrigger asChild>

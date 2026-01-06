@@ -3,8 +3,10 @@ import { Position, Candidate, Language } from '@/lib/types'
 import { t } from '@/lib/translations'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { TrendUp, Users, Target, CheckCircle, XCircle, ChartBar } from '@phosphor-icons/react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { TrendUp, Users, Target, CheckCircle, XCircle, ChartBar, ChartLineUp } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
+import { AdvancedAnalyticsDashboard } from './AdvancedAnalyticsDashboard'
 
 interface DashboardViewProps {
   positions: Position[]
@@ -175,6 +177,20 @@ export function DashboardView({ positions, candidates, language }: DashboardView
           </SelectContent>
         </Select>
       </div>
+
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList className="grid w-full max-w-md grid-cols-2 mb-4">
+          <TabsTrigger value="overview" className="gap-2">
+            <ChartBar size={16} weight="duotone" />
+            <span>{language === 'fr' ? 'Vue d\'ensemble' : 'Overview'}</span>
+          </TabsTrigger>
+          <TabsTrigger value="advanced" className="gap-2">
+            <ChartLineUp size={16} weight="duotone" />
+            <span>{language === 'fr' ? 'Analyses Avancées' : 'Advanced Analytics'}</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-4 md:space-y-6">{/* Original dashboard content */}
 
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <MetricCard
@@ -375,6 +391,16 @@ export function DashboardView({ positions, candidates, language }: DashboardView
           </CardContent>
         </Card>
       </div>
+        </TabsContent>
+
+        <TabsContent value="advanced">
+          <AdvancedAnalyticsDashboard
+            positions={positions}
+            candidates={candidates}
+            language={language}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

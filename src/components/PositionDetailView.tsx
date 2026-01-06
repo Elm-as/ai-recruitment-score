@@ -3,7 +3,7 @@ import { useKV } from '@github/spark/hooks'
 import { Position, Candidate, Language, OrderingPreset } from '@/lib/types'
 import { t } from '@/lib/translations'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Plus, Funnel, Trash, Archive, CheckSquare, Square, ArrowsLeftRight, Sparkle, Info, EnvelopeSimple, ArrowsDownUp, FloppyDisk, CheckCircle } from '@phosphor-icons/react'
+import { ArrowLeft, Plus, Funnel, Trash, Archive, CheckSquare, Square, ArrowsLeftRight, Sparkle, Info, EnvelopeSimple, ArrowsDownUp, FloppyDisk, CheckCircle, FilePdf, ChartBar } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
@@ -22,6 +22,8 @@ import CandidateCard from './CandidateCard'
 import CompareScoresDialog from './CompareScoresDialog'
 import EmailTemplateDialog from './EmailTemplateDialog'
 import OrderingPresetsDialog from './OrderingPresetsDialog'
+import { ComparisonMatrixDialog } from './ComparisonMatrixDialog'
+import { generatePositionReportPDF } from '@/lib/pdfExport'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -159,6 +161,7 @@ export default function PositionDetailView({
   const [compareScoresOpen, setCompareScoresOpen] = useState(false)
   const [emailTemplateOpen, setEmailTemplateOpen] = useState(false)
   const [presetsDialogOpen, setPresetsDialogOpen] = useState(false)
+  const [comparisonMatrixOpen, setComparisonMatrixOpen] = useState(false)
   const [useCustomOrder, setUseCustomOrder] = useState(false)
   const [activePresetId, setActivePresetId] = useState<string | null>(null)
   const [presets, setPresets] = useKV<OrderingPreset[]>('ordering-presets', [])
@@ -581,6 +584,28 @@ export default function PositionDetailView({
                 <span className="hidden sm:inline">{t('compare.buttonText', language)}</span>
                 <span className="sm:hidden">Comparer</span>
               </Button>
+
+              <Button 
+                onClick={() => setComparisonMatrixOpen(true)}
+                size="sm"
+                variant="outline"
+                className="gap-2 hover:scale-105 transition-transform flex-1 xs:flex-initial h-10"
+              >
+                <ChartBar size={18} weight="duotone" />
+                <span className="hidden sm:inline">{language === 'fr' ? 'Matrice' : 'Matrix'}</span>
+                <span className="sm:hidden">{language === 'fr' ? 'Matrice' : 'Matrix'}</span>
+              </Button>
+
+              <Button 
+                onClick={() => generatePositionReportPDF(position, candidates, language)}
+                size="sm"
+                variant="outline"
+                className="gap-2 hover:scale-105 transition-transform flex-1 xs:flex-initial h-10"
+              >
+                <FilePdf size={18} weight="duotone" />
+                <span className="hidden sm:inline">{language === 'fr' ? 'Exporter PDF' : 'Export PDF'}</span>
+                <span className="sm:hidden">PDF</span>
+              </Button>
             </div>
 
             <CompareScoresDialog 
@@ -588,6 +613,14 @@ export default function PositionDetailView({
               onOpenChange={setCompareScoresOpen}
               candidates={candidates} 
               language={language} 
+            />
+
+            <ComparisonMatrixDialog
+              open={comparisonMatrixOpen}
+              onOpenChange={setComparisonMatrixOpen}
+              candidates={candidates}
+              position={position}
+              language={language}
             />
 
             <EmailTemplateDialog
