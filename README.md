@@ -2,9 +2,12 @@
 
 Un outil intelligent et complet de gestion du recrutement qui utilise l'intelligence artificielle pour analyser les candidatures, attribuer des scores automatiques, générer des questions d'entretien personnalisées et faciliter tout le processus de sélection des candidats.
 
+**🏢 Maintenant disponible pour les entreprises avec système d'authentification, gestion d'équipe et licences professionnelles !**
+
 ## 📋 Table des matières
 
 - [Vue d'ensemble](#-vue-densemble)
+- [🆕 Système d'authentification entreprise](#-système-dauthentification-entreprise)
 - [Fonctionnalités principales](#-fonctionnalités-principales)
 - [Guide d'utilisation](#-guide-dutilisation)
 - [Fonctionnalités avancées](#-fonctionnalités-avancées)
@@ -17,6 +20,8 @@ Un outil intelligent et complet de gestion du recrutement qui utilise l'intellig
 
 L'Assistant IA de Recrutement est une application web moderne conçue pour automatiser et optimiser le processus de recrutement. Il permet aux recruteurs de :
 
+- ✅ **S'authentifier en toute sécurité** avec un compte entreprise
+- ✅ **Gérer une équipe** de recruteurs avec différents rôles
 - ✅ Créer et gérer des postes à pourvoir
 - ✅ Analyser automatiquement les CV des candidats (PDF et HTML)
 - ✅ Obtenir des scores objectifs basés sur l'IA pour chaque candidat
@@ -29,7 +34,85 @@ L'Assistant IA de Recrutement est une application web moderne conçue pour autom
 **🌍 Multilingue** : Interface disponible en français et en anglais  
 **🎨 Thèmes** : Mode clair, sombre et automatique (selon les préférences système)  
 **📱 Responsive** : Optimisé pour tous les appareils (mobile, tablette, desktop)  
-**🔒 Sans compte** : Aucune inscription nécessaire, les données sont stockées localement
+**🔒 Sécurisé** : Authentification par entreprise avec gestion des licences et des utilisateurs
+
+---
+
+## 🆕 Système d'authentification entreprise
+
+### 🏢 Créer un compte entreprise
+
+1. **Accédez à l'application** - vous serez redirigé vers la page de connexion
+2. **Cliquez sur "Créer un compte entreprise"**
+3. **Remplissez les informations de l'entreprise** :
+   - Nom de l'entreprise
+   - Email de l'entreprise
+4. **Créez votre compte administrateur** :
+   - Votre nom complet
+   - Votre email professionnel (doit correspondre au domaine de l'entreprise)
+5. **Choisissez votre forfait de licence** :
+   - **Essai gratuit (14 jours)** : 3 utilisateurs, 5 postes, 50 candidats
+   - **Starter (49€/mois)** : 5 utilisateurs, 20 postes, 200 candidats + opérations groupées + emails
+   - **Professional (149€/mois)** : 15 utilisateurs, 100 postes, 1000 candidats + analyses avancées
+   - **Enterprise (sur mesure)** : Illimité + API + personnalisation
+6. **Validez** - votre compte est créé et vous êtes automatiquement connecté
+
+### 🔐 Se connecter
+
+1. **Entrez votre email professionnel**
+2. **Connectez-vous** - l'application vérifie :
+   - Votre compte utilisateur
+   - L'entreprise associée
+   - Le statut de la licence (active/expirée)
+3. **Accédez à votre espace** - vous voyez uniquement les données de votre entreprise
+
+### 👥 Gérer l'équipe
+
+Propriétaires et administrateurs peuvent ajouter des membres à l'équipe :
+
+1. **Accédez à l'onglet "Entreprise"**
+2. **Cliquez sur "Ajouter un utilisateur"**
+3. **Remplissez les informations** :
+   - Nom du nouvel utilisateur
+   - Email professionnel (même domaine que l'entreprise)
+   - Rôle à attribuer
+4. **Validez** - le nouvel utilisateur peut maintenant se connecter
+
+#### Rôles et permissions
+
+- **👑 Propriétaire** : Accès complet, créé lors de l'inscription, ne peut pas être modifié
+- **🔧 Administrateur** : Accès complet sauf modification de licence, peut gérer les utilisateurs
+- **✏️ Recruteur** : Peut créer des postes, ajouter des candidats, analyser, générer des questions
+- **👁️ Observateur** : Accès en lecture seule, peut consulter mais pas modifier
+
+### 📊 Gestion de la licence
+
+**Onglet Entreprise** affiche :
+- **Type de licence** et statut (active/expirée)
+- **Date d'expiration** avec alerte 30 jours avant
+- **Utilisation actuelle** :
+  - Nombre d'utilisateurs vs limite
+  - Nombre de postes vs limite
+  - Barres de progression visuelles
+- **Fonctionnalités disponibles** :
+  - ✓ Opérations groupées (Starter+)
+  - ✓ Analyses avancées (Professional+)
+  - ✓ Modèles d'emails (Starter+)
+  - ✓ Accès API (Enterprise)
+  - ✓ Personnalisation (Enterprise)
+
+**Limites appliquées automatiquement** :
+- Impossible d'ajouter plus d'utilisateurs que la limite
+- Impossible de créer plus de postes que la limite
+- Impossible d'ajouter plus de candidats par poste que la limite
+- Fonctionnalités premium désactivées selon le forfait
+- Connexion bloquée si licence expirée
+
+### 🚪 Se déconnecter
+
+1. **Cliquez sur votre nom** en haut à droite
+2. **Sélectionnez "Déconnexion"**
+3. Vous êtes redirigé vers la page de connexion
 
 ---
 

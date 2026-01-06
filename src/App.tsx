@@ -1,31 +1,128 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
-import { Position, Candidate, Language } from '@/lib/types'
+import { Position, Candidate, Language, Company, User, AuthSession } from '@/lib/types'
 import { t } from '@/lib/translations'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import { Briefcase, Clock, Moon, Sun, Globe, Monitor, Question } from '@phosphor-icons/react'
+import { Briefcase, Clock, Moon, Sun, Globe, Monitor, Question, SignOut, Buildings } from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 import PositionsView from '@/components/PositionsView'
 import HistoryView from '@/components/HistoryView'
 import FAQView from '@/components/FAQView'
+import { CompanyManagement } from '@/components/CompanyManagement'
+import { LoginForm } from '@/components/auth/LoginForm'
+import { RegistrationForm } from '@/components/auth/RegistrationForm'
 import { Toaster } from '@/components/ui/sonner'
 import { useTheme } from '@/hooks/use-theme'
 import { motion } from 'framer-motion'
+import { toast } from 'sonner'
 
 function App() {
   const [positions, setPositions] = useKV<Position[]>('positions', [])
   const [candidates, setCandidates] = useKV<Candidate[]>('candidates', [])
+  const [companies, setCompanies] = useKV<Company[]>('companies', [])
+  const [users, setUsers] = useKV<User[]>('users', [])
+  const [authSession, setAuthSession] = useKV<AuthSession | null>('auth-session', null)
   const [activeTab, setActiveTab] = useState('positions')
   const [language, setLanguage] = useKV<Language>('app-language', 'fr')
+  const [authView, setAuthView] = useState<'login' | 'register'>('login')
   const { theme, setTheme } = useTheme()
 
   const lang = language || 'fr'
+  const isAuthenticated = authSession?.isAuthenticated || false
+  
+  const currentCompany = companies?.find(c => c.id === authSession?.companyId)
+  const currentUser = users?.find(u => u.id === authSession?.userId)
+  const companyUsers = users?.filter(u => u.companyId === currentCompany?.id) || []
+
+  const companyPositions = positions?.filter(p => 
+    candidates?.some(c => c.positionId === p.id && users?.find(u => u.id === authSession?.userId)?.companyId === currentCompany?.id)
+  ) || positions || []
+
+  const handleLogin = (company: Company, user: User) => {
+    setAuthSession({
+      companyId: company.id,
+      userId: user.id,
+      isAuthenticated: true
+    })
+  }
+
+  const handleRegister = (company: Company, user: User) => {
+    setAuthSession({
+      companyId: company.id,
+      userId: user.id,
+      isAuthenticated: true
+    })
+  }
+
+  const handleLogout = () => {
+    setAuthSession(null)
+    setActiveTab('positions')
+    toast.success(lang === 'fr' ? 'Déconnexion réussie' : 'Logged out successfully')
+  }
+
+  const handleAddUser = async (newUser: User) => {
+    setUsers((current) => [...(current || []), newUser])
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 flex flex-col items-center justify-center p-4">
+        <div className="absolute top-4 right-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Globe size={16} weight="duotone" />
+                <span className="hidden sm:inline">{lang === 'fr' ? 'Français' : 'English'}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setLanguage('fr')} className="cursor-pointer">
+                🇫🇷 Français
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLanguage('en')} className="cursor-pointer">
+                🇬🇧 English
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full flex justify-center"
+        >
+          {authView === 'login' ? (
+            <LoginForm
+              onLogin={handleLogin}
+              onCreateAccount={() => setAuthView('register')}
+              language={lang}
+            />
+          ) : (
+            <RegistrationForm
+              onRegister={handleRegister}
+              onBack={() => setAuthView('login')}
+              language={lang}
+            />
+          )}
+        </motion.div>
+        <Toaster />
+      </div>
+    )
+  }
+
+  if (!currentCompany || !currentUser) {
+    return <div>Loading...</div>
+  }
+
+  const canAccessFeature = (feature: keyof Company['license']['features']) => {
+    return currentCompany.license.features[feature]
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -41,7 +138,7 @@ function App() {
                 {t('app.title', lang)}
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 hidden xs:block leading-snug">
-                {t('app.subtitle', lang)}
+                {currentCompany.name}
               </p>
             </div>
             
@@ -97,6 +194,30 @@ function App() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="h-8 sm:h-9 md:h-10 px-2 sm:px-3">
+                    <span className="text-xs sm:text-sm font-medium truncate max-w-[100px] sm:max-w-[150px]">
+                      {currentUser.name}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[180px]">
+                  <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                    <p className="font-medium text-foreground truncate">{currentUser.email}</p>
+                    <p className="capitalize">{currentUser.role}</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={handleLogout}
+                    className="cursor-pointer text-xs sm:text-sm text-destructive focus:text-destructive"
+                  >
+                    <SignOut size={14} className="mr-2" />
+                    {lang === 'fr' ? 'Déconnexion' : 'Logout'}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
@@ -104,7 +225,7 @@ function App() {
 
       <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-full sm:max-w-md md:max-w-lg grid-cols-3 mb-3 sm:mb-4 md:mb-6 h-10 sm:h-11">
+          <TabsList className="grid w-full max-w-full sm:max-w-md md:max-w-2xl grid-cols-4 mb-3 sm:mb-4 md:mb-6 h-10 sm:h-11">
             <TabsTrigger value="positions" className="gap-1 sm:gap-1.5 md:gap-2 text-xs sm:text-sm px-1 sm:px-2">
               <Briefcase size={14} className="sm:hidden" weight="duotone" />
               <Briefcase size={16} className="hidden sm:block md:hidden" weight="duotone" />
@@ -119,6 +240,13 @@ function App() {
               <span className="hidden xs:inline">{t('nav.history', lang)}</span>
               <span className="xs:hidden">Hist.</span>
             </TabsTrigger>
+            <TabsTrigger value="company" className="gap-1 sm:gap-1.5 md:gap-2 text-xs sm:text-sm px-1 sm:px-2">
+              <Buildings size={14} className="sm:hidden" weight="duotone" />
+              <Buildings size={16} className="hidden sm:block md:hidden" weight="duotone" />
+              <Buildings size={18} className="hidden md:block" weight="duotone" />
+              <span className="hidden xs:inline">{lang === 'fr' ? 'Entreprise' : 'Company'}</span>
+              <span className="xs:hidden">{lang === 'fr' ? 'Ent.' : 'Co.'}</span>
+            </TabsTrigger>
             <TabsTrigger value="faq" className="gap-1 sm:gap-1.5 md:gap-2 text-xs sm:text-sm px-1 sm:px-2">
               <Question size={14} className="sm:hidden" weight="duotone" />
               <Question size={16} className="hidden sm:block md:hidden" weight="duotone" />
@@ -129,7 +257,7 @@ function App() {
 
           <TabsContent value="positions" className="mt-0">
             <PositionsView
-              positions={positions || []}
+              positions={companyPositions}
               setPositions={setPositions}
               candidates={candidates || []}
               setCandidates={setCandidates}
@@ -139,9 +267,26 @@ function App() {
 
           <TabsContent value="history" className="mt-0">
             <HistoryView
-              positions={positions || []}
+              positions={companyPositions}
               candidates={candidates || []}
               language={lang}
+            />
+          </TabsContent>
+
+          <TabsContent value="company" className="mt-0">
+            <CompanyManagement
+              company={currentCompany}
+              currentUser={currentUser}
+              allUsers={companyUsers}
+              positionsCount={companyPositions.length}
+              candidatesCount={candidates?.length || 0}
+              language={lang}
+              onUpdateCompany={(updated) => {
+                setCompanies((current) => 
+                  (current || []).map(c => c.id === updated.id ? updated : c)
+                )
+              }}
+              onAddUser={handleAddUser}
             />
           </TabsContent>
 

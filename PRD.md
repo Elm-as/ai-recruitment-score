@@ -1,17 +1,39 @@
 # Assistant IA de Recrutement / AI Recruitment Assistant
 
-Un outil intelligent de recrutement qui analyse les profils des candidats par rapport aux postes à pourvoir, attribue des scores et classe les candidats, génère des questions d'entretien personnalisées et maintient un historique consultable de toutes les évaluations. **Support multilingue (Français/English) avec thème sombre/clair et téléchargement de fichiers PDF/HTML.**
+Un outil intelligent de recrutement qui analyse les profils des candidats par rapport aux postes à pourvoir, attribue des scores et classe les candidats, génère des questions d'entretien personnalisées et maintient un historique consultable de toutes les évaluations. **Support multilingue (Français/English) avec thème sombre/clair et téléchargement de fichiers PDF/HTML. Système d'authentification entreprise avec gestion des licences et des utilisateurs.**
 
 **Qualités de l'Expérience** :
 1. **Efficace** - Rationalise le processus d'examen des candidats en automatisant la notation et le classement, économisant des heures d'évaluation manuelle pour les recruteurs
 2. **Perspicace** - Fournit une analyse approfondie des forces, faiblesses et adéquation de chaque candidat avec des informations exploitables
 3. **Professionnel** - Maintient une interface polie et autoritaire qui reflète la nature sérieuse des décisions d'embauche
 4. **Moderne** - Interface responsive avec animations fluides et support du thème sombre pour une expérience utilisateur optimale
+5. **Sécurisé** - Système d'authentification robuste avec gestion des entreprises, utilisateurs et licences pour un usage B2B
 
 **Niveau de Complexité** : Application Complexe (fonctionnalités avancées, avec plusieurs vues)
-Cette application nécessite une intégration IA sophistiquée pour l'analyse des candidats, des workflows multi-étapes (publication de poste → soumission de candidat → notation → classement → préparation d'entretien), stockage persistant des données pour l'historique, génération de contenu dynamique basée sur les réponses IA, **support multilingue complet, système de thème dynamique et extraction de texte depuis fichiers PDF/HTML**.
+Cette application nécessite une intégration IA sophistiquée pour l'analyse des candidats, des workflows multi-étapes (publication de poste → soumission de candidat → notation → classement → préparation d'entretien), stockage persistant des données pour l'historique, génération de contenu dynamique basée sur les réponses IA, **support multilingue complet, système de thème dynamique, extraction de texte depuis fichiers PDF/HTML, et système d'authentification multi-tenant avec gestion des licences et des rôles utilisateurs**.
 
 ## Essential Features
+
+### Company Authentication & Registration
+- **Functionality**: Complete B2B authentication system with company registration, user management, and license validation. Companies can register with different license tiers (Trial, Starter, Professional, Enterprise), each with specific limits and features. Login validates both company and user credentials, checks license status, and tracks last login times.
+- **Purpose**: Enables secure multi-tenant access, protects company data, and enforces license-based feature access for B2B SaaS model
+- **Trigger**: User visits application without active session, clicks "Create company account", or needs to add team members
+- **Progression**: Visit app → See login screen → Enter email → Validate credentials and license → Access app. Or: Click create account → Enter company details → Choose license plan → Enter admin user details → Validate domain matching → Create company and admin user → Auto-login → Access app
+- **Success criteria**: Companies are isolated from each other, users can only access their company's data, license limits are enforced, expired licenses prevent login, team members can be added up to license limits
+
+### License Management & Feature Gating
+- **Functionality**: Four license tiers with progressive feature unlocking. Trial (14 days, 3 users, 5 positions, 50 candidates, limited features), Starter (€49/mo, 5 users, 20 positions, 200 candidates, bulk ops + email templates), Professional (€149/mo, 15 users, 100 positions, 1000 candidates, + advanced analytics), Enterprise (custom pricing, unlimited, all features including API access and custom branding). Real-time usage tracking shows current usage vs limits with progress bars.
+- **Purpose**: Monetization model for B2B sales, clear upgrade path as companies grow, feature differentiation between tiers to encourage upgrades
+- **Trigger**: User attempts to use premium feature, admin views company management tab, license approaches expiry
+- **Progression**: Login → Check license status → Enable/disable features based on tier → Show usage stats → Warn when approaching limits → Prevent actions when limit reached → Show upgrade prompts
+- **Success criteria**: Features are correctly gated based on license tier, usage limits are enforced (can't exceed max users/positions/candidates), expiration warnings appear 30 days before expiry, expired licenses prevent login, upgrade paths are clear
+
+### User Role Management
+- **Functionality**: Four user roles with different permissions. Owner (full access, can't be changed, created at registration), Admin (full access except license changes, can add/remove users), Recruiter (can create positions, add candidates, view analyses, generate questions), Viewer (read-only access, can view positions and candidates but not modify). Owner and Admin can add new users via company management interface.
+- **Purpose**: Enables team collaboration with appropriate access controls, protects sensitive actions, allows delegation of recruitment tasks
+- **Trigger**: Owner/Admin clicks "Add User" in company management, new team member needs access
+- **Progression**: Click Add User → Enter name, email, select role → Validate email domain matches company → Check user limit → Create user account → User can login → Permissions enforced throughout app
+- **Success criteria**: Role permissions are enforced in UI and data operations, users can't escalate their own permissions, company domain validation prevents external users, team list shows all members with roles
 
 ### Job Position Management
 - **Functionality**: Create and manage job positions with title, description, requirements, and number of openings. Archive positions instead of deleting them to preserve history. Restore archived positions when needed.

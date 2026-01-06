@@ -75,3 +75,45 @@ export interface OrderingPreset {
 }
 
 export type Language = 'fr' | 'en'
+
+export type LicenseType = 'trial' | 'starter' | 'professional' | 'enterprise'
+export type UserRole = 'owner' | 'admin' | 'recruiter' | 'viewer'
+
+export interface Company {
+  id: string
+  name: string
+  email: string
+  createdAt: number
+  license: {
+    type: LicenseType
+    maxUsers: number
+    maxPositions: number
+    maxCandidatesPerPosition: number
+    features: {
+      bulkOperations: boolean
+      advancedAnalytics: boolean
+      emailTemplates: boolean
+      apiAccess: boolean
+      customBranding: boolean
+    }
+    startDate: number
+    expiryDate: number
+    isActive: boolean
+  }
+}
+
+export interface User {
+  id: string
+  companyId: string
+  name: string
+  email: string
+  role: UserRole
+  createdAt: number
+  lastLoginAt?: number
+}
+
+export interface AuthSession {
+  companyId: string
+  userId: string
+  isAuthenticated: boolean
+}
