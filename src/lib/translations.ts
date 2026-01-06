@@ -369,6 +369,10 @@ export const translations = {
         tip2: 'Comparez régulièrement les scores des candidats pour identifier les tendances et affiner vos critères de sélection.',
         tip3: 'Archivez plutôt que supprimer les postes pourvus pour conserver un historique complet de vos recrutements.',
       },
+      goTo: {
+        positions: 'Aller aux Postes',
+        history: 'Aller à l\'Historique',
+      },
     },
   },
   en: {
@@ -738,6 +742,10 @@ export const translations = {
         tip1: 'Use detailed and precise position descriptions to get more relevant AI evaluations and better-targeted interview questions.',
         tip2: 'Regularly compare candidate scores to identify trends and refine your selection criteria.',
         tip3: 'Archive rather than delete filled positions to maintain a complete history of your recruitments.',
+      },
+      goTo: {
+        positions: 'Go to Positions',
+        history: 'Go to History',
       },
     },
   },

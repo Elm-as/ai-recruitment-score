@@ -144,7 +144,7 @@ function App() {
           </TabsContent>
 
           <TabsContent value="faq" className="mt-0">
-            <FAQView language={lang} />
+            <FAQView language={lang} onNavigate={setActiveTab} />
           </TabsContent>
         </Tabs>
       </main>

@@ -7,24 +7,26 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Question, Lightbulb, FileText, ChartBar, Users, Archive, Trash, ArrowsClockwise } from '@phosphor-icons/react'
+import { Button } from '@/components/ui/button'
+import { Question, Lightbulb, FileText, ChartBar, Users, Archive, Trash, ArrowsClockwise, ArrowRight } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 
 interface FAQViewProps {
   language: Language
+  onNavigate?: (tab: string) => void
 }
 
-export default function FAQView({ language }: FAQViewProps) {
+export default function FAQView({ language, onNavigate }: FAQViewProps) {
   const faqCategories = [
     {
       title: t('faq.category.general', language),
       icon: Question,
       color: 'text-accent',
       questions: [
-        { q: 'whatIsThis', a: 'whatIsThisAnswer' },
-        { q: 'howItWorks', a: 'howItWorksAnswer' },
-        { q: 'needAccount', a: 'needAccountAnswer' },
-        { q: 'dataStorage', a: 'dataStorageAnswer' },
+        { q: 'whatIsThis', a: 'whatIsThisAnswer', link: null },
+        { q: 'howItWorks', a: 'howItWorksAnswer', link: 'positions' },
+        { q: 'needAccount', a: 'needAccountAnswer', link: null },
+        { q: 'dataStorage', a: 'dataStorageAnswer', link: null },
       ]
     },
     {
@@ -32,10 +34,10 @@ export default function FAQView({ language }: FAQViewProps) {
       icon: FileText,
       color: 'text-blue-500',
       questions: [
-        { q: 'createPosition', a: 'createPositionAnswer' },
-        { q: 'archivePosition', a: 'archivePositionAnswer' },
-        { q: 'deletePosition', a: 'deletePositionAnswer' },
-        { q: 'restoreArchived', a: 'restoreArchivedAnswer' },
+        { q: 'createPosition', a: 'createPositionAnswer', link: 'positions' },
+        { q: 'archivePosition', a: 'archivePositionAnswer', link: 'positions' },
+        { q: 'deletePosition', a: 'deletePositionAnswer', link: 'positions' },
+        { q: 'restoreArchived', a: 'restoreArchivedAnswer', link: 'history' },
       ]
     },
     {
@@ -43,12 +45,12 @@ export default function FAQView({ language }: FAQViewProps) {
       icon: Users,
       color: 'text-purple-500',
       questions: [
-        { q: 'addCandidate', a: 'addCandidateAnswer' },
-        { q: 'fileFormats', a: 'fileFormatsAnswer' },
-        { q: 'howScoring', a: 'howScoringAnswer' },
-        { q: 'scoreBreakdown', a: 'scoreBreakdownAnswer' },
-        { q: 'deleteCandidate', a: 'deleteCandidateAnswer' },
-        { q: 'bulkDelete', a: 'bulkDeleteAnswer' },
+        { q: 'addCandidate', a: 'addCandidateAnswer', link: 'positions' },
+        { q: 'fileFormats', a: 'fileFormatsAnswer', link: null },
+        { q: 'howScoring', a: 'howScoringAnswer', link: 'positions' },
+        { q: 'scoreBreakdown', a: 'scoreBreakdownAnswer', link: 'positions' },
+        { q: 'deleteCandidate', a: 'deleteCandidateAnswer', link: 'positions' },
+        { q: 'bulkDelete', a: 'bulkDeleteAnswer', link: 'positions' },
       ]
     },
     {
@@ -56,11 +58,11 @@ export default function FAQView({ language }: FAQViewProps) {
       icon: Lightbulb,
       color: 'text-yellow-600',
       questions: [
-        { q: 'interviewQuestions', a: 'interviewQuestionsAnswer' },
-        { q: 'questionTypes', a: 'questionTypesAnswer' },
-        { q: 'answerQuestions', a: 'answerQuestionsAnswer' },
-        { q: 'scoreAnswers', a: 'scoreAnswersAnswer' },
-        { q: 'followUpQuestions', a: 'followUpQuestionsAnswer' },
+        { q: 'interviewQuestions', a: 'interviewQuestionsAnswer', link: 'positions' },
+        { q: 'questionTypes', a: 'questionTypesAnswer', link: null },
+        { q: 'answerQuestions', a: 'answerQuestionsAnswer', link: 'positions' },
+        { q: 'scoreAnswers', a: 'scoreAnswersAnswer', link: 'positions' },
+        { q: 'followUpQuestions', a: 'followUpQuestionsAnswer', link: 'positions' },
       ]
     },
     {
@@ -68,10 +70,10 @@ export default function FAQView({ language }: FAQViewProps) {
       icon: ChartBar,
       color: 'text-green-500',
       questions: [
-        { q: 'compareScores', a: 'compareScoresAnswer' },
-        { q: 'alternativePositions', a: 'alternativePositionsAnswer' },
-        { q: 'orderingPresets', a: 'orderingPresetsAnswer' },
-        { q: 'emailTemplates', a: 'emailTemplatesAnswer' },
+        { q: 'compareScores', a: 'compareScoresAnswer', link: 'positions' },
+        { q: 'alternativePositions', a: 'alternativePositionsAnswer', link: 'positions' },
+        { q: 'orderingPresets', a: 'orderingPresetsAnswer', link: 'positions' },
+        { q: 'emailTemplates', a: 'emailTemplatesAnswer', link: 'positions' },
       ]
     },
     {
@@ -79,9 +81,9 @@ export default function FAQView({ language }: FAQViewProps) {
       icon: Archive,
       color: 'text-orange-500',
       questions: [
-        { q: 'viewHistory', a: 'viewHistoryAnswer' },
-        { q: 'filterHistory', a: 'filterHistoryAnswer' },
-        { q: 'dateRange', a: 'dateRangeAnswer' },
+        { q: 'viewHistory', a: 'viewHistoryAnswer', link: 'history' },
+        { q: 'filterHistory', a: 'filterHistoryAnswer', link: 'history' },
+        { q: 'dateRange', a: 'dateRangeAnswer', link: 'history' },
       ]
     },
   ]
@@ -128,8 +130,19 @@ export default function FAQView({ language }: FAQViewProps) {
                         <AccordionTrigger className="text-left hover:no-underline hover:text-accent transition-colors">
                           {t(`faq.questions.${item.q}`, language)}
                         </AccordionTrigger>
-                        <AccordionContent className="text-muted-foreground leading-relaxed">
-                          {t(`faq.answers.${item.a}`, language)}
+                        <AccordionContent className="text-muted-foreground leading-relaxed space-y-3">
+                          <p>{t(`faq.answers.${item.a}`, language)}</p>
+                          {item.link && onNavigate && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => onNavigate(item.link)}
+                              className="gap-2 hover:bg-accent/10 hover:text-accent hover:border-accent transition-all"
+                            >
+                              {t(`faq.goTo.${item.link}`, language)}
+                              <ArrowRight size={16} weight="bold" />
+                            </Button>
+                          )}
                         </AccordionContent>
                       </AccordionItem>
                     ))}
