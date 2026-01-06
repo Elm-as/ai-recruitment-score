@@ -92,21 +92,22 @@ export default function FAQView({ language, onNavigate }: FAQViewProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
+      className="space-y-4 sm:space-y-6"
     >
       <Card className="border-accent/20 shadow-lg">
-        <CardHeader>
-          <div className="flex items-start gap-3">
-            <Question size={32} weight="duotone" className="text-accent shrink-0 mt-1" />
-            <div>
-              <CardTitle className="text-2xl">{t('faq.title', language)}</CardTitle>
-              <CardDescription className="mt-2">{t('faq.subtitle', language)}</CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <div className="flex items-start gap-2 sm:gap-3">
+            <Question size={24} className="sm:hidden text-accent shrink-0 mt-1" weight="duotone" />
+            <Question size={32} className="hidden sm:block text-accent shrink-0 mt-1" weight="duotone" />
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-lg sm:text-xl md:text-2xl break-words">{t('faq.title', language)}</CardTitle>
+              <CardDescription className="mt-1 sm:mt-2 text-xs sm:text-sm">{t('faq.subtitle', language)}</CardDescription>
             </div>
           </div>
         </CardHeader>
       </Card>
 
-      <div className="grid gap-6">
+      <div className="grid gap-3 sm:gap-4 md:gap-6">
         {faqCategories.map((category, categoryIndex) => {
           const Icon = category.icon
           return (
@@ -117,30 +118,32 @@ export default function FAQView({ language, onNavigate }: FAQViewProps) {
               transition={{ delay: categoryIndex * 0.1 }}
             >
               <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <Icon size={24} weight="duotone" className={category.color} />
-                    <CardTitle className="text-lg">{category.title}</CardTitle>
+                <CardHeader className="p-4 sm:p-6">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <Icon size={20} weight="duotone" className={`sm:hidden ${category.color}`} />
+                    <Icon size={24} weight="duotone" className={`hidden sm:block ${category.color}`} />
+                    <CardTitle className="text-base sm:text-lg break-words">{category.title}</CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-4 sm:p-6 pt-0">
                   <Accordion type="single" collapsible className="w-full">
                     {category.questions.map((item, itemIndex) => (
                       <AccordionItem key={itemIndex} value={`item-${categoryIndex}-${itemIndex}`}>
-                        <AccordionTrigger className="text-left hover:no-underline hover:text-accent transition-colors">
+                        <AccordionTrigger className="text-left hover:no-underline hover:text-accent transition-colors text-sm sm:text-base py-3 sm:py-4">
                           {t(`faq.questions.${item.q}`, language)}
                         </AccordionTrigger>
-                        <AccordionContent className="text-muted-foreground leading-relaxed space-y-3">
-                          <p>{t(`faq.answers.${item.a}`, language)}</p>
+                        <AccordionContent className="text-muted-foreground leading-relaxed space-y-3 text-xs sm:text-sm pb-4">
+                          <p className="break-words">{t(`faq.answers.${item.a}`, language)}</p>
                           {item.link && onNavigate && (
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => onNavigate(item.link)}
-                              className="gap-2 hover:bg-accent/10 hover:text-accent hover:border-accent transition-all"
+                              className="gap-2 hover:bg-accent/10 hover:text-accent hover:border-accent transition-all w-full xs:w-auto h-9"
                             >
                               {t(`faq.goTo.${item.link}`, language)}
-                              <ArrowRight size={16} weight="bold" />
+                              <ArrowRight size={14} className="sm:hidden" weight="bold" />
+                              <ArrowRight size={16} className="hidden sm:block" weight="bold" />
                             </Button>
                           )}
                         </AccordionContent>
@@ -155,27 +158,31 @@ export default function FAQView({ language, onNavigate }: FAQViewProps) {
       </div>
 
       <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
-        <CardHeader>
-          <div className="flex items-start gap-3">
-            <Lightbulb size={24} weight="duotone" className="text-accent shrink-0 mt-1" />
-            <div>
-              <CardTitle className="text-lg">{t('faq.tips.title', language)}</CardTitle>
-              <CardDescription className="mt-2">{t('faq.tips.subtitle', language)}</CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <div className="flex items-start gap-2 sm:gap-3">
+            <Lightbulb size={20} className="sm:hidden text-accent shrink-0 mt-1" weight="duotone" />
+            <Lightbulb size={24} className="hidden sm:block text-accent shrink-0 mt-1" weight="duotone" />
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-base sm:text-lg break-words">{t('faq.tips.title', language)}</CardTitle>
+              <CardDescription className="mt-1 sm:mt-2 text-xs sm:text-sm">{t('faq.tips.subtitle', language)}</CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex gap-3">
-            <ArrowsClockwise size={20} weight="duotone" className="text-accent shrink-0 mt-0.5" />
-            <p className="text-sm text-foreground">{t('faq.tips.tip1', language)}</p>
+        <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
+          <div className="flex gap-2 sm:gap-3">
+            <ArrowsClockwise size={18} className="sm:hidden text-accent shrink-0 mt-0.5" weight="duotone" />
+            <ArrowsClockwise size={20} className="hidden sm:block text-accent shrink-0 mt-0.5" weight="duotone" />
+            <p className="text-xs sm:text-sm text-foreground break-words leading-relaxed">{t('faq.tips.tip1', language)}</p>
           </div>
-          <div className="flex gap-3">
-            <ChartBar size={20} weight="duotone" className="text-accent shrink-0 mt-0.5" />
-            <p className="text-sm text-foreground">{t('faq.tips.tip2', language)}</p>
+          <div className="flex gap-2 sm:gap-3">
+            <ChartBar size={18} className="sm:hidden text-accent shrink-0 mt-0.5" weight="duotone" />
+            <ChartBar size={20} className="hidden sm:block text-accent shrink-0 mt-0.5" weight="duotone" />
+            <p className="text-xs sm:text-sm text-foreground break-words leading-relaxed">{t('faq.tips.tip2', language)}</p>
           </div>
-          <div className="flex gap-3">
-            <Trash size={20} weight="duotone" className="text-accent shrink-0 mt-0.5" />
-            <p className="text-sm text-foreground">{t('faq.tips.tip3', language)}</p>
+          <div className="flex gap-2 sm:gap-3">
+            <Trash size={18} className="sm:hidden text-accent shrink-0 mt-0.5" weight="duotone" />
+            <Trash size={20} className="hidden sm:block text-accent shrink-0 mt-0.5" weight="duotone" />
+            <p className="text-xs sm:text-sm text-foreground break-words leading-relaxed">{t('faq.tips.tip3', language)}</p>
           </div>
         </CardContent>
       </Card>
