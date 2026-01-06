@@ -4,7 +4,7 @@ import { Position, Candidate, Language, Company, User, AuthSession } from '@/lib
 import { t } from '@/lib/translations'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import { Briefcase, Clock, Moon, Sun, Globe, Monitor, Question, SignOut, Buildings } from '@phosphor-icons/react'
+import { Briefcase, Clock, Moon, Sun, Globe, Monitor, Question, SignOut, Buildings, ChartBar, UserCircle, Key } from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,9 +15,12 @@ import {
 import PositionsView from '@/components/PositionsView'
 import HistoryView from '@/components/HistoryView'
 import FAQView from '@/components/FAQView'
+import { DashboardView } from '@/components/DashboardView'
 import { CompanyManagement } from '@/components/CompanyManagement'
 import { LoginForm } from '@/components/auth/LoginForm'
 import { RegistrationForm } from '@/components/auth/RegistrationForm'
+import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm'
+import { ChangePasswordDialog } from '@/components/auth/ChangePasswordDialog'
 import { Toaster } from '@/components/ui/sonner'
 import { useTheme } from '@/hooks/use-theme'
 import { motion } from 'framer-motion'
@@ -29,9 +32,10 @@ function App() {
   const [companies, setCompanies] = useKV<Company[]>('companies', [])
   const [users, setUsers] = useKV<User[]>('users', [])
   const [authSession, setAuthSession] = useKV<AuthSession | null>('auth-session', null)
-  const [activeTab, setActiveTab] = useState('positions')
+  const [activeTab, setActiveTab] = useState('dashboard')
   const [language, setLanguage] = useKV<Language>('app-language', 'fr')
-  const [authView, setAuthView] = useState<'login' | 'register'>('login')
+  const [authView, setAuthView] = useState<'login' | 'register' | 'forgot'>('login')
+  const [showChangePassword, setShowChangePassword] = useState(false)
   const { theme, setTheme } = useTheme()
 
   const lang = language || 'fr'
@@ -63,12 +67,18 @@ function App() {
 
   const handleLogout = () => {
     setAuthSession(null)
-    setActiveTab('positions')
+    setActiveTab('dashboard')
     toast.success(lang === 'fr' ? 'Déconnexion réussie' : 'Logged out successfully')
   }
 
   const handleAddUser = async (newUser: User) => {
     setUsers((current) => [...(current || []), newUser])
+  }
+
+  const handlePasswordChanged = (updatedUser: User) => {
+    setUsers((current) => 
+      (current || []).map(u => u.id === updatedUser.id ? updatedUser : u)
+    )
   }
 
   if (!isAuthenticated) {
@@ -101,11 +111,17 @@ function App() {
             <LoginForm
               onLogin={handleLogin}
               onCreateAccount={() => setAuthView('register')}
+              onForgotPassword={() => setAuthView('forgot')}
+              language={lang}
+            />
+          ) : authView === 'register' ? (
+            <RegistrationForm
+              onRegister={handleRegister}
+              onBack={() => setAuthView('login')}
               language={lang}
             />
           ) : (
-            <RegistrationForm
-              onRegister={handleRegister}
+            <ForgotPasswordForm
               onBack={() => setAuthView('login')}
               language={lang}
             />
@@ -137,7 +153,7 @@ function App() {
               <h1 className="text-base sm:text-lg md:text-2xl lg:text-3xl font-bold text-foreground tracking-tight break-words leading-tight">
                 {t('app.title', lang)}
               </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 hidden xs:block leading-snug">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 hidden xs:block leading-snug truncate">
                 {currentCompany.name}
               </p>
             </div>
@@ -146,8 +162,8 @@ function App() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon" className="hover:scale-105 transition-transform h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10">
-                    <Globe size={16} className="sm:hidden" weight="duotone" />
-                    <Globe size={18} className="hidden sm:block" weight="duotone" />
+                    <Globe size={16} weight="duotone" className="md:hidden" />
+                    <Globe size={18} weight="duotone" className="hidden md:block" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-[140px]">
@@ -164,18 +180,18 @@ function App() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon" className="hover:scale-105 transition-transform h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10">
                     {theme === 'dark' ? (
-                      <Moon size={16} className="sm:hidden" weight="duotone" />
+                      <Moon size={16} weight="duotone" className="md:hidden" />
                     ) : theme === 'light' ? (
-                      <Sun size={16} className="sm:hidden" weight="duotone" />
+                      <Sun size={16} weight="duotone" className="md:hidden" />
                     ) : (
-                      <Monitor size={16} className="sm:hidden" weight="duotone" />
+                      <Monitor size={16} weight="duotone" className="md:hidden" />
                     )}
                     {theme === 'dark' ? (
-                      <Moon size={18} className="hidden sm:block" weight="duotone" />
+                      <Moon size={18} weight="duotone" className="hidden md:block" />
                     ) : theme === 'light' ? (
-                      <Sun size={18} className="hidden sm:block" weight="duotone" />
+                      <Sun size={18} weight="duotone" className="hidden md:block" />
                     ) : (
-                      <Monitor size={18} className="hidden sm:block" weight="duotone" />
+                      <Monitor size={18} weight="duotone" className="hidden md:block" />
                     )}
                   </Button>
                 </DropdownMenuTrigger>
@@ -198,7 +214,8 @@ function App() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="h-8 sm:h-9 md:h-10 px-2 sm:px-3">
-                    <span className="text-xs sm:text-sm font-medium truncate max-w-[100px] sm:max-w-[150px]">
+                    <UserCircle size={16} className="sm:hidden" weight="duotone" />
+                    <span className="hidden sm:inline text-xs sm:text-sm font-medium truncate max-w-[80px] sm:max-w-[100px] md:max-w-[150px]">
                       {currentUser.name}
                     </span>
                   </Button>
@@ -208,6 +225,14 @@ function App() {
                     <p className="font-medium text-foreground truncate">{currentUser.email}</p>
                     <p className="capitalize">{currentUser.role}</p>
                   </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={() => setShowChangePassword(true)}
+                    className="cursor-pointer text-xs sm:text-sm"
+                  >
+                    <Key size={14} className="mr-2" />
+                    {lang === 'fr' ? 'Changer le mot de passe' : 'Change password'}
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem 
                     onClick={handleLogout}
@@ -225,7 +250,14 @@ function App() {
 
       <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-full sm:max-w-md md:max-w-2xl grid-cols-4 mb-3 sm:mb-4 md:mb-6 h-10 sm:h-11">
+          <TabsList className="grid w-full max-w-full sm:max-w-lg md:max-w-3xl grid-cols-5 mb-3 sm:mb-4 md:mb-6 h-10 sm:h-11">
+            <TabsTrigger value="dashboard" className="gap-1 sm:gap-1.5 md:gap-2 text-xs sm:text-sm px-1 sm:px-2">
+              <ChartBar size={14} className="sm:hidden" weight="duotone" />
+              <ChartBar size={16} className="hidden sm:block md:hidden" weight="duotone" />
+              <ChartBar size={18} className="hidden md:block" weight="duotone" />
+              <span className="hidden xs:inline">{lang === 'fr' ? 'Tableau de bord' : 'Dashboard'}</span>
+              <span className="xs:hidden">{lang === 'fr' ? 'TDB' : 'Dash'}</span>
+            </TabsTrigger>
             <TabsTrigger value="positions" className="gap-1 sm:gap-1.5 md:gap-2 text-xs sm:text-sm px-1 sm:px-2">
               <Briefcase size={14} className="sm:hidden" weight="duotone" />
               <Briefcase size={16} className="hidden sm:block md:hidden" weight="duotone" />
@@ -254,6 +286,14 @@ function App() {
               <span>FAQ</span>
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="dashboard" className="mt-0">
+            <DashboardView
+              positions={companyPositions}
+              candidates={candidates || []}
+              language={lang}
+            />
+          </TabsContent>
 
           <TabsContent value="positions" className="mt-0">
             <PositionsView
@@ -295,6 +335,14 @@ function App() {
           </TabsContent>
         </Tabs>
       </main>
+
+      <ChangePasswordDialog
+        open={showChangePassword}
+        onOpenChange={setShowChangePassword}
+        currentUser={currentUser}
+        onPasswordChanged={handlePasswordChanged}
+        language={lang}
+      />
 
       <Toaster />
     </div>

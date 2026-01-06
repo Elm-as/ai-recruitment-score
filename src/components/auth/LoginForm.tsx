@@ -11,10 +11,11 @@ import { verifyPassword } from '@/lib/password'
 interface LoginFormProps {
   onLogin: (company: Company, user: User) => void
   onCreateAccount: () => void
+  onForgotPassword: () => void
   language: 'fr' | 'en'
 }
 
-export function LoginForm({ onLogin, onCreateAccount, language }: LoginFormProps) {
+export function LoginForm({ onLogin, onCreateAccount, onForgotPassword, language }: LoginFormProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -33,6 +34,7 @@ export function LoginForm({ onLogin, onCreateAccount, language }: LoginFormProps
       loginButton: 'Se connecter',
       noAccount: "Pas encore de compte ?",
       createAccount: 'Créer un compte entreprise',
+      forgotPassword: 'Mot de passe oublié ?',
       emailRequired: 'Email requis',
       passwordRequired: 'Mot de passe requis',
       invalidEmail: 'Email invalide',
@@ -52,6 +54,7 @@ export function LoginForm({ onLogin, onCreateAccount, language }: LoginFormProps
       loginButton: 'Sign In',
       noAccount: "Don't have an account?",
       createAccount: 'Create company account',
+      forgotPassword: 'Forgot password?',
       emailRequired: 'Email required',
       passwordRequired: 'Password required',
       invalidEmail: 'Invalid email',
@@ -203,7 +206,18 @@ export function LoginForm({ onLogin, onCreateAccount, language }: LoginFormProps
             )}
           </Button>
 
-          <div className="text-center space-y-2 pt-4 border-t">
+          <div className="text-center pt-2">
+            <Button 
+              type="button" 
+              variant="link" 
+              className="text-sm text-muted-foreground hover:text-primary"
+              onClick={onForgotPassword}
+            >
+              {texts.forgotPassword}
+            </Button>
+          </div>
+
+          <div className="text-center space-y-2 pt-2 border-t">
             <p className="text-sm text-muted-foreground">{texts.noAccount}</p>
             <Button 
               type="button" 
