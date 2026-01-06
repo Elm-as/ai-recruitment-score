@@ -94,6 +94,68 @@ function App() {
   }
 
   useEffect(() => {
+    if (positions && positions.length > 0) {
+      let needsUpdate = false
+      const updatedPositions: Position[] = positions.map(p => {
+        if (!(p as any).status) {
+          needsUpdate = true
+          return { ...p, status: 'active' as const }
+        }
+        return p
+      })
+      
+      if (needsUpdate) {
+        setPositions(() => updatedPositions)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (candidates && candidates.length > 0) {
+      let needsUpdate = false
+      const updatedCandidates: Candidate[] = candidates.map(c => {
+        if (!(c as any).status) {
+          needsUpdate = true
+          const status = (c as any).score > 0 ? 'scored' as const : 'pending' as const
+          return { ...c, status }
+        }
+        return c
+      })
+      
+      if (needsUpdate) {
+        setCandidates(() => updatedCandidates)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (companies && companies.length > 0) {
+      let needsUpdate = false
+      const updatedCompanies: Company[] = companies.map(c => {
+        if (!(c as any).subscription) {
+          needsUpdate = true
+          const now = Date.now()
+          const expiryDate = (c as any).license?.expiryDate || (now + (365 * 24 * 60 * 60 * 1000))
+          return {
+            ...c,
+            subscription: {
+              status: 'active' as const,
+              currentPeriodEnd: expiryDate,
+              cancelAtPeriodEnd: false,
+              nextPaymentDate: expiryDate,
+            }
+          }
+        }
+        return c
+      })
+      
+      if (needsUpdate) {
+        setCompanies(() => updatedCompanies)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
     if (isAuthenticated && currentCompany) {
       const shouldShow = shouldShowPaymentReminder(currentCompany)
       setShowPaymentReminder(shouldShow)

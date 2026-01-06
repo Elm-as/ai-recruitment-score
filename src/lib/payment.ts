@@ -8,12 +8,16 @@ export const SUBSCRIPTION_PRICES: Record<LicenseType, { monthly: number; yearly:
 }
 
 export function isSubscriptionExpired(company: Company): boolean {
+  if (!company.subscription) {
+    return company.license?.expiryDate ? company.license.expiryDate < Date.now() : false
+  }
   return company.subscription.status === 'expired' || 
          company.subscription.status === 'canceled' ||
          company.license.expiryDate < Date.now()
 }
 
 export function isSubscriptionPastDue(company: Company): boolean {
+  if (!company.subscription) return false
   return company.subscription.status === 'past_due'
 }
 

@@ -34,9 +34,9 @@ export function DashboardView({ positions, candidates, language }: DashboardView
   }, [positions, period, now, periodMs])
 
   const metrics = useMemo(() => {
-    const activePositions = filteredPositions.filter(p => p.status === 'active').length
+    const activePositions = filteredPositions.filter(p => p.status === 'active' || !p.status).length
     const totalCandidates = filteredCandidates.length
-    const scoredCandidates = filteredCandidates.filter(c => c.status === 'scored')
+    const scoredCandidates = filteredCandidates.filter(c => c.status === 'scored' || c.status === 'selected')
     const averageScore = scoredCandidates.length > 0
       ? Math.round(scoredCandidates.reduce((sum, c) => sum + c.score, 0) / scoredCandidates.length)
       : 0

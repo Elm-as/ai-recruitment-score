@@ -87,7 +87,7 @@ export default function AddCandidateDialog({
 
     try {
       console.log('Starting analysis for candidate:', candidate.name)
-      const otherPositions = positions.filter((p) => p.id !== position.id && p.status === 'active')
+      const otherPositions = positions.filter((p) => p.id !== position.id && (p.status === 'active' || !p.status))
       const isEnglish = language === 'en'
 
       const targetLang = isEnglish ? 'ENGLISH' : 'FRENCH'

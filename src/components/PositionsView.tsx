@@ -56,7 +56,7 @@ export default function PositionsView({
     return true
   }
 
-  const activePositions = positions.filter((p) => p.status === 'active' && filterByDateRange(p))
+  const activePositions = positions.filter((p) => (p.status === 'active' || !p.status) && filterByDateRange(p))
   const archivedPositions = positions.filter((p) => p.status === 'archived' && filterByDateRange(p))
   
   const displayPositions = showArchived ? archivedPositions : activePositions
