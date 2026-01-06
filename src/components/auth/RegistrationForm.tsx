@@ -4,9 +4,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Building, UserPlus, ArrowLeft } from '@phosphor-icons/react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Building, UserPlus, ArrowLeft, Eye, EyeSlash, Warning } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Company, User, LicenseType } from '@/lib/types'
+import { validatePassword, hashPassword } from '@/lib/password'
+import { PasswordStrengthIndicator } from './PasswordStrengthIndicator'
 
 interface RegistrationFormProps {
   onRegister: (company: Company, user: User) => void
@@ -38,6 +41,10 @@ export function RegistrationForm({ onRegister, onBack, language }: RegistrationF
   const [companyEmail, setCompanyEmail] = useState('')
   const [userName, setUserName] = useState('')
   const [userEmail, setUserEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [licenseType, setLicenseType] = useState<LicenseType>('trial')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -55,12 +62,20 @@ export function RegistrationForm({ onRegister, onBack, language }: RegistrationF
       userNamePlaceholder: 'Jean Dupont',
       userEmail: 'Votre email professionnel',
       userEmailPlaceholder: 'jean.dupont@entreprise.com',
+      password: 'Mot de passe',
+      passwordPlaceholder: 'Créez un mot de passe sécurisé',
+      confirmPassword: 'Confirmer le mot de passe',
+      confirmPasswordPlaceholder: 'Ressaisissez votre mot de passe',
+      showPassword: 'Afficher le mot de passe',
+      hidePassword: 'Masquer le mot de passe',
+      passwordRequirements: 'Exigences du mot de passe :',
       licenseSection: 'Choisissez votre forfait',
       registerButton: 'Créer le compte',
       backButton: 'Retour à la connexion',
       allFieldsRequired: 'Tous les champs sont requis',
       invalidEmail: 'Email invalide',
       emailMismatch: 'Les emails doivent appartenir au même domaine',
+      passwordMismatch: 'Les mots de passe ne correspondent pas',
       accountExists: 'Un compte existe déjà avec cet email',
       registrationSuccess: 'Compte créé avec succès !',
       registrationError: 'Erreur lors de la création du compte'
@@ -78,12 +93,20 @@ export function RegistrationForm({ onRegister, onBack, language }: RegistrationF
       userNamePlaceholder: 'John Doe',
       userEmail: 'Your Professional Email',
       userEmailPlaceholder: 'john.doe@company.com',
+      password: 'Password',
+      passwordPlaceholder: 'Create a secure password',
+      confirmPassword: 'Confirm Password',
+      confirmPasswordPlaceholder: 'Re-enter your password',
+      showPassword: 'Show password',
+      hidePassword: 'Hide password',
+      passwordRequirements: 'Password requirements:',
       licenseSection: 'Choose Your Plan',
       registerButton: 'Create Account',
       backButton: 'Back to Login',
       allFieldsRequired: 'All fields are required',
       invalidEmail: 'Invalid email',
       emailMismatch: 'Emails must belong to the same domain',
+      passwordMismatch: 'Passwords do not match',
       accountExists: 'An account already exists with this email',
       registrationSuccess: 'Account created successfully!',
       registrationError: 'Error creating account'
@@ -101,7 +124,7 @@ export function RegistrationForm({ onRegister, onBack, language }: RegistrationF
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!companyName || !companyEmail || !userName || !userEmail) {
+    if (!companyName || !companyEmail || !userName || !userEmail || !password || !confirmPassword) {
       toast.error(texts.allFieldsRequired)
       return
     }
@@ -113,6 +136,17 @@ export function RegistrationForm({ onRegister, onBack, language }: RegistrationF
 
     if (!validateEmails()) {
       toast.error(texts.emailMismatch)
+      return
+    }
+
+    const passwordValidation = validatePassword(password, language)
+    if (!passwordValidation.isValid) {
+      passwordValidation.errors.forEach(error => toast.error(error))
+      return
+    }
+
+    if (password !== confirmPassword) {
+      toast.error(texts.passwordMismatch)
       return
     }
 
@@ -158,11 +192,14 @@ export function RegistrationForm({ onRegister, onBack, language }: RegistrationF
         }
       }
 
+      const passwordHash = await hashPassword(password)
+
       const newUser: User = {
         id: `user-${now}`,
         companyId: newCompany.id,
         name: userName,
         email: userEmail,
+        passwordHash,
         role: 'owner',
         createdAt: now,
         lastLoginAt: now
@@ -179,6 +216,8 @@ export function RegistrationForm({ onRegister, onBack, language }: RegistrationF
       setIsLoading(false)
     }
   }
+
+  const passwordValidation = validatePassword(password, language)
 
   return (
     <Card className="w-full max-w-2xl">
@@ -245,6 +284,86 @@ export function RegistrationForm({ onRegister, onBack, language }: RegistrationF
                 />
               </div>
             </div>
+            
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="password">{texts.password}</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder={texts.passwordPlaceholder}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading}
+                    autoComplete="new-password"
+                    className="pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                    tabIndex={-1}
+                    aria-label={showPassword ? texts.hidePassword : texts.showPassword}
+                  >
+                    {showPassword ? (
+                      <EyeSlash size={18} className="text-muted-foreground" />
+                    ) : (
+                      <Eye size={18} className="text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
+                {password && (
+                  <PasswordStrengthIndicator password={password} language={language} />
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">{texts.confirmPassword}</Label>
+                <div className="relative">
+                  <Input
+                    id="confirm-password"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    placeholder={texts.confirmPasswordPlaceholder}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    disabled={isLoading}
+                    autoComplete="new-password"
+                    className="pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    tabIndex={-1}
+                    aria-label={showConfirmPassword ? texts.hidePassword : texts.showPassword}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeSlash size={18} className="text-muted-foreground" />
+                    ) : (
+                      <Eye size={18} className="text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {password && !passwordValidation.isValid && (
+              <Alert variant="destructive">
+                <Warning size={16} className="mt-0.5" />
+                <AlertDescription>
+                  <div className="font-medium mb-1">{texts.passwordRequirements}</div>
+                  <ul className="list-disc list-inside space-y-0.5 text-xs">
+                    {passwordValidation.errors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
 
           <div className="space-y-4">

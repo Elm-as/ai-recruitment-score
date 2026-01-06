@@ -170,11 +170,16 @@ export function CompanyManagement({
 
     setIsLoading(true)
 
+    const temporaryPassword = await window.spark.kv.get<string>('temp-password') || 'ChangeMe123!'
+    const { hashPassword } = await import('@/lib/password')
+    const passwordHash = await hashPassword(temporaryPassword)
+
     const newUser: User = {
       id: `user-${Date.now()}`,
       companyId: company.id,
       name: newUserName,
       email: newUserEmail,
+      passwordHash,
       role: newUserRole,
       createdAt: Date.now()
     }

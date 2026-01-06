@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/accordion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Question, Lightbulb, FileText, ChartBar, Users, Archive, Trash, ArrowsClockwise, ArrowRight } from '@phosphor-icons/react'
+import { Question, Lightbulb, FileText, ChartBar, Users, Archive, Trash, ArrowsClockwise, ArrowRight, ShieldCheck } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 
 interface FAQViewProps {
@@ -84,6 +84,17 @@ export default function FAQView({ language, onNavigate }: FAQViewProps) {
         { q: 'viewHistory', a: 'viewHistoryAnswer', link: 'history' },
         { q: 'filterHistory', a: 'filterHistoryAnswer', link: 'history' },
         { q: 'dateRange', a: 'dateRangeAnswer', link: 'history' },
+      ]
+    },
+    {
+      title: t('faq.category.security', language),
+      icon: ShieldCheck,
+      color: 'text-red-500',
+      questions: [
+        { q: 'passwordSecurity', a: 'passwordSecurityAnswer', link: null },
+        { q: 'passwordRequirements', a: 'passwordRequirementsAnswer', link: null },
+        { q: 'resetPassword', a: 'resetPasswordAnswer', link: null },
+        { q: 'accountSecurity', a: 'accountSecurityAnswer', link: null },
       ]
     },
   ]

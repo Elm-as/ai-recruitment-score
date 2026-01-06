@@ -305,6 +305,7 @@ export const translations = {
         questions: 'Questions d\'Entretien',
         analysis: 'Analyse et Comparaison',
         history: 'Historique et Archives',
+        security: 'Sécurité et Authentification',
       },
       questions: {
         whatIsThis: 'Qu\'est-ce que l\'Assistant IA de Recrutement ?',
@@ -333,6 +334,10 @@ export const translations = {
         viewHistory: 'Comment consulter l\'historique ?',
         filterHistory: 'Comment filtrer l\'historique ?',
         dateRange: 'Comment utiliser le filtre de période ?',
+        passwordSecurity: 'Comment fonctionnent les mots de passe ?',
+        passwordRequirements: 'Quelles sont les exigences de mot de passe ?',
+        resetPassword: 'Comment réinitialiser mon mot de passe ?',
+        accountSecurity: 'Comment mes données sont-elles protégées ?',
       },
       answers: {
         whatIsThisAnswer: 'C\'est un système intelligent qui analyse automatiquement les CV des candidats en utilisant l\'IA pour les évaluer et les classer selon les critères du poste. Il génère des scores détaillés, identifie les forces et faiblesses, et propose des questions d\'entretien personnalisées.',
@@ -361,6 +366,10 @@ export const translations = {
         viewHistoryAnswer: 'L\'onglet "Historique" affiche tous les postes et candidats évalués. Vous pouvez rechercher par nom ou poste, filtrer par statut (sélectionnés, rejetés), et consulter les détails de chaque évaluation passée.',
         filterHistoryAnswer: 'Utilisez la barre de recherche pour trouver des candidats ou postes spécifiques. Les boutons de filtre permettent d\'afficher uniquement les candidats sélectionnés, rejetés, ou les postes archivés.',
         dateRangeAnswer: 'Cliquez sur "Filtrer par période" pour sélectionner une plage de dates. Seuls les postes et candidats créés ou évalués dans cette période seront affichés. Utile pour les rapports périodiques.',
+        passwordSecurityAnswer: 'Tous les mots de passe sont cryptés avec SHA-256 avant d\'être stockés. Votre mot de passe n\'est jamais stocké en clair. La vérification se fait par comparaison des hashs cryptographiques.',
+        passwordRequirementsAnswer: 'Les mots de passe doivent contenir au moins 8 caractères, incluant au moins une majuscule, une minuscule, un chiffre et un caractère spécial (!@#$%^&*). Un indicateur de force vous guide lors de la création.',
+        resetPasswordAnswer: 'Actuellement, pour réinitialiser votre mot de passe, contactez l\'administrateur de votre entreprise (rôle "Owner" ou "Admin"). Une fonctionnalité de réinitialisation automatique sera ajoutée prochainement.',
+        accountSecurityAnswer: 'Vos comptes sont protégés par mot de passe crypté, authentification obligatoire, et validation de domaine email pour les entreprises. Les sessions sont sécurisées et les données restent locales dans votre navigateur.',
       },
       tips: {
         title: 'Conseils d\'Utilisation',
@@ -679,6 +688,7 @@ export const translations = {
         questions: 'Interview Questions',
         analysis: 'Analysis & Comparison',
         history: 'History & Archives',
+        security: 'Security & Authentication',
       },
       questions: {
         whatIsThis: 'What is the AI Recruitment Assistant?',
@@ -707,6 +717,10 @@ export const translations = {
         viewHistory: 'How do I view history?',
         filterHistory: 'How do I filter history?',
         dateRange: 'How do I use the date range filter?',
+        passwordSecurity: 'How do passwords work?',
+        passwordRequirements: 'What are the password requirements?',
+        resetPassword: 'How do I reset my password?',
+        accountSecurity: 'How is my data protected?',
       },
       answers: {
         whatIsThisAnswer: 'It\'s an intelligent system that automatically analyzes candidate resumes using AI to evaluate and rank them according to position criteria. It generates detailed scores, identifies strengths and weaknesses, and proposes personalized interview questions.',
@@ -735,6 +749,10 @@ export const translations = {
         viewHistoryAnswer: 'The "History" tab displays all evaluated positions and candidates. You can search by name or position, filter by status (selected, rejected), and view details of each past evaluation.',
         filterHistoryAnswer: 'Use the search bar to find specific candidates or positions. Filter buttons allow you to display only selected, rejected candidates, or archived positions.',
         dateRangeAnswer: 'Click "Filter by period" to select a date range. Only positions and candidates created or evaluated within this period will be displayed. Useful for periodic reports.',
+        passwordSecurityAnswer: 'All passwords are encrypted with SHA-256 before being stored. Your password is never stored in plain text. Verification is done by comparing cryptographic hashes.',
+        passwordRequirementsAnswer: 'Passwords must contain at least 8 characters, including at least one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*). A strength indicator guides you during creation.',
+        resetPasswordAnswer: 'Currently, to reset your password, contact your company administrator (role "Owner" or "Admin"). An automatic reset feature will be added soon.',
+        accountSecurityAnswer: 'Your accounts are protected by encrypted passwords, mandatory authentication, and email domain validation for companies. Sessions are secured and data remains local in your browser.',
       },
       tips: {
         title: 'Usage Tips',

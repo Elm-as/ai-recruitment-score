@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { SignIn, Building } from '@phosphor-icons/react'
+import { SignIn, Building, Eye, EyeSlash } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Company, User } from '@/lib/types'
+import { verifyPassword } from '@/lib/password'
 
 interface LoginFormProps {
   onLogin: (company: Company, user: User) => void
@@ -15,6 +16,8 @@ interface LoginFormProps {
 
 export function LoginForm({ onLogin, onCreateAccount, language }: LoginFormProps) {
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   const t = {
@@ -23,26 +26,38 @@ export function LoginForm({ onLogin, onCreateAccount, language }: LoginFormProps
       subtitle: 'Accédez à votre compte entreprise',
       emailLabel: 'Email professionnel',
       emailPlaceholder: 'votre.email@entreprise.com',
+      passwordLabel: 'Mot de passe',
+      passwordPlaceholder: 'Entrez votre mot de passe',
+      showPassword: 'Afficher le mot de passe',
+      hidePassword: 'Masquer le mot de passe',
       loginButton: 'Se connecter',
       noAccount: "Pas encore de compte ?",
       createAccount: 'Créer un compte entreprise',
       emailRequired: 'Email requis',
+      passwordRequired: 'Mot de passe requis',
       invalidEmail: 'Email invalide',
       loginError: 'Email ou mot de passe incorrect',
-      loginSuccess: 'Connexion réussie'
+      loginSuccess: 'Connexion réussie',
+      licenseExpired: 'Licence expirée'
     },
     en: {
       title: 'Login',
       subtitle: 'Access your company account',
       emailLabel: 'Professional Email',
       emailPlaceholder: 'your.email@company.com',
+      passwordLabel: 'Password',
+      passwordPlaceholder: 'Enter your password',
+      showPassword: 'Show password',
+      hidePassword: 'Hide password',
       loginButton: 'Sign In',
       noAccount: "Don't have an account?",
       createAccount: 'Create company account',
       emailRequired: 'Email required',
+      passwordRequired: 'Password required',
       invalidEmail: 'Invalid email',
       loginError: 'Incorrect email or password',
-      loginSuccess: 'Login successful'
+      loginSuccess: 'Login successful',
+      licenseExpired: 'License expired'
     }
   }
 
@@ -61,6 +76,11 @@ export function LoginForm({ onLogin, onCreateAccount, language }: LoginFormProps
       return
     }
 
+    if (!password) {
+      toast.error(texts.passwordRequired)
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -75,6 +95,14 @@ export function LoginForm({ onLogin, onCreateAccount, language }: LoginFormProps
         return
       }
 
+      const isPasswordValid = await verifyPassword(password, user.passwordHash)
+      
+      if (!isPasswordValid) {
+        toast.error(texts.loginError)
+        setIsLoading(false)
+        return
+      }
+
       const company = existingCompanies.find(c => c.id === user.companyId)
       
       if (!company) {
@@ -84,7 +112,7 @@ export function LoginForm({ onLogin, onCreateAccount, language }: LoginFormProps
       }
 
       if (!company.license.isActive) {
-        toast.error(language === 'fr' ? 'Licence expirée' : 'License expired')
+        toast.error(texts.licenseExpired)
         setIsLoading(false)
         return
       }
@@ -124,6 +152,37 @@ export function LoginForm({ onLogin, onCreateAccount, language }: LoginFormProps
               disabled={isLoading}
               autoComplete="email"
             />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="password">{texts.passwordLabel}</Label>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder={texts.passwordPlaceholder}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
+                autoComplete="current-password"
+                className="pr-10"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+                aria-label={showPassword ? texts.hidePassword : texts.showPassword}
+              >
+                {showPassword ? (
+                  <EyeSlash size={18} className="text-muted-foreground" />
+                ) : (
+                  <Eye size={18} className="text-muted-foreground" />
+                )}
+              </Button>
+            </div>
           </div>
           
           <Button 

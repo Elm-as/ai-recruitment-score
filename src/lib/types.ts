@@ -107,6 +107,7 @@ export interface User {
   companyId: string
   name: string
   email: string
+  passwordHash: string
   role: UserRole
   createdAt: number
   lastLoginAt?: number

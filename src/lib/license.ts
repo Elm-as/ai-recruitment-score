@@ -1,4 +1,5 @@
 import { Company, User, LicenseType } from './types'
+import { hashPassword } from './password'
 
 export async function initializeDemoAccount() {
   const now = Date.now()
@@ -27,11 +28,14 @@ export async function initializeDemoAccount() {
     }
   }
 
+  const demoPasswordHash = await hashPassword('Demo123!')
+
   const demoUser: User = {
     id: 'demo-user-1',
     companyId: demoCompany.id,
     name: 'Demo Admin',
     email: 'admin@demo-company.com',
+    passwordHash: demoPasswordHash,
     role: 'owner',
     createdAt: now,
     lastLoginAt: now
