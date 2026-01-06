@@ -89,9 +89,10 @@ export default function AddCandidateDialog({
       const otherPositions = positions.filter((p) => p.id !== position.id && p.status === 'active')
       const isEnglish = language === 'en'
 
-      const analysisPromptText = `You are an expert HR professional and recruitment specialist. Analyze this candidate profile against the job requirements.
+      const targetLang = isEnglish ? 'ENGLISH' : 'FRENCH'
+      const analysisPrompt = (window as any).spark.llmPrompt`You are an expert HR professional and recruitment specialist. Analyze this candidate profile against the job requirements.
 
-IMPORTANT: All output text (assessments, reasoning, strengths, weaknesses) must be written in ${isEnglish ? 'ENGLISH' : 'FRENCH'} language.
+IMPORTANT: All output text (assessments, reasoning, strengths, weaknesses) must be written in ${targetLang} language.
 
 JOB POSITION:
 Title: ${position.title}
@@ -104,19 +105,19 @@ Email: ${candidate.email}
 Profile Information:
 ${candidate.profileText}
 
-Provide a comprehensive evaluation in JSON format with this exact structure (all text in ${isEnglish ? 'ENGLISH' : 'FRENCH'}):
+Provide a comprehensive evaluation in JSON format with this exact structure (all text in ${targetLang}):
 {
   "score": <number 0-100>,
   "scoreBreakdown": [
     {
-      "category": "<category name in ${isEnglish ? 'English' : 'French'}>",
+      "category": "<category name in ${targetLang}>",
       "score": <number 0-100>,
-      "reasoning": "<brief explanation in ${isEnglish ? 'English' : 'French'}>"
+      "reasoning": "<brief explanation in ${targetLang}>"
     }
   ],
-  "strengths": ["<strength 1 in ${isEnglish ? 'English' : 'French'}>", "<strength 2>", ...],
-  "weaknesses": ["<weakness 1 in ${isEnglish ? 'English' : 'French'}>", "<weakness 2>", ...],
-  "overallAssessment": "<2-3 sentence summary of candidate fit in ${isEnglish ? 'English' : 'French'}>"
+  "strengths": ["<strength 1 in ${targetLang}>", "<strength 2>", ...],
+  "weaknesses": ["<weakness 1 in ${targetLang}>", "<weakness 2>", ...],
+  "overallAssessment": "<2-3 sentence summary of candidate fit in ${targetLang}>"
 }
 
 Evaluate at least 4-5 categories such as: Technical Skills, Experience Level, Education Background, Cultural Fit, Communication Skills, etc.
@@ -124,16 +125,17 @@ Be specific and reference actual details from the candidate's profile.`
 
       setProgress(40)
 
-      const analysisResult = await window.spark.llm(analysisPromptText, 'gpt-4o', true)
+      const analysisResult = await (window as any).spark.llm(analysisPrompt, 'gpt-4o', true)
       const analysis = JSON.parse(analysisResult)
 
       setProgress(70)
 
       let alternativePositions = undefined
       if (otherPositions.length > 0 && analysis.score >= 50 && analysis.score < 80) {
-        const alternativesPromptText = `Based on this candidate's profile and their score of ${analysis.score}/100 for the ${position.title} position, evaluate if they might be a better fit for any of these other open positions:
+        const targetLangAlt = isEnglish ? 'ENGLISH' : 'FRENCH'
+        const alternativesPrompt = (window as any).spark.llmPrompt`Based on this candidate's profile and their score of ${analysis.score}/100 for the ${position.title} position, evaluate if they might be a better fit for any of these other open positions:
 
-IMPORTANT: All reasoning text must be in ${isEnglish ? 'ENGLISH' : 'FRENCH'} language.
+IMPORTANT: All reasoning text must be in ${targetLangAlt} language.
 
 CANDIDATE PROFILE:
 ${candidate.profileText}
@@ -141,20 +143,20 @@ ${candidate.profileText}
 OTHER OPEN POSITIONS:
 ${otherPositions.map((p) => `- ${p.title}: ${p.description}\n  Requirements: ${p.requirements}`).join('\n\n')}
 
-Return a JSON object with a single property "alternatives" containing an array of suitable alternative positions (empty array if none). All reasoning must be in ${isEnglish ? 'ENGLISH' : 'FRENCH'}:
+Return a JSON object with a single property "alternatives" containing an array of suitable alternative positions (empty array if none). All reasoning must be in ${targetLangAlt}:
 {
   "alternatives": [
     {
       "positionId": "<position id>",
       "positionTitle": "<position title>",
-      "reasoning": "<why this position is a better fit, in ${isEnglish ? 'English' : 'French'}>"
+      "reasoning": "<why this position is a better fit, in ${targetLangAlt}>"
     }
   ]
 }
 
 Only suggest alternatives if the candidate would score significantly higher (10+ points) for that position.`
 
-        const alternativesResult = await window.spark.llm(alternativesPromptText, 'gpt-4o', true)
+        const alternativesResult = await (window as any).spark.llm(alternativesPrompt, 'gpt-4o', true)
         const alternativesData = JSON.parse(alternativesResult)
         
         if (alternativesData.alternatives && alternativesData.alternatives.length > 0) {
