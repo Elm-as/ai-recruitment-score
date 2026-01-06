@@ -4,7 +4,7 @@ import { Position, Candidate, Language } from '@/lib/types'
 import { t } from '@/lib/translations'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import { Briefcase, Clock, Moon, Sun, Globe, Monitor } from '@phosphor-icons/react'
+import { Briefcase, Clock, Moon, Sun, Globe, Monitor, Question } from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import PositionsView from '@/components/PositionsView'
 import HistoryView from '@/components/HistoryView'
+import FAQView from '@/components/FAQView'
 import { Toaster } from '@/components/ui/sonner'
 import { useTheme } from '@/hooks/use-theme'
 import { motion } from 'framer-motion'
@@ -103,18 +104,24 @@ function App() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-full xs:max-w-xs sm:max-w-md grid-cols-2 mb-4 sm:mb-6 h-11">
-            <TabsTrigger value="positions" className="gap-1.5 sm:gap-2 text-sm sm:text-sm">
-              <Briefcase size={18} className="sm:hidden" weight="duotone" />
+          <TabsList className="grid w-full max-w-full sm:max-w-lg grid-cols-3 mb-4 sm:mb-6 h-11">
+            <TabsTrigger value="positions" className="gap-1.5 sm:gap-2 text-xs sm:text-sm">
+              <Briefcase size={16} className="sm:hidden" weight="duotone" />
               <Briefcase size={18} className="hidden sm:block" weight="duotone" />
               <span className="hidden xs:inline">{t('nav.positions', lang)}</span>
               <span className="xs:hidden">Postes</span>
             </TabsTrigger>
-            <TabsTrigger value="history" className="gap-1.5 sm:gap-2 text-sm sm:text-sm">
-              <Clock size={18} className="sm:hidden" weight="duotone" />
+            <TabsTrigger value="history" className="gap-1.5 sm:gap-2 text-xs sm:text-sm">
+              <Clock size={16} className="sm:hidden" weight="duotone" />
               <Clock size={18} className="hidden sm:block" weight="duotone" />
               <span className="hidden xs:inline">{t('nav.history', lang)}</span>
               <span className="xs:hidden">Historique</span>
+            </TabsTrigger>
+            <TabsTrigger value="faq" className="gap-1.5 sm:gap-2 text-xs sm:text-sm">
+              <Question size={16} className="sm:hidden" weight="duotone" />
+              <Question size={18} className="hidden sm:block" weight="duotone" />
+              <span className="hidden xs:inline">FAQ</span>
+              <span className="xs:hidden">FAQ</span>
             </TabsTrigger>
           </TabsList>
 
@@ -134,6 +141,10 @@ function App() {
               candidates={candidates || []}
               language={lang}
             />
+          </TabsContent>
+
+          <TabsContent value="faq" className="mt-0">
+            <FAQView language={lang} />
           </TabsContent>
         </Tabs>
       </main>
