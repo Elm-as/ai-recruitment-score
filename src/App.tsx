@@ -21,10 +21,14 @@ import { LoginForm } from '@/components/auth/LoginForm'
 import { RegistrationForm } from '@/components/auth/RegistrationForm'
 import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm'
 import { ChangePasswordDialog } from '@/components/auth/ChangePasswordDialog'
+import { SubscriptionBlockPage } from '@/components/SubscriptionBlockPage'
+import { PaymentReminderBanner } from '@/components/PaymentReminderBanner'
+import { PaymentPage } from '@/components/PaymentPage'
 import { Toaster } from '@/components/ui/sonner'
 import { useTheme } from '@/hooks/use-theme'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
+import { isSubscriptionExpired, shouldShowPaymentReminder, getDaysUntilExpiry } from '@/lib/payment'
 
 function App() {
   const [positions, setPositions] = useKV<Position[]>('positions', [])
@@ -36,6 +40,8 @@ function App() {
   const [language, setLanguage] = useKV<Language>('app-language', 'fr')
   const [authView, setAuthView] = useState<'login' | 'register' | 'forgot'>('login')
   const [showChangePassword, setShowChangePassword] = useState(false)
+  const [showPaymentReminder, setShowPaymentReminder] = useState(false)
+  const [showPaymentPage, setShowPaymentPage] = useState(false)
   const { theme, setTheme } = useTheme()
 
   const lang = language || 'fr'
@@ -80,6 +86,19 @@ function App() {
       (current || []).map(u => u.id === updatedUser.id ? updatedUser : u)
     )
   }
+
+  const handleUpdateCompany = (updated: Company) => {
+    setCompanies((current) => 
+      (current || []).map(c => c.id === updated.id ? updated : c)
+    )
+  }
+
+  useEffect(() => {
+    if (isAuthenticated && currentCompany) {
+      const shouldShow = shouldShowPaymentReminder(currentCompany)
+      setShowPaymentReminder(shouldShow)
+    }
+  }, [isAuthenticated, currentCompany])
 
   if (!isAuthenticated) {
     return (
@@ -138,6 +157,33 @@ function App() {
 
   const canAccessFeature = (feature: keyof Company['license']['features']) => {
     return currentCompany.license.features[feature]
+  }
+
+  if (showPaymentPage) {
+    return (
+      <div className="min-h-screen bg-background">
+        <PaymentPage
+          company={currentCompany}
+          language={lang}
+          onUpdateCompany={handleUpdateCompany}
+          onCancel={() => setShowPaymentPage(false)}
+        />
+        <Toaster />
+      </div>
+    )
+  }
+
+  if (isSubscriptionExpired(currentCompany)) {
+    return (
+      <>
+        <SubscriptionBlockPage
+          company={currentCompany}
+          language={lang}
+          onUpgrade={() => setShowPaymentPage(true)}
+        />
+        <Toaster />
+      </>
+    )
   }
 
   return (
@@ -249,6 +295,15 @@ function App() {
       </motion.header>
 
       <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6">
+        {showPaymentReminder && (
+          <PaymentReminderBanner
+            company={currentCompany}
+            language={lang}
+            onDismiss={() => setShowPaymentReminder(false)}
+            onUpgrade={() => setShowPaymentPage(true)}
+          />
+        )}
+        
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full max-w-full sm:max-w-lg md:max-w-3xl grid-cols-5 mb-3 sm:mb-4 md:mb-6 h-10 sm:h-11">
             <TabsTrigger value="dashboard" className="gap-1 sm:gap-1.5 md:gap-2 text-xs sm:text-sm px-1 sm:px-2">
@@ -321,11 +376,7 @@ function App() {
               positionsCount={companyPositions.length}
               candidatesCount={candidates?.length || 0}
               language={lang}
-              onUpdateCompany={(updated) => {
-                setCompanies((current) => 
-                  (current || []).map(c => c.id === updated.id ? updated : c)
-                )
-              }}
+              onUpdateCompany={handleUpdateCompany}
               onAddUser={handleAddUser}
             />
           </TabsContent>

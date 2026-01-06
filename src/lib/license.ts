@@ -1,5 +1,6 @@
 import { Company, User, LicenseType } from './types'
 import { hashPassword } from './password'
+import { createDefaultSubscription } from './payment'
 
 export async function initializeDemoAccount() {
   const now = Date.now()
@@ -25,6 +26,13 @@ export async function initializeDemoAccount() {
       startDate: now,
       expiryDate: now + (365 * 24 * 60 * 60 * 1000),
       isActive: true
+    },
+    subscription: {
+      status: 'active',
+      currentPeriodEnd: now + (365 * 24 * 60 * 60 * 1000),
+      cancelAtPeriodEnd: false,
+      nextPaymentDate: now + (365 * 24 * 60 * 60 * 1000),
+      lastPaymentDate: now,
     }
   }
 

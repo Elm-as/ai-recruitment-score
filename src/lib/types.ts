@@ -100,6 +100,41 @@ export interface Company {
     expiryDate: number
     isActive: boolean
   }
+  subscription: {
+    stripeCustomerId?: string
+    stripeSubscriptionId?: string
+    status: 'active' | 'past_due' | 'canceled' | 'expired' | 'trialing'
+    currentPeriodEnd: number
+    cancelAtPeriodEnd: boolean
+    lastPaymentDate?: number
+    nextPaymentDate?: number
+    paymentMethod?: {
+      type: 'card' | 'sepa' | 'paypal'
+      last4?: string
+      brand?: string
+    }
+  }
+  paymentReminders?: PaymentReminder[]
+}
+
+export interface PaymentReminder {
+  id: string
+  companyId: string
+  type: 'upcoming' | 'overdue' | 'expiring_soon'
+  sentAt: number
+  daysBeforeExpiry: number
+  acknowledged: boolean
+}
+
+export interface PaymentHistory {
+  id: string
+  companyId: string
+  amount: number
+  currency: string
+  status: 'succeeded' | 'failed' | 'pending' | 'refunded'
+  stripePaymentId?: string
+  createdAt: number
+  description: string
 }
 
 export interface User {

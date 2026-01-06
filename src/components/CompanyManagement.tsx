@@ -26,6 +26,9 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { SubscriptionSection } from '@/components/SubscriptionSection'
+import { PaymentPage } from '@/components/PaymentPage'
+import { SubscriptionDebug } from '@/components/SubscriptionDebug'
 
 interface CompanyManagementProps {
   company: Company
@@ -53,6 +56,7 @@ export function CompanyManagement({
   const [newUserEmail, setNewUserEmail] = useState('')
   const [newUserRole, setNewUserRole] = useState<'admin' | 'recruiter' | 'viewer'>('recruiter')
   const [isLoading, setIsLoading] = useState(false)
+  const [showPaymentPage, setShowPaymentPage] = useState(false)
 
   const t = {
     fr: {
@@ -209,8 +213,69 @@ export function CompanyManagement({
     return variants[type]
   }
 
+  if (showPaymentPage) {
+    return (
+      <PaymentPage
+        company={company}
+        language={language}
+        onUpdateCompany={onUpdateCompany}
+        onCancel={() => setShowPaymentPage(false)}
+      />
+    )
+  }
+
+  const handleExpireSubscription = () => {
+    const expiredCompany: Company = {
+      ...company,
+      license: {
+        ...company.license,
+        expiryDate: Date.now() - 1000,
+        isActive: false,
+      },
+      subscription: {
+        ...company.subscription,
+        status: 'expired',
+      },
+    }
+    onUpdateCompany(expiredCompany)
+    toast.info(language === 'fr' ? 'Abonnement expiré (test)' : 'Subscription expired (test)')
+  }
+
+  const handleRestoreSubscription = () => {
+    const restoredCompany: Company = {
+      ...company,
+      license: {
+        ...company.license,
+        expiryDate: Date.now() + (365 * 24 * 60 * 60 * 1000),
+        isActive: true,
+      },
+      subscription: {
+        ...company.subscription,
+        status: 'active',
+        currentPeriodEnd: Date.now() + (365 * 24 * 60 * 60 * 1000),
+        nextPaymentDate: Date.now() + (365 * 24 * 60 * 60 * 1000),
+      },
+    }
+    onUpdateCompany(restoredCompany)
+    toast.success(language === 'fr' ? 'Abonnement restauré' : 'Subscription restored')
+  }
+
   return (
     <div className="space-y-4 sm:space-y-6">
+      {currentUser.role === 'owner' && (
+        <SubscriptionDebug
+          company={company}
+          onExpireSubscription={handleExpireSubscription}
+          onRestoreSubscription={handleRestoreSubscription}
+        />
+      )}
+      
+      <SubscriptionSection
+        company={company}
+        language={language}
+        onManageSubscription={() => setShowPaymentPage(true)}
+      />
+      
       <div className="flex items-center justify-between">
         <h2 className="text-xl sm:text-2xl font-bold">{texts.title}</h2>
         {(currentUser.role === 'owner' || currentUser.role === 'admin') && (

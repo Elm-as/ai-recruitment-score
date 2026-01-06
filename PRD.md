@@ -84,6 +84,20 @@ Cette application nécessite une intégration IA sophistiquée pour l'analyse de
 - **Progression**: Candidate evaluated → AI detects alternative fit → Suggests other positions with rationale → Recruiter can reassign candidate
 - **Success criteria**: System identifies at least one alternative position when appropriate with clear reasoning
 
+### Subscription & Payment Management
+- **Functionality**: Complete Stripe-integrated payment system with subscription management, payment reminders, and access control. Supports monthly and yearly billing cycles with 17% discount on annual plans. Four subscription tiers: Trial (free, 14 days), Starter (€49/mo or €490/yr), Professional (€149/mo or €1490/yr), and Enterprise (€499/mo or €4990/yr). System tracks subscription status, payment history, next payment dates, and payment methods. Automated payment reminders appear 7 days before expiry and when payment is overdue. Expired subscriptions block access with clear upgrade path.
+- **Purpose**: Monetizes the platform through recurring revenue, ensures companies maintain active subscriptions to access the system, provides clear payment tracking and management for administrators
+- **Trigger**: Subscription approaching expiry (7 days), payment overdue, subscription expired, or admin clicks "Manage Subscription" in company management
+- **Progression**: For reminders: System checks daily → Detects subscription expiring within 7 days → Shows dismissible banner in app → User can upgrade immediately or dismiss. For expired: User attempts login → System detects expired subscription → Shows blocking page with upgrade button → Cannot access app until payment processed. For management: Click Manage Subscription → View current plan and billing info → Select new plan and billing cycle → Enter payment details (card number, expiry, CVC, name) → Process payment (simulated Stripe integration) → Subscription updated → Payment recorded in history → Access restored/continued
+- **Success criteria**: Payment reminders appear at correct intervals (7 days before expiry, every 2 days if dismissed). Expired subscriptions completely block access to all features with clear blocking page showing expiry date and upgrade button. Payment page allows plan selection, shows accurate pricing, validates payment information, processes payment, updates subscription dates, stores payment history, and restores access immediately. Payment history displays last 3 transactions with amounts, dates, and status. Subscription status accurately reflects current state (active, past_due, expired, canceled, trialing).
+
+### Payment Blocking & Access Control
+- **Functionality**: Hard block on application access when subscription expires or payment is overdue. Users cannot access any features except the payment/upgrade page. Blocking page displays subscription status, expiration date, blocked features list, and prominent upgrade button. Access is immediately restored after successful payment processing.
+- **Purpose**: Ensures revenue collection while maintaining professional user experience during payment issues. Motivates timely renewals while providing clear path to resolution.
+- **Trigger**: User attempts to access app with expired subscription or past-due payment status
+- **Progression**: User logs in → System validates subscription → Detects expiry or past-due status → Redirects to blocking page → Shows subscription details and upgrade button → User clicks upgrade → Enters payment info → Processes payment → Access immediately restored → Returns to app
+- **Success criteria**: No access to any features when expired except payment page. Blocking page clearly communicates issue and solution. Payment processing is quick and successful. Access restoration is immediate without requiring logout/login.
+
 ### Historical Evaluation Archive
 - **Functionality**: Maintains searchable history of all positions (active, archived, and closed), candidates, and evaluations
 - **Purpose**: Enables review of past decisions, retrieval of candidate information, analytics, and restoration of archived positions

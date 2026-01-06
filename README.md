@@ -98,6 +98,94 @@ Propriétaires et administrateurs peuvent ajouter des membres à l'équipe :
   - ✓ Opérations groupées (Starter+)
   - ✓ Analyses avancées (Professional+)
   - ✓ Modèles d'emails (Starter+)
+  - ✓ Accès API (Enterprise uniquement)
+  - ✓ Personnalisation (Enterprise uniquement)
+
+### 💳 Système de paiement et abonnement
+
+#### Gestion de l'abonnement
+
+L'onglet **Entreprise** inclut maintenant une section complète de gestion d'abonnement :
+
+- **Statut actuel** : Active, En retard, Expiré, Essai
+- **Plan actuel** : Trial, Starter, Professional ou Enterprise
+- **Date d'expiration** : Affichage du nombre de jours restants
+- **Méthode de paiement** : Carte enregistrée (derniers 4 chiffres)
+- **Prochain paiement** : Date et montant du prochain prélèvement
+- **Historique des paiements** : Liste des 3 derniers paiements avec montants et statuts
+
+**Bouton "Gérer l'abonnement"** pour accéder à la page de paiement complète.
+
+#### Rappels de paiement automatiques
+
+Le système affiche automatiquement des bannières de rappel :
+
+- **7 jours avant expiration** : Bannière jaune avec option de renouveler
+- **3 jours avant expiration** : Bannière orange "Expire bientôt"
+- **Paiement en retard** : Bannière rouge avec action immédiate requise
+- **Rappels répétés** : Tous les 2 jours si la bannière est ignorée
+
+Les rappels peuvent être temporairement ignorés mais réapparaissent automatiquement.
+
+#### Page de paiement
+
+Accessible via "Gérer l'abonnement", permet de :
+
+1. **Choisir un plan** :
+   - Trial (gratuit, 14 jours)
+   - Starter (€49/mois ou €490/an)
+   - Professional (€149/mois ou €1,490/an - Populaire)
+   - Enterprise (€499/mois ou €4,990/an)
+
+2. **Sélectionner le cycle de facturation** :
+   - Mensuel
+   - Annuel (économisez 17% - 2 mois gratuits)
+
+3. **Voir les fonctionnalités incluses** pour chaque plan
+
+4. **Entrer les informations de paiement** :
+   - Numéro de carte
+   - Date d'expiration (MM/AA)
+   - Code CVC
+   - Nom sur la carte
+
+5. **Traiter le paiement** :
+   - Intégration Stripe (simulée en développement)
+   - Confirmation instantanée
+   - Mise à jour automatique de l'abonnement
+   - Enregistrement dans l'historique
+
+#### Page de blocage (abonnement expiré)
+
+Quand l'abonnement expire ou le paiement est en retard :
+
+- **Blocage complet** : Impossible d'accéder aux fonctionnalités
+- **Page dédiée** affichant :
+  - Statut de l'abonnement (expiré/retard)
+  - Date d'expiration
+  - Plan actuel
+  - Liste des fonctionnalités bloquées
+  - Bouton prominent "Renouveler maintenant"
+  - Option de contact support
+- **Restauration immédiate** après paiement réussi
+
+#### Prix des abonnements
+
+| Plan | Mensuel | Annuel | Utilisateurs | Postes | Candidats | Fonctionnalités |
+|------|---------|---------|--------------|--------|-----------|-----------------|
+| **Trial** | Gratuit | - | 3 | 5 | 50 | Basiques |
+| **Starter** | €49 | €490 | 5 | 20 | 200 | + Bulk, Emails |
+| **Professional** | €149 | €1,490 | 15 | 100 | 1000 | + Analytics |
+| **Enterprise** | €499 | €4,990 | ∞ | ∞ | ∞ | + API, Branding |
+
+#### Fonctionnalités de test (Propriétaire uniquement)
+
+Dans l'onglet Entreprise, les propriétaires voient une carte de debug pour tester :
+- **Expirer l'abonnement** : Simule une expiration immédiate
+- **Restaurer l'abonnement** : Renouvelle pour 1 an
+- Utile pour tester les rappels et la page de blocage
+
+---
   - ✓ Accès API (Enterprise)
   - ✓ Personnalisation (Enterprise)
 

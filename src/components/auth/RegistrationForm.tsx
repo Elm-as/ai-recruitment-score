@@ -189,6 +189,12 @@ export function RegistrationForm({ onRegister, onBack, language }: RegistrationF
           startDate: now,
           expiryDate,
           isActive: true
+        },
+        subscription: {
+          status: licenseType === 'trial' ? 'trialing' : 'active',
+          currentPeriodEnd: expiryDate,
+          cancelAtPeriodEnd: false,
+          nextPaymentDate: expiryDate,
         }
       }
 
