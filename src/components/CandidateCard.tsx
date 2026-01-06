@@ -93,13 +93,19 @@ Generate TECHNICAL questions that:
 4. Explore their technical achievements and technical problem-solving
 5. Test their understanding of technical concepts relevant to the role
 
-Return a JSON object with a single property "questions" containing an array of question strings in ${isEnglish ? 'ENGLISH' : 'FRENCH'}:
+Return ONLY valid JSON with a single property "questions" containing an array of question strings in ${isEnglish ? 'ENGLISH' : 'FRENCH'}:
 {
   "questions": ["question 1", "question 2", ...]
 }`
 
-      const result = await (window as any).spark.llm(questionsPrompt, 'gpt-4o', true)
+      console.log('Generating interview questions...')
+      const result = await (window as any).spark.llm(questionsPrompt, 'gpt-4o-mini', true)
+      console.log('Questions result:', result)
       const data = JSON.parse(result)
+
+      if (!data.questions || !Array.isArray(data.questions)) {
+        throw new Error('Invalid response format: missing questions array')
+      }
 
       setCandidates((prev) =>
         prev.map((c) =>
@@ -160,13 +166,19 @@ Generate follow-up TECHNICAL questions that:
 4. Explore technical edge cases or technical scenarios related to their answer
 5. Verify technical expertise with specific implementation details
 
-Return a JSON object with a single property "questions" containing an array of follow-up question strings in ${isEnglish ? 'ENGLISH' : 'FRENCH'}:
+Return ONLY valid JSON with a single property "questions" containing an array of follow-up question strings in ${isEnglish ? 'ENGLISH' : 'FRENCH'}:
 {
   "questions": ["follow-up question 1", "follow-up question 2", ...]
 }`
 
-      const result = await (window as any).spark.llm(followUpPrompt, 'gpt-4o', true)
+      console.log('Generating follow-up questions...')
+      const result = await (window as any).spark.llm(followUpPrompt, 'gpt-4o-mini', true)
+      console.log('Follow-up result:', result)
       const data = JSON.parse(result)
+
+      if (!data.questions || !Array.isArray(data.questions)) {
+        throw new Error('Invalid response format: missing questions array')
+      }
 
       setCandidates((prev) =>
         prev.map((c) => {
@@ -259,7 +271,7 @@ Provide:
 - 2-4 specific strengths of the answer in ${isEnglish ? 'ENGLISH' : 'FRENCH'}
 - 2-4 specific areas for improvement in ${isEnglish ? 'ENGLISH' : 'FRENCH'}
 
-Return a JSON object:
+Return ONLY valid JSON:
 {
   "technicalDepth": 85,
   "accuracy": 90,
@@ -270,8 +282,15 @@ Return a JSON object:
   "improvements": ["improvement 1", "improvement 2", ...]
 }`
 
-      const result = await (window as any).spark.llm(scoringPrompt, 'gpt-4o', true)
+      console.log('Scoring answer...')
+      const result = await (window as any).spark.llm(scoringPrompt, 'gpt-4o-mini', true)
+      console.log('Scoring result:', result)
       const scoreData = JSON.parse(result)
+
+      if (typeof scoreData.technicalDepth !== 'number' || typeof scoreData.accuracy !== 'number' || 
+          typeof scoreData.completeness !== 'number' || typeof scoreData.overallScore !== 'number') {
+        throw new Error('Invalid response format: missing numeric scores')
+      }
 
       setCandidates((prev) =>
         prev.map((c) => {

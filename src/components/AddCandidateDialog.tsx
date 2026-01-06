@@ -86,6 +86,7 @@ export default function AddCandidateDialog({
     setProgress(10)
 
     try {
+      console.log('Starting analysis for candidate:', candidate.name)
       const otherPositions = positions.filter((p) => p.id !== position.id && p.status === 'active')
       const isEnglish = language === 'en'
 
@@ -105,7 +106,7 @@ Email: ${candidate.email}
 Profile Information:
 ${candidate.profileText}
 
-Provide a comprehensive evaluation in JSON format with this exact structure (all text in ${targetLang}):
+Provide a comprehensive evaluation. Return ONLY valid JSON with this exact structure (all text in ${targetLang}):
 {
   "score": <number 0-100>,
   "scoreBreakdown": [
@@ -125,13 +126,16 @@ Be specific and reference actual details from the candidate's profile.`
 
       setProgress(40)
 
-      const analysisResult = await (window as any).spark.llm(analysisPrompt, 'gpt-4o', true)
+      const analysisResult = await (window as any).spark.llm(analysisPrompt, 'gpt-4o-mini', true)
+      console.log('Analysis result:', analysisResult)
       const analysis = JSON.parse(analysisResult)
 
       setProgress(70)
 
+      console.log('Checking for alternative positions...')
       let alternativePositions = undefined
       if (otherPositions.length > 0 && analysis.score >= 50 && analysis.score < 80) {
+        console.log('Generating alternative positions...')
         const targetLangAlt = isEnglish ? 'ENGLISH' : 'FRENCH'
         const alternativesPrompt = (window as any).spark.llmPrompt`Based on this candidate's profile and their score of ${analysis.score}/100 for the ${position.title} position, evaluate if they might be a better fit for any of these other open positions:
 
@@ -143,7 +147,7 @@ ${candidate.profileText}
 OTHER OPEN POSITIONS:
 ${otherPositions.map((p) => `- ${p.title}: ${p.description}\n  Requirements: ${p.requirements}`).join('\n\n')}
 
-Return a JSON object with a single property "alternatives" containing an array of suitable alternative positions (empty array if none). All reasoning must be in ${targetLangAlt}:
+Return ONLY valid JSON. If there are suitable alternatives, return them in the "alternatives" array. If no alternatives are suitable, return an empty array:
 {
   "alternatives": [
     {
@@ -156,23 +160,30 @@ Return a JSON object with a single property "alternatives" containing an array o
 
 Only suggest alternatives if the candidate would score significantly higher (10+ points) for that position.`
 
-        const alternativesResult = await (window as any).spark.llm(alternativesPrompt, 'gpt-4o', true)
-        const alternativesData = JSON.parse(alternativesResult)
-        
-        if (alternativesData.alternatives && alternativesData.alternatives.length > 0) {
-          alternativePositions = alternativesData.alternatives.map((alt: any) => {
-            const pos = otherPositions.find((p) => p.title === alt.positionTitle)
-            return {
-              positionId: pos?.id || alt.positionId,
-              positionTitle: alt.positionTitle,
-              reasoning: alt.reasoning,
-            }
-          })
+        try {
+          const alternativesResult = await (window as any).spark.llm(alternativesPrompt, 'gpt-4o-mini', true)
+          console.log('Alternatives result:', alternativesResult)
+          const alternativesData = JSON.parse(alternativesResult)
+          
+          if (alternativesData.alternatives && alternativesData.alternatives.length > 0) {
+            alternativePositions = alternativesData.alternatives.map((alt: any) => {
+              const pos = otherPositions.find((p) => p.title === alt.positionTitle)
+              return {
+                positionId: pos?.id || alt.positionId,
+                positionTitle: alt.positionTitle,
+                reasoning: alt.reasoning,
+              }
+            })
+            console.log('Alternative positions found:', alternativePositions)
+          }
+        } catch (altError) {
+          console.error('Error generating alternatives (non-critical):', altError)
         }
       }
 
       setProgress(100)
 
+      console.log('Analysis complete, updating candidate...')
       setCandidates((prev) =>
         prev.map((c) =>
           c.id === candidate.id
@@ -194,9 +205,20 @@ Only suggest alternatives if the candidate would score significantly higher (10+
       toast.success(t('addCandidate.success', language), {
         description: `Score: ${analysis.score}/100`,
       })
+      console.log('Candidate analysis successful')
     } catch (error) {
       console.error('Analysis error:', error)
-      toast.error(t('addCandidate.errorAnalysis', language))
+      console.error('Error details:', JSON.stringify(error, null, 2))
+      
+      let errorMessage = t('addCandidate.errorAnalysis', language)
+      if (error instanceof Error) {
+        errorMessage += ': ' + error.message
+      }
+      
+      toast.error(errorMessage, {
+        duration: 7000,
+      })
+      
       setCandidates((prev) => prev.filter((c) => c.id !== candidate.id))
     } finally {
       setIsAnalyzing(false)
