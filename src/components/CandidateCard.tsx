@@ -12,6 +12,7 @@ import {
   Sparkle,
   ArrowsLeftRight,
   Trash,
+  Briefcase,
 } from '@phosphor-icons/react'
 import {
   AlertDialog,
@@ -343,7 +344,19 @@ Return ONLY valid JSON:
     toast.success(t('candidate.markedRejected', language))
   }
 
+  const markAsHired = () => {
+    setCandidates((prev) =>
+      prev.map((c) => (c.id === candidate.id ? { ...c, status: 'hired' as const, hiredAt: Date.now() } : c))
+    )
+    toast.success(t('candidate.hiredSuccess', language))
+  }
+
   const deleteCandidate = () => {
+    if (candidate.status === 'hired') {
+      toast.error(t('candidate.cannotDeleteHired', language))
+      return
+    }
+
     const deletedCandidate = candidate
 
     setCandidates((prev) => prev.filter((c) => c.id !== candidate.id))
@@ -386,10 +399,12 @@ Return ONLY valid JSON:
     <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} transition={{ duration: 0.2 }}>
       <Card
         className={`${
-          candidate.status === 'selected'
-            ? 'border-green-500 bg-green-50/50'
+          candidate.status === 'hired'
+            ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
+            : candidate.status === 'selected'
+            ? 'border-green-500 bg-green-50/50 dark:bg-green-950/20'
             : candidate.status === 'rejected'
-            ? 'border-red-300 bg-red-50/50'
+            ? 'border-red-300 bg-red-50/50 dark:bg-red-950/20'
             : isTopPick
             ? 'border-accent bg-accent/5'
             : ''
@@ -506,12 +521,12 @@ Return ONLY valid JSON:
               </Button>
             )}
 
-            {candidate.status !== 'selected' && (
+            {candidate.status !== 'selected' && candidate.status !== 'hired' && (
               <Button
                 size="sm"
                 variant="outline"
                 onClick={markAsSelected}
-                className="gap-1.5 border-green-500 text-green-600 hover:bg-green-50 text-xs sm:text-sm flex-1 xs:flex-initial h-9"
+                className="gap-1.5 border-green-500 text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 text-xs sm:text-sm flex-1 xs:flex-initial h-9"
               >
                 <CheckCircle size={16} weight="bold" />
                 <span className="hidden xs:inline">{t('candidate.select', language)}</span>
@@ -519,12 +534,25 @@ Return ONLY valid JSON:
               </Button>
             )}
 
-            {candidate.status !== 'rejected' && (
+            {candidate.status === 'selected' && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={markAsHired}
+                className="gap-1.5 border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 text-xs sm:text-sm flex-1 xs:flex-initial h-9"
+              >
+                <Briefcase size={16} weight="bold" />
+                <span className="hidden xs:inline">{t('candidate.markAsHired', language)}</span>
+                <span className="xs:hidden">Recruté</span>
+              </Button>
+            )}
+
+            {candidate.status !== 'rejected' && candidate.status !== 'hired' && (
               <Button
                 size="sm"
                 variant="outline"
                 onClick={markAsRejected}
-                className="gap-1.5 border-red-500 text-red-600 hover:bg-red-50 text-xs sm:text-sm flex-1 xs:flex-initial h-9"
+                className="gap-1.5 border-red-500 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 text-xs sm:text-sm flex-1 xs:flex-initial h-9"
               >
                 <XCircle size={16} weight="bold" />
                 <span className="hidden xs:inline">{t('candidate.reject', language)}</span>
@@ -537,7 +565,8 @@ Return ONLY valid JSON:
                 <Button
                   size="sm"
                   variant="outline"
-                  className="gap-1.5 border-destructive text-destructive hover:bg-destructive/10 text-xs sm:text-sm flex-1 xs:flex-initial h-9"
+                  disabled={candidate.status === 'hired'}
+                  className="gap-1.5 border-destructive text-destructive hover:bg-destructive/10 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm flex-1 xs:flex-initial h-9"
                 >
                   <Trash size={16} weight="bold" />
                   <span className="hidden xs:inline">{t('candidate.delete', language)}</span>

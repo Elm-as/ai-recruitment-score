@@ -7,6 +7,8 @@ export interface Position {
   createdAt: number
   status: 'active' | 'closed' | 'archived'
   archivedAt?: number
+  hiredCount?: number
+  isLocked?: boolean
 }
 
 export interface Candidate {
@@ -55,10 +57,11 @@ export interface Candidate {
     positionTitle: string
     reasoning: string
   }[]
-  status: 'pending' | 'analyzing' | 'scored' | 'selected' | 'rejected'
+  status: 'pending' | 'analyzing' | 'scored' | 'selected' | 'rejected' | 'hired'
   createdAt: number
   analyzedAt?: number
   customOrder?: number
+  hiredAt?: number
 }
 
 export interface PositionWithCandidates extends Position {

@@ -1,6 +1,7 @@
 import { Candidate, Language } from '@/lib/types'
-import { Star, Trophy } from '@phosphor-icons/react'
+import { Star, Trophy, Briefcase } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
+import { t } from '@/lib/translations'
 
 interface CandidateHeaderProps {
   candidate: Candidate
@@ -38,7 +39,7 @@ export default function CandidateHeader({
         )}
       </div>
 
-      <div className="flex items-center gap-1.5 sm:gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
         <Badge variant="default" className="bg-primary text-primary-foreground font-semibold text-xs sm:text-sm px-2 py-0.5">
           {language === 'fr' ? 'Score' : 'Score'}: {candidate.score}/100
         </Badge>
@@ -46,6 +47,13 @@ export default function CandidateHeader({
         <Badge variant="secondary" className="font-medium text-xs sm:text-sm px-2 py-0.5">
           {language === 'fr' ? 'Moy.' : 'Avg.'}: {averageScore}/100
         </Badge>
+
+        {candidate.status === 'hired' && (
+          <Badge className="bg-blue-500 text-white font-medium text-xs sm:text-sm px-2 py-0.5 gap-1">
+            <Briefcase size={14} weight="bold" />
+            {t('status.hired', language)}
+          </Badge>
+        )}
       </div>
     </div>
   )

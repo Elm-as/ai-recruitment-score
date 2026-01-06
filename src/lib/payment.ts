@@ -2,9 +2,9 @@ import { Company, PaymentReminder, LicenseType } from './types'
 
 export const SUBSCRIPTION_PRICES: Record<LicenseType, { monthly: number; yearly: number; currency: string }> = {
   trial: { monthly: 0, yearly: 0, currency: 'EUR' },
-  starter: { monthly: 49, yearly: 490, currency: 'EUR' },
-  professional: { monthly: 149, yearly: 1490, currency: 'EUR' },
-  enterprise: { monthly: 499, yearly: 4990, currency: 'EUR' },
+  starter: { monthly: 29, yearly: 290, currency: 'EUR' },
+  professional: { monthly: 79, yearly: 790, currency: 'EUR' },
+  enterprise: { monthly: 199, yearly: 1990, currency: 'EUR' },
 }
 
 export function isSubscriptionExpired(company: Company): boolean {

@@ -286,6 +286,12 @@ export default function PositionDetailView({
   }
 
   const deletePosition = () => {
+    const hiredCount = candidates.filter(c => c.status === 'hired').length
+    if (hiredCount > 0) {
+      toast.error(t('positions.cannotDeleteLocked', language))
+      return
+    }
+
     const deletedPosition = position
     const deletedCandidates = candidates
     
@@ -308,6 +314,12 @@ export default function PositionDetailView({
   }
 
   const archivePosition = () => {
+    const hiredCount = candidates.filter(c => c.status === 'hired').length
+    if (hiredCount > 0) {
+      toast.error(t('positions.cannotArchiveLocked', language))
+      return
+    }
+
     const archivedPosition = { ...position, status: 'archived' as const, archivedAt: Date.now() }
     
     setPositions((prev) => prev.map((p) => (p.id === position.id ? archivedPosition : p)))
@@ -335,6 +347,9 @@ export default function PositionDetailView({
     return count + (answered - scored)
   }, 0)
 
+  const hiredCandidatesCount = candidates.filter(c => c.status === 'hired').length
+  const isPositionLocked = hiredCandidatesCount > 0
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col gap-3 sm:gap-4">
@@ -357,9 +372,19 @@ export default function PositionDetailView({
               <Badge variant="secondary" className="gap-1.5 text-xs h-7">
                 {candidates.length} {candidates.length === 1 ? t('positions.candidates', language) : t('positions.candidates_plural', language)}
               </Badge>
+              {hiredCandidatesCount > 0 && (
+                <Badge className="gap-1.5 text-xs bg-blue-500 hover:bg-blue-600 h-7">
+                  {hiredCandidatesCount === 1 ? t('positions.hiredCandidates', language, { count: hiredCandidatesCount }) : t('positions.hiredCandidates_plural', language, { count: hiredCandidatesCount })}
+                </Badge>
+              )}
               {answeredButNotScoredCount > 0 && (
                 <Badge className="gap-1.5 text-xs bg-orange-500 hover:bg-orange-600 animate-pulse h-7">
                   {answeredButNotScoredCount} {language === 'fr' ? 'réponse(s) à évaluer' : 'answer(s) to score'}
+                </Badge>
+              )}
+              {isPositionLocked && (
+                <Badge variant="outline" className="gap-1.5 text-xs border-blue-500 text-blue-600 h-7">
+                  🔒 {t('positions.locked', language)}
                 </Badge>
               )}
             </div>
@@ -368,7 +393,12 @@ export default function PositionDetailView({
         <div className="flex flex-wrap gap-2 w-full">
           <AlertDialog open={archiveDialogOpen} onOpenChange={setArchiveDialogOpen}>
             <AlertDialogTrigger asChild>
-              <Button variant="outline" size="sm" className="border-muted-foreground text-muted-foreground hover:bg-muted gap-2 flex-1 xs:flex-initial h-10">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                disabled={isPositionLocked}
+                className="border-muted-foreground text-muted-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed gap-2 flex-1 xs:flex-initial h-10"
+              >
                 <Archive size={18} weight="bold" />
                 <span className="hidden xs:inline">{t('positions.archive', language)}</span>
                 <span className="xs:hidden">Archiver</span>
@@ -392,7 +422,12 @@ export default function PositionDetailView({
           
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="outline" size="sm" className="border-destructive text-destructive hover:bg-destructive/10 gap-2 flex-1 xs:flex-initial h-10">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                disabled={isPositionLocked}
+                className="border-destructive text-destructive hover:bg-destructive/10 disabled:opacity-50 disabled:cursor-not-allowed gap-2 flex-1 xs:flex-initial h-10"
+              >
                 <Trash size={18} weight="bold" />
                 <span className="hidden xs:inline">{t('positions.delete', language)}</span>
                 <span className="xs:hidden">Supprimer</span>

@@ -41,6 +41,12 @@ export const translations = {
       viewArchived: 'Voir les archives',
       hideArchived: 'Masquer les archives',
       archived: 'Archivé',
+      locked: 'Verrouillé',
+      cannotDeleteLocked: 'Impossible de supprimer un poste avec des candidats recrutés',
+      cannotArchiveLocked: 'Impossible d\'archiver un poste avec des candidats recrutés',
+      positionProtected: 'Ce poste est protégé car {{count}} candidat(s) ont été recrutés',
+      hiredCandidates: '{{count}} recruté',
+      hiredCandidates_plural: '{{count}} recrutés',
     },
     createPosition: {
       title: 'Créer un Nouveau Poste',
@@ -167,6 +173,10 @@ export const translations = {
       answerStrengths: 'Points Forts de la Réponse',
       answerImprovements: 'Axes d\'Amélioration',
       rescore: 'Réévaluer',
+      hired: 'Recruté',
+      markAsHired: 'Marquer comme recruté',
+      hiredSuccess: 'Candidat marqué comme recruté',
+      cannotDeleteHired: 'Impossible de supprimer un candidat recruté',
     },
     history: {
       title: 'Historique des Évaluations',
@@ -197,6 +207,7 @@ export const translations = {
       scored: 'Évalué',
       selected: 'Sélectionné',
       rejected: 'Rejeté',
+      hired: 'Recruté',
     },
     theme: {
       light: 'Clair',
@@ -475,6 +486,12 @@ export const translations = {
       viewArchived: 'View archives',
       hideArchived: 'Hide archives',
       archived: 'Archived',
+      locked: 'Locked',
+      cannotDeleteLocked: 'Cannot delete a position with hired candidates',
+      cannotArchiveLocked: 'Cannot archive a position with hired candidates',
+      positionProtected: 'This position is protected because {{count}} candidate(s) have been hired',
+      hiredCandidates: '{{count}} hired',
+      hiredCandidates_plural: '{{count}} hired',
     },
     createPosition: {
       title: 'Create New Position',
@@ -601,6 +618,10 @@ export const translations = {
       answerStrengths: 'Answer Strengths',
       answerImprovements: 'Areas for Improvement',
       rescore: 'Rescore',
+      hired: 'Hired',
+      markAsHired: 'Mark as hired',
+      hiredSuccess: 'Candidate marked as hired',
+      cannotDeleteHired: 'Cannot delete a hired candidate',
     },
     history: {
       title: 'Evaluation History',
@@ -631,6 +652,7 @@ export const translations = {
       scored: 'Scored',
       selected: 'Selected',
       rejected: 'Rejected',
+      hired: 'Hired',
     },
     theme: {
       light: 'Light',

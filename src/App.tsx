@@ -164,8 +164,9 @@ function App() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 flex flex-col items-center justify-center p-4">
-        <div className="absolute top-4 right-4">
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/10 relative overflow-hidden flex flex-col items-center justify-center p-4">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.1),transparent_50%),radial-gradient(circle_at_70%_80%,rgba(99,179,237,0.1),transparent_50%)]"></div>
+        <div className="absolute top-4 right-4 z-10">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2">
@@ -186,7 +187,7 @@ function App() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full flex justify-center"
+          className="w-full flex justify-center relative z-10"
         >
           {authView === 'login' ? (
             <LoginForm
@@ -249,11 +250,12 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/10 relative">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(120,119,198,0.08),transparent_50%),radial-gradient(circle_at_80%_80%,rgba(99,179,237,0.08),transparent_50%)] pointer-events-none"></div>
       <motion.header 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-50 shadow-sm"
+        className="border-b border-border/50 bg-card/80 backdrop-blur-xl sticky top-0 z-50 shadow-sm"
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4">
           <div className="flex items-center justify-between gap-2 sm:gap-3">
@@ -356,7 +358,7 @@ function App() {
         </div>
       </motion.header>
 
-      <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6 relative z-10">
         {showPaymentReminder && (
           <PaymentReminderBanner
             company={currentCompany}
