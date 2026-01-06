@@ -71,25 +71,26 @@ export function PaymentReminderBanner({ company, language, onDismiss, onUpgrade 
           transition={{ duration: 0.3 }}
           className="overflow-hidden"
         >
-          <Alert variant={variant} className="mb-4 border-2">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className="shrink-0">
+          <Alert variant={variant} className="mb-3 sm:mb-4 border-2">
+            <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2 xs:gap-3 sm:gap-4">
+              <div className="flex items-start xs:items-center gap-2 xs:gap-3 flex-1 min-w-0 w-full xs:w-auto">
+                <div className="shrink-0 mt-0.5 xs:mt-0">
                   {icon}
                 </div>
-                <AlertDescription className="text-sm font-medium flex-1">
+                <AlertDescription className="text-xs xs:text-sm font-medium flex-1 leading-snug">
                   {message}
                 </AlertDescription>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 xs:gap-2 shrink-0 w-full xs:w-auto justify-end">
                 <Button
                   onClick={onUpgrade}
                   size="sm"
                   variant={variant === 'destructive' ? 'default' : 'default'}
-                  className="gap-2 h-8"
+                  className="gap-1.5 h-7 xs:h-8 text-xs xs:text-sm px-2.5 xs:px-3 flex-1 xs:flex-initial"
                 >
-                  <CreditCard size={16} weight="duotone" />
-                  <span className="hidden sm:inline">
+                  <CreditCard size={14} className="xs:hidden" weight="duotone" />
+                  <CreditCard size={16} className="hidden xs:block" weight="duotone" />
+                  <span className="truncate">
                     {isPastDue ? t.updatePayment : t.renewNow}
                   </span>
                 </Button>
@@ -97,9 +98,10 @@ export function PaymentReminderBanner({ company, language, onDismiss, onUpgrade 
                   onClick={handleDismiss}
                   size="sm"
                   variant="ghost"
-                  className="h-8 w-8 p-0"
+                  className="h-7 w-7 xs:h-8 xs:w-8 p-0 shrink-0"
                 >
-                  <X size={16} />
+                  <X size={14} className="xs:hidden" />
+                  <X size={16} className="hidden xs:block" />
                   <span className="sr-only">{t.dismiss}</span>
                 </Button>
               </div>

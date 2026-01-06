@@ -142,13 +142,13 @@ export function DashboardView({ positions, candidates, language }: DashboardView
     >
       <Card className="hover:shadow-lg transition-shadow">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+          <CardTitle className="text-xs xs:text-sm font-medium leading-tight">{title}</CardTitle>
           <div className={`text-${color}`}>{icon}</div>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl md:text-3xl lg:text-4xl font-bold">{value}</div>
+          <div className="text-xl xs:text-2xl md:text-3xl lg:text-4xl font-bold">{value}</div>
           {trend && (
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1 leading-snug">
               {trend}
             </p>
           )}
@@ -159,10 +159,10 @@ export function DashboardView({ positions, candidates, language }: DashboardView
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">{t('dashboard.title', language)}</h2>
-          <p className="text-sm md:text-base text-muted-foreground">{t('dashboard.metrics', language)}</p>
+          <h2 className="text-xl xs:text-2xl md:text-3xl font-bold tracking-tight">{t('dashboard.title', language)}</h2>
+          <p className="text-xs xs:text-sm md:text-base text-muted-foreground leading-snug">{t('dashboard.metrics', language)}</p>
         </div>
         
         <Select value={period} onValueChange={(v) => setPeriod(v as any)}>
@@ -179,54 +179,58 @@ export function DashboardView({ positions, candidates, language }: DashboardView
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2 mb-4">
-          <TabsTrigger value="overview" className="gap-2">
-            <ChartBar size={16} weight="duotone" />
-            <span>{language === 'fr' ? 'Vue d\'ensemble' : 'Overview'}</span>
+        <TabsList className="grid w-full max-w-full xs:max-w-md grid-cols-2 mb-3 sm:mb-4">
+          <TabsTrigger value="overview" className="gap-1.5 xs:gap-2 text-xs xs:text-sm">
+            <ChartBar size={14} className="xs:hidden" weight="duotone" />
+            <ChartBar size={16} className="hidden xs:block" weight="duotone" />
+            <span className="hidden xs:inline">{language === 'fr' ? 'Vue d\'ensemble' : 'Overview'}</span>
+            <span className="xs:hidden">{language === 'fr' ? 'Vue' : 'View'}</span>
           </TabsTrigger>
-          <TabsTrigger value="advanced" className="gap-2">
-            <ChartLineUp size={16} weight="duotone" />
-            <span>{language === 'fr' ? 'Analyses Avancées' : 'Advanced Analytics'}</span>
+          <TabsTrigger value="advanced" className="gap-1.5 xs:gap-2 text-xs xs:text-sm">
+            <ChartLineUp size={14} className="xs:hidden" weight="duotone" />
+            <ChartLineUp size={16} className="hidden xs:block" weight="duotone" />
+            <span className="hidden xs:inline">{language === 'fr' ? 'Analyses Avancées' : 'Advanced Analytics'}</span>
+            <span className="xs:hidden">{language === 'fr' ? 'Avancé' : 'Advanced'}</span>
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4 md:space-y-6">{/* Original dashboard content */}
+        <TabsContent value="overview" className="space-y-4 md:space-y-6">
 
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid gap-3 md:gap-4 grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <MetricCard
           title={t('dashboard.activePositions', language)}
           value={metrics.activePositions}
-          icon={<Target size={20} weight="duotone" />}
+          icon={<Target size={16} className="xs:hidden" weight="duotone" />}
           color="primary"
         />
         <MetricCard
           title={t('dashboard.totalCandidates', language)}
           value={metrics.totalCandidates}
-          icon={<Users size={20} weight="duotone" />}
+          icon={<Users size={16} className="xs:hidden" weight="duotone" />}
           color="accent"
         />
         <MetricCard
           title={t('dashboard.averageScore', language)}
           value={`${metrics.averageScore}%`}
-          icon={<TrendUp size={20} weight="duotone" />}
+          icon={<TrendUp size={16} className="xs:hidden" weight="duotone" />}
           color="accent"
         />
         <MetricCard
           title={t('dashboard.candidatesSelected', language)}
           value={metrics.candidatesSelected}
-          icon={<CheckCircle size={20} weight="duotone" />}
+          icon={<CheckCircle size={16} className="xs:hidden" weight="duotone" />}
           color="accent"
         />
         <MetricCard
           title={t('dashboard.candidatesRejected', language)}
           value={metrics.candidatesRejected}
-          icon={<XCircle size={20} weight="duotone" />}
+          icon={<XCircle size={16} className="xs:hidden" weight="duotone" />}
           color="muted"
         />
         <MetricCard
           title={t('dashboard.positionsFilled', language)}
           value={metrics.positionsFilled}
-          icon={<CheckCircle size={20} weight="duotone" />}
+          icon={<CheckCircle size={16} className="xs:hidden" weight="duotone" />}
           color="accent"
         />
       </div>
@@ -234,37 +238,37 @@ export function DashboardView({ positions, candidates, language }: DashboardView
       <div className="grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>{t('dashboard.topPerformers', language)}</CardTitle>
-            <CardDescription>{t('dashboard.recentActivity', language)}</CardDescription>
+            <CardTitle className="text-sm xs:text-base sm:text-lg">{t('dashboard.topPerformers', language)}</CardTitle>
+            <CardDescription className="text-xs xs:text-sm">{t('dashboard.recentActivity', language)}</CardDescription>
           </CardHeader>
           <CardContent>
             {topPerformers.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
+              <p className="text-xs xs:text-sm text-muted-foreground text-center py-8">
                 {t('dashboard.noData', language)}
               </p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2 xs:space-y-3">
                 {topPerformers.map((candidate, index) => {
                   const position = positions.find(p => p.id === candidate.positionId)
                   return (
                     <div
                       key={candidate.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors"
+                      className="flex items-center justify-between p-2 xs:p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors"
                     >
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold shrink-0">
+                      <div className="flex items-center gap-2 xs:gap-3 min-w-0 flex-1">
+                        <div className="flex h-7 w-7 xs:h-8 xs:w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs xs:text-sm sm:text-base font-bold shrink-0">
                           {index + 1}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="font-medium text-sm sm:text-base truncate">{candidate.name}</p>
-                          <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                          <p className="font-medium text-xs xs:text-sm sm:text-base truncate">{candidate.name}</p>
+                          <p className="text-[10px] xs:text-xs sm:text-sm text-muted-foreground truncate">
                             {position?.title}
                           </p>
                         </div>
                       </div>
                       <div className="text-right shrink-0 ml-2">
-                        <p className="font-bold text-base sm:text-lg">{candidate.score}</p>
-                        <p className="text-xs text-muted-foreground">/ 100</p>
+                        <p className="font-bold text-sm xs:text-base sm:text-lg">{candidate.score}</p>
+                        <p className="text-[10px] xs:text-xs text-muted-foreground">/ 100</p>
                       </div>
                     </div>
                   )
@@ -276,27 +280,27 @@ export function DashboardView({ positions, candidates, language }: DashboardView
 
         <Card>
           <CardHeader>
-            <CardTitle>{t('dashboard.scoreDistribution', language)}</CardTitle>
-            <CardDescription>{t('dashboard.overview', language)}</CardDescription>
+            <CardTitle className="text-sm xs:text-base sm:text-lg">{t('dashboard.scoreDistribution', language)}</CardTitle>
+            <CardDescription className="text-xs xs:text-sm">{t('dashboard.overview', language)}</CardDescription>
           </CardHeader>
           <CardContent>
             {scoreDistribution.every(r => r.count === 0) ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
+              <p className="text-xs xs:text-sm text-muted-foreground text-center py-8">
                 {t('dashboard.noData', language)}
               </p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2 xs:space-y-3">
                 {scoreDistribution.map((range) => {
                   const maxCount = Math.max(...scoreDistribution.map(r => r.count))
                   const percentage = maxCount > 0 ? (range.count / maxCount) * 100 : 0
                   
                   return (
                     <div key={range.label} className="space-y-1">
-                      <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center justify-between text-xs xs:text-sm">
                         <span className="font-medium">{range.label}</span>
                         <span className="text-muted-foreground">{range.count}</span>
                       </div>
-                      <div className="h-2 rounded-full bg-secondary overflow-hidden">
+                      <div className="h-1.5 xs:h-2 rounded-full bg-secondary overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${percentage}%` }}
@@ -314,27 +318,27 @@ export function DashboardView({ positions, candidates, language }: DashboardView
 
         <Card>
           <CardHeader>
-            <CardTitle>{t('dashboard.candidatesPerPosition', language)}</CardTitle>
-            <CardDescription>{t('dashboard.positionsOverview', language)}</CardDescription>
+            <CardTitle className="text-sm xs:text-base sm:text-lg">{t('dashboard.candidatesPerPosition', language)}</CardTitle>
+            <CardDescription className="text-xs xs:text-sm">{t('dashboard.positionsOverview', language)}</CardDescription>
           </CardHeader>
           <CardContent>
             {candidatesPerPosition.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
+              <p className="text-xs xs:text-sm text-muted-foreground text-center py-8">
                 {t('dashboard.noData', language)}
               </p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2 xs:space-y-3">
                 {candidatesPerPosition.map((item) => {
                   const maxCount = Math.max(...candidatesPerPosition.map(i => i.count))
                   const percentage = (item.count / maxCount) * 100
                   
                   return (
                     <div key={item.title} className="space-y-1">
-                      <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center justify-between text-xs xs:text-sm">
                         <span className="font-medium truncate flex-1 mr-2">{item.title}</span>
                         <span className="text-muted-foreground shrink-0">{item.count}</span>
                       </div>
-                      <div className="h-2 rounded-full bg-secondary overflow-hidden">
+                      <div className="h-1.5 xs:h-2 rounded-full bg-secondary overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${percentage}%` }}
@@ -352,27 +356,27 @@ export function DashboardView({ positions, candidates, language }: DashboardView
 
         <Card>
           <CardHeader>
-            <CardTitle>{t('dashboard.recentActivity', language)}</CardTitle>
-            <CardDescription>{t('dashboard.evaluationTimeline', language)}</CardDescription>
+            <CardTitle className="text-sm xs:text-base sm:text-lg">{t('dashboard.recentActivity', language)}</CardTitle>
+            <CardDescription className="text-xs xs:text-sm">{t('dashboard.evaluationTimeline', language)}</CardDescription>
           </CardHeader>
           <CardContent>
             {recentActivity.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
+              <p className="text-xs xs:text-sm text-muted-foreground text-center py-8">
                 {t('dashboard.noData', language)}
               </p>
             ) : (
-              <div className="space-y-2 max-h-[320px] overflow-y-auto">
+              <div className="space-y-1.5 xs:space-y-2 max-h-[320px] overflow-y-auto">
                 {recentActivity.map((activity) => (
                   <div
                     key={activity.id}
-                    className="flex items-start justify-between p-2 rounded-lg hover:bg-secondary/30 transition-colors text-sm"
+                    className="flex items-start justify-between p-1.5 xs:p-2 rounded-lg hover:bg-secondary/30 transition-colors text-xs xs:text-sm"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium truncate">{activity.candidateName}</p>
-                      <p className="text-xs text-muted-foreground truncate">
+                      <p className="font-medium truncate text-xs xs:text-sm">{activity.candidateName}</p>
+                      <p className="text-[10px] xs:text-xs text-muted-foreground truncate">
                         {activity.positionTitle}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-[10px] xs:text-xs text-muted-foreground">
                         {new Date(activity.date).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', {
                           month: 'short',
                           day: 'numeric',
@@ -382,7 +386,7 @@ export function DashboardView({ positions, candidates, language }: DashboardView
                       </p>
                     </div>
                     <div className="text-right shrink-0 ml-2">
-                      <span className="font-bold">{activity.score}</span>
+                      <span className="font-bold text-sm xs:text-base">{activity.score}</span>
                     </div>
                   </div>
                 ))}
