@@ -65,67 +65,75 @@ export function ComparisonMatrixDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] max-h-[90vh] w-full p-4 sm:p-6">
-        <DialogHeader>
-          <DialogTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pr-8">
-            <span className="text-lg sm:text-xl md:text-2xl">
-              {language === 'fr' ? 'Matrice de Comparaison' : 'Comparison Matrix'}
-            </span>
-            <Button
-              onClick={handleExportComparison}
-              variant="outline"
-              size="sm"
-              className="gap-2 shrink-0"
-            >
-              <FilePdf size={16} weight="duotone" />
-              <span className="hidden sm:inline">
-                {language === 'fr' ? 'Exporter PDF' : 'Export PDF'}
+      <DialogContent className="max-w-[95vw] w-full p-0 flex flex-col max-h-[90vh] overflow-hidden">
+        <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 border-b shrink-0">
+          <DialogHeader>
+            <DialogTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pr-8">
+              <span className="text-lg sm:text-xl md:text-2xl">
+                {language === 'fr' ? 'Matrice de Comparaison' : 'Comparison Matrix'}
               </span>
-            </Button>
-          </DialogTitle>
-        </DialogHeader>
+              <Button
+                onClick={handleExportComparison}
+                variant="outline"
+                size="sm"
+                className="gap-2 shrink-0"
+              >
+                <FilePdf size={16} weight="duotone" />
+                <span className="hidden sm:inline">
+                  {language === 'fr' ? 'Exporter PDF' : 'Export PDF'}
+                </span>
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
 
-        <div className="mb-4">
-          <p className="text-sm text-muted-foreground mb-2">
-            {language === 'fr' 
-              ? 'Sélectionnez les candidats à comparer (max 5 affichés par défaut)' 
-              : 'Select candidates to compare (max 5 displayed by default)'}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {sortedCandidates.map((candidate) => (
-              <Button
-                key={candidate.id}
-                onClick={() => toggleCandidate(candidate.id)}
-                variant={selectedCandidates.includes(candidate.id) ? 'default' : 'outline'}
-                size="sm"
-                className="text-xs"
-              >
-                {candidate.name}
-              </Button>
-            ))}
-            {selectedCandidates.length > 0 && (
-              <Button
-                onClick={() => setSelectedCandidates([])}
-                variant="ghost"
-                size="sm"
-                className="text-xs"
-              >
-                {language === 'fr' ? 'Effacer' : 'Clear'}
-              </Button>
-            )}
+          <div className="mt-4">
+            <p className="text-sm text-muted-foreground mb-2">
+              {language === 'fr' 
+                ? 'Sélectionnez les candidats à comparer (max 5 affichés par défaut)' 
+                : 'Select candidates to compare (max 5 displayed by default)'}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {sortedCandidates.map((candidate) => (
+                <Button
+                  key={candidate.id}
+                  onClick={() => toggleCandidate(candidate.id)}
+                  variant={selectedCandidates.includes(candidate.id) ? 'default' : 'outline'}
+                  size="sm"
+                  className="text-xs"
+                >
+                  {candidate.name}
+                </Button>
+              ))}
+              {selectedCandidates.length > 0 && (
+                <Button
+                  onClick={() => setSelectedCandidates([])}
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs"
+                >
+                  {language === 'fr' ? 'Effacer' : 'Clear'}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
-        <ScrollArea className="h-[calc(90vh-18rem)] -mx-4 px-4 sm:-mx-6 sm:px-6">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse min-w-[600px]">
-              <thead className="sticky top-0 bg-background/95 backdrop-blur-sm z-10">
+        <div className="flex-1 overflow-auto px-4 sm:px-6 py-4">
+          <div className="overflow-x-auto -mx-4 sm:-mx-6 px-4 sm:px-6">
+            <table className="w-full border-collapse table-fixed" style={{ minWidth: '600px' }}>
+              <colgroup>
+                <col style={{ width: '140px' }} />
+                {displayCandidates.map((_, index) => (
+                  <col key={index} style={{ width: `${Math.max(180, (95 * window.innerWidth / 100 - 140) / displayCandidates.length)}px` }} />
+                ))}
+              </colgroup>
+              <thead className="sticky top-0 bg-background z-10 shadow-sm">
                 <tr>
-                  <th className="border border-border p-2 sm:p-3 text-left font-semibold min-w-[100px] sm:min-w-[120px] text-xs sm:text-sm bg-muted/50">
+                  <th className="border border-border p-2 sm:p-3 text-left font-semibold text-xs sm:text-sm bg-muted/50">
                     {language === 'fr' ? 'Critère' : 'Criteria'}
                   </th>
                   {displayCandidates.map((candidate, index) => (
-                    <th key={candidate.id} className="border border-border p-2 sm:p-3 text-left min-w-[150px] sm:min-w-[180px] bg-muted/30">
+                    <th key={candidate.id} className="border border-border p-2 sm:p-3 text-left bg-muted/30">
                       <div className="flex flex-col gap-1.5 sm:gap-2">
                         <div className="flex items-center justify-between gap-1">
                           <span className="font-semibold text-xs sm:text-sm truncate" title={candidate.name}>
@@ -160,7 +168,7 @@ export function ComparisonMatrixDialog({
                   </td>
                   {displayCandidates.map((candidate) => (
                     <td key={candidate.id} className="border border-border p-2 sm:p-3 text-xs">
-                      <div className="truncate max-w-[140px] sm:max-w-[160px]" title={candidate.email}>
+                      <div className="break-words" title={candidate.email}>
                         {candidate.email}
                       </div>
                     </td>
@@ -169,20 +177,20 @@ export function ComparisonMatrixDialog({
 
                 {displayCandidates[0]?.scoreBreakdown.map((_, categoryIndex) => (
                   <tr key={categoryIndex} className="hover:bg-muted/50 transition-colors">
-                    <td className="border border-border p-2 sm:p-3 font-medium bg-muted/50 text-xs sm:text-sm">
-                      <div className="line-clamp-2">
+                    <td className="border border-border p-2 sm:p-3 font-medium bg-muted/50 text-xs sm:text-sm align-top">
+                      <div className="break-words">
                         {displayCandidates[0].scoreBreakdown[categoryIndex].category}
                       </div>
                     </td>
                     {displayCandidates.map((candidate) => {
                       const breakdown = candidate.scoreBreakdown[categoryIndex]
                       return (
-                        <td key={candidate.id} className="border border-border p-2 sm:p-3">
+                        <td key={candidate.id} className="border border-border p-2 sm:p-3 align-top">
                           <div className="flex flex-col gap-1">
                             <Badge variant="outline" className="w-fit text-xs">
                               {breakdown?.score || 0}/100
                             </Badge>
-                            <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-3 leading-tight">
+                            <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight break-words">
                               {breakdown?.reasoning || '-'}
                             </p>
                           </div>
@@ -196,16 +204,16 @@ export function ComparisonMatrixDialog({
                   <td className="border border-border p-2 sm:p-3 font-medium bg-muted/50 align-top text-xs sm:text-sm">
                     <div className="flex items-center gap-1.5 sm:gap-2">
                       <TrendUp size={14} weight="duotone" className="text-emerald-600 shrink-0" />
-                      <span className="line-clamp-2">{language === 'fr' ? 'Forces' : 'Strengths'}</span>
+                      <span className="break-words">{language === 'fr' ? 'Forces' : 'Strengths'}</span>
                     </div>
                   </td>
                   {displayCandidates.map((candidate) => (
-                    <td key={candidate.id} className="border border-border p-2 sm:p-3">
+                    <td key={candidate.id} className="border border-border p-2 sm:p-3 align-top">
                       <ul className="space-y-1">
                         {candidate.strengths.slice(0, 3).map((strength, idx) => (
                           <li key={idx} className="text-[10px] sm:text-xs text-foreground flex items-start gap-1">
                             <span className="text-emerald-600 mt-0.5 shrink-0">•</span>
-                            <span className="line-clamp-2 leading-tight">{strength}</span>
+                            <span className="leading-tight break-words">{strength}</span>
                           </li>
                         ))}
                       </ul>
@@ -217,16 +225,16 @@ export function ComparisonMatrixDialog({
                   <td className="border border-border p-2 sm:p-3 font-medium bg-muted/50 align-top text-xs sm:text-sm">
                     <div className="flex items-center gap-1.5 sm:gap-2">
                       <TrendDown size={14} weight="duotone" className="text-amber-600 shrink-0" />
-                      <span className="line-clamp-2">{language === 'fr' ? 'Faiblesses' : 'Weaknesses'}</span>
+                      <span className="break-words">{language === 'fr' ? 'Faiblesses' : 'Weaknesses'}</span>
                     </div>
                   </td>
                   {displayCandidates.map((candidate) => (
-                    <td key={candidate.id} className="border border-border p-2 sm:p-3">
+                    <td key={candidate.id} className="border border-border p-2 sm:p-3 align-top">
                       <ul className="space-y-1">
                         {candidate.weaknesses.slice(0, 3).map((weakness, idx) => (
                           <li key={idx} className="text-[10px] sm:text-xs text-foreground flex items-start gap-1">
                             <span className="text-amber-600 mt-0.5 shrink-0">•</span>
-                            <span className="line-clamp-2 leading-tight">{weakness}</span>
+                            <span className="leading-tight break-words">{weakness}</span>
                           </li>
                         ))}
                       </ul>
@@ -239,8 +247,8 @@ export function ComparisonMatrixDialog({
                     {language === 'fr' ? 'Évaluation Globale' : 'Overall Assessment'}
                   </td>
                   {displayCandidates.map((candidate) => (
-                    <td key={candidate.id} className="border border-border p-2 sm:p-3">
-                      <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-4 leading-tight">
+                    <td key={candidate.id} className="border border-border p-2 sm:p-3 align-top">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight break-words">
                         {candidate.overallAssessment}
                       </p>
                     </td>
@@ -260,7 +268,7 @@ export function ComparisonMatrixDialog({
                           candidate.questionAnswers.filter(qa => qa.aiScore).length
                         : 0
                       return (
-                        <td key={candidate.id} className="border border-border p-2 sm:p-3">
+                        <td key={candidate.id} className="border border-border p-2 sm:p-3 align-top">
                           <Badge variant="outline" className="w-fit text-xs">
                             {avgScore.toFixed(1)}/100
                           </Badge>
@@ -272,9 +280,9 @@ export function ComparisonMatrixDialog({
               </tbody>
             </table>
           </div>
-        </ScrollArea>
+        </div>
 
-        <div className="flex justify-end gap-2 pt-4 border-t">
+        <div className="flex justify-end gap-2 px-4 sm:px-6 py-3 sm:py-4 border-t shrink-0 bg-background">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {language === 'fr' ? 'Fermer' : 'Close'}
           </Button>
