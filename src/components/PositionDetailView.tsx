@@ -3,7 +3,7 @@ import { useKV } from '@github/spark/hooks'
 import { Position, Candidate, Language, OrderingPreset } from '@/lib/types'
 import { t } from '@/lib/translations'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Plus, Funnel, Trash, Archive, CheckSquare, Square, ArrowsLeftRight, Sparkle, Info, EnvelopeSimple, ArrowsDownUp, FloppyDisk, CheckCircle, FilePdf, ChartBar } from '@phosphor-icons/react'
+import { ArrowLeft, Plus, Funnel, Trash, Archive, CheckSquare, Square, ArrowsLeftRight, Sparkle, Info, EnvelopeSimple, ArrowsDownUp, FloppyDisk, CheckCircle, FilePdf, ChartBar, PencilSimple } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
@@ -22,6 +22,7 @@ import CandidateCard from './CandidateCard'
 import CompareScoresDialog from './CompareScoresDialog'
 import EmailTemplateDialog from './EmailTemplateDialog'
 import OrderingPresetsDialog from './OrderingPresetsDialog'
+import EditPositionDialog from './EditPositionDialog'
 import { ComparisonMatrixDialog } from './ComparisonMatrixDialog'
 import { generatePositionReportPDF } from '@/lib/pdfExport'
 import { motion } from 'framer-motion'
@@ -154,6 +155,7 @@ export default function PositionDetailView({
   language,
 }: PositionDetailViewProps) {
   const [addCandidateOpen, setAddCandidateOpen] = useState(false)
+  const [editPositionOpen, setEditPositionOpen] = useState(false)
   const [filterStatus, setFilterStatus] = useState<string>('all')
   const [selectedCandidateIds, setSelectedCandidateIds] = useState<Set<string>>(new Set())
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false)
@@ -342,6 +344,10 @@ export default function PositionDetailView({
     onBack()
   }
 
+  const handleUpdatePosition = (updatedPosition: Position) => {
+    setPositions((prev) => prev.map((p) => (p.id === position.id ? updatedPosition : p)))
+  }
+
   const allFilteredSelected = filteredCandidates.length > 0 && filteredCandidates.every((c) => selectedCandidateIds.has(c.id))
 
   const answeredButNotScoredCount = candidates.reduce((count, candidate) => {
@@ -394,6 +400,16 @@ export default function PositionDetailView({
           </div>
         </div>
         <div className="flex flex-wrap gap-2 w-full">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setEditPositionOpen(true)}
+            className="gap-2 flex-1 xs:flex-initial h-10 hover:bg-primary/10 hover:border-primary"
+          >
+            <PencilSimple size={18} weight="bold" />
+            <span className="hidden xs:inline">{language === 'fr' ? 'Modifier' : 'Edit'}</span>
+            <span className="xs:hidden">Éditer</span>
+          </Button>
           <AlertDialog open={archiveDialogOpen} onOpenChange={setArchiveDialogOpen}>
             <AlertDialogTrigger asChild>
               <Button 
@@ -742,6 +758,14 @@ export default function PositionDetailView({
         position={position}
         setCandidates={setCandidates}
         positions={positions}
+        language={language}
+      />
+
+      <EditPositionDialog
+        open={editPositionOpen}
+        onOpenChange={setEditPositionOpen}
+        position={position}
+        onUpdatePosition={handleUpdatePosition}
         language={language}
       />
 

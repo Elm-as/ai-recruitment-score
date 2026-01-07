@@ -87,9 +87,10 @@ export default function PositionsView({
   }
 
   if (selectedPosition) {
+    const currentPosition = positions.find(p => p.id === selectedPosition.id) || selectedPosition
     return (
       <PositionDetailView
-        position={selectedPosition}
+        position={currentPosition}
         onBack={() => setSelectedPosition(null)}
         candidates={candidates.filter((c) => c.positionId === selectedPosition.id)}
         setCandidates={setCandidates}
