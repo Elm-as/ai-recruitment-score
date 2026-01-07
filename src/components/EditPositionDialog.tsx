@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
+import { Position, Language } from '@/lib/types'
 import { t } from '@/lib/translations'
-  Dialog,
-  Dialog
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -21,16 +21,16 @@ interface EditPositionDialogProps {
   onOpenChange: (open: boolean) => void
   position: Position
   onSave: (position: Position) => void
-  onSave,
+  language: Language
 }
 
-  const [requirements, setRequirements] = us
+export default function EditPositionDialog({
   open,
-
+  onOpenChange,
   position,
   onSave,
-      setDe
-      setOpenings(position.op
+  language,
+}: EditPositionDialogProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [requirements, setRequirements] = useState('')
@@ -44,7 +44,7 @@ interface EditPositionDialogProps {
       setRequirements(position.requirements)
       setOpenings(position.openings.toString())
       setIsInternship(position.isInternship || false)
-
+    }
   }, [open, position])
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -52,7 +52,7 @@ interface EditPositionDialogProps {
 
     if (!title.trim() || !description.trim() || !requirements.trim()) {
       toast.error(language === 'fr' ? 'Tous les champs sont requis' : 'All fields are required')
-
+      return
     }
 
     const openingsNum = parseInt(openings)
@@ -66,13 +66,13 @@ interface EditPositionDialogProps {
       title: title.trim(),
       description: description.trim(),
       requirements: requirements.trim(),
-            <Label htmlFor="
+      openings: openingsNum,
       isInternship,
-     
+    }
 
-              onChange={(e)
+    onSave(updatedPosition)
     toast.success(language === 'fr' ? 'Poste modifié avec succès' : 'Position updated successfully')
-
+    onOpenChange(false)
   }
 
   return (
@@ -86,19 +86,19 @@ interface EditPositionDialogProps {
             {language === 'fr' 
               ? 'Modifiez les informations du poste' 
               : 'Update the position information'}
-      </DialogContent>
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="edit-title" className="text-sm">
               {language === 'fr' ? 'Titre du poste' : 'Job Title'} *
             </Label>
-
+            <Input
               id="edit-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="text-sm"
-
+            />
           </div>
 
           <div className="space-y-2">
@@ -109,9 +109,9 @@ interface EditPositionDialogProps {
               id="edit-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-
+              rows={4}
               className="text-sm"
-
+            />
           </div>
 
           <div className="space-y-2">
@@ -119,12 +119,12 @@ interface EditPositionDialogProps {
               {language === 'fr' ? 'Exigences' : 'Requirements'} *
             </Label>
             <Textarea
-
+              id="edit-requirements"
               value={requirements}
               onChange={(e) => setRequirements(e.target.value)}
-
+              rows={4}
               className="text-sm"
-
+            />
           </div>
 
           <div className="space-y-2">
@@ -138,7 +138,7 @@ interface EditPositionDialogProps {
               value={openings}
               onChange={(e) => setOpenings(e.target.value)}
               className="text-sm"
-
+            />
           </div>
 
           <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
@@ -150,25 +150,25 @@ interface EditPositionDialogProps {
                 {language === 'fr' 
                   ? 'Les faiblesses seront moins pénalisantes dans l\'évaluation' 
                   : 'Weaknesses will be less penalizing in the evaluation'}
-
+              </p>
             </div>
-
+            <Switch
               id="edit-internship"
-
+              checked={isInternship}
               onCheckedChange={setIsInternship}
-
+            />
           </div>
 
           <DialogFooter className="flex-col sm:flex-row gap-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
               {language === 'fr' ? 'Annuler' : 'Cancel'}
-
-            <Button type="submit" className="w-full sm:w-auto">
-
             </Button>
-
+            <Button type="submit" className="w-full sm:w-auto">
+              {language === 'fr' ? 'Enregistrer' : 'Save'}
+            </Button>
+          </DialogFooter>
         </form>
-
+      </DialogContent>
     </Dialog>
-
+  )
 }
