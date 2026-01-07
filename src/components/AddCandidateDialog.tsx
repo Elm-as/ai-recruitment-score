@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { Position, Candidate, Language } from '@/lib/types'
 import { t } from '@/lib/translations'
 import { extractTextFromFile, validateFileSize, optimizeTextForAnalysis } from '@/lib/fileUtils'
+import { analyzeCandidateWithAI, findAlternativePositions, validateAnalysisInput } from '@/lib/aiAnalysis'
 import {
   Dialog,
   DialogContent,
@@ -86,79 +87,45 @@ export default function AddCandidateDialog({
     setProgress(10)
 
     try {
-      console.log('Starting analysis for candidate:', candidate.name)
+      console.log('=== Starting Enhanced AI Analysis ===')
+      console.log('Candidate:', candidate.name)
+      console.log('Position:', position.title)
+      console.log('Profile text length:', candidate.profileText.length)
+      
+      setProgress(20)
+      
       const otherPositions = positions.filter((p) => p.id !== position.id && (p.status === 'active' || !p.status))
-      const isEnglish = language === 'en'
-
-      const targetLang = isEnglish ? 'ENGLISH' : 'FRENCH'
-      const analysisPrompt = (window as any).spark.llmPrompt`HR Expert: Evaluate candidate vs job requirements. Respond in ${targetLang}.
-
-JOB: ${position.title}
-DESC: ${position.description}
-REQ: ${position.requirements}
-
-CANDIDATE: ${candidate.name} (${candidate.email})
-${candidate.profileText}
-
-Return JSON only (text in ${targetLang}):
-{
-  "score": 0-100,
-  "scoreBreakdown": [{"category":"","score":0-100,"reasoning":""}],
-  "strengths": [""],
-  "weaknesses": [""],
-  "overallAssessment": ""
-}
-Evaluate 4-5 categories: Technical Skills, Experience, Education, Fit, etc.`
-
-      setProgress(40)
-
-      const analysisResult = await (window as any).spark.llm(analysisPrompt, 'gpt-4o-mini', true)
-      console.log('Analysis result:', analysisResult)
-      const analysis = JSON.parse(analysisResult)
+      console.log(`Found ${otherPositions.length} other active positions`)
+      
+      setProgress(30)
+      console.log('Sending candidate data to AI for analysis...')
+      
+      const analysis = await analyzeCandidateWithAI(candidate, position, language)
+      
+      console.log('AI Analysis completed successfully')
+      console.log('Final score:', analysis.score)
+      console.log('Categories evaluated:', analysis.scoreBreakdown.length)
 
       setProgress(70)
 
-      console.log('Checking for alternative positions...')
-      let alternativePositions = undefined
-      if (otherPositions.length > 0 && analysis.score >= 50 && analysis.score < 80) {
-        console.log('Generating alternative positions...')
-        const targetLangAlt = isEnglish ? 'ENGLISH' : 'FRENCH'
-        const alternativesPrompt = (window as any).spark.llmPrompt`Candidate scored ${analysis.score}/100 for ${position.title}. Check better fit for other positions. Respond in ${targetLangAlt}.
-
-CANDIDATE:
-${candidate.profileText}
-
-OTHER POSITIONS:
-${otherPositions.map((p) => `${p.title}: ${p.description}`).join('\n')}
-
-Return JSON (text in ${targetLangAlt}):
-{"alternatives":[{"positionId":"","positionTitle":"","reasoning":""}]}
-Empty array if no better fit (10+ points higher).`
-
-        try {
-          const alternativesResult = await (window as any).spark.llm(alternativesPrompt, 'gpt-4o-mini', true)
-          console.log('Alternatives result:', alternativesResult)
-          const alternativesData = JSON.parse(alternativesResult)
-          
-          if (alternativesData.alternatives && alternativesData.alternatives.length > 0) {
-            alternativePositions = alternativesData.alternatives.map((alt: any) => {
-              const pos = otherPositions.find((p) => p.title === alt.positionTitle)
-              return {
-                positionId: pos?.id || alt.positionId,
-                positionTitle: alt.positionTitle,
-                reasoning: alt.reasoning,
-              }
-            })
-            console.log('Alternative positions found:', alternativePositions)
-          }
-        } catch (altError) {
-          console.error('Error generating alternatives (non-critical):', altError)
-        }
+      console.log('Checking for alternative position matches...')
+      const alternativePositions = await findAlternativePositions(
+        candidate,
+        position,
+        otherPositions,
+        analysis.score,
+        language
+      )
+      
+      if (alternativePositions && alternativePositions.length > 0) {
+        console.log(`Found ${alternativePositions.length} alternative position suggestions`)
+      } else {
+        console.log('No alternative positions recommended')
       }
 
-      setProgress(100)
+      setProgress(95)
 
-      console.log('Analysis complete, updating candidate...')
+      console.log('Updating candidate record with analysis results...')
       setCandidates((prev) =>
         prev.map((c) =>
           c.id === candidate.id
@@ -177,21 +144,28 @@ Empty array if no better fit (10+ points higher).`
         )
       )
 
+      setProgress(100)
+
       toast.success(t('addCandidate.success', language), {
-        description: `Score: ${analysis.score}/100`,
+        description: `${language === 'fr' ? 'Score' : 'Score'}: ${analysis.score}/100`,
+        duration: 5000,
       })
-      console.log('Candidate analysis successful')
+      
+      console.log('=== Analysis Complete ===')
     } catch (error) {
-      console.error('Analysis error:', error)
-      console.error('Error details:', JSON.stringify(error, null, 2))
+      console.error('=== Analysis Error ===')
+      console.error('Error:', error)
       
       let errorMessage = t('addCandidate.errorAnalysis', language)
+      
       if (error instanceof Error) {
         errorMessage += ': ' + error.message
+        console.error('Error message:', error.message)
+        console.error('Error stack:', error.stack)
       }
       
       toast.error(errorMessage, {
-        duration: 7000,
+        duration: 8000,
       })
       
       setCandidates((prev) => prev.filter((c) => c.id !== candidate.id))
@@ -204,12 +178,17 @@ Empty array if no better fit (10+ points higher).`
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!name.trim() || !email.trim() || !profileText.trim()) {
-      toast.error(t('addCandidate.errorFields', language))
+    const validation = validateAnalysisInput(name.trim(), email.trim(), profileText.trim())
+    
+    if (!validation.valid) {
+      toast.error(validation.error || t('addCandidate.errorFields', language))
       return
     }
 
     const optimizedProfileText = optimizeTextForAnalysis(profileText.trim())
+    
+    console.log('Original profile length:', profileText.trim().length, 'characters')
+    console.log('Optimized profile length:', optimizedProfileText.length, 'characters')
 
     const newCandidate: Candidate = {
       id: `cand_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -258,19 +237,27 @@ Empty array if no better fit (10+ points higher).`
             animate={{ opacity: 1 }}
             className="py-12 space-y-6"
           >
-            <div className="text-center">
+            <div className="text-center space-y-4">
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
               >
                 <Sparkle size={64} className="text-accent mx-auto mb-4" weight="duotone" />
               </motion.div>
-              <h3 className="text-xl font-semibold mb-2">{t('addCandidate.analyzing', language)}</h3>
-              <p className="text-sm text-muted-foreground">
-                {t('candidate.aiEvaluating', language)}
-              </p>
+              <div>
+                <h3 className="text-xl font-semibold mb-2">{t('addCandidate.analyzing', language)}</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {progress < 30 ? (language === 'fr' ? 'Préparation de l\'analyse...' : 'Preparing analysis...') :
+                   progress < 70 ? (language === 'fr' ? 'Évaluation approfondie en cours...' : 'Deep evaluation in progress...') :
+                   progress < 95 ? (language === 'fr' ? 'Recherche de correspondances alternatives...' : 'Finding alternative matches...') :
+                   (language === 'fr' ? 'Finalisation...' : 'Finalizing...')}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Progress value={progress} className="w-full h-3" />
+                <p className="text-xs text-muted-foreground">{progress}%</p>
+              </div>
             </div>
-            <Progress value={progress} className="w-full h-3" />
           </motion.div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
