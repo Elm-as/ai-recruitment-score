@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
-import { Position, Language } from '@/lib/types'
+import { t } from '@/lib/translations'
 import { t } from '@/lib/translations'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
+  DialogD
+  DialogHeader,
+} from '@/components
+import { Input 
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -15,9 +15,9 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 
-interface EditPositionDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+
+  open,
+  position,
   position: Position
   language: Language
   onSave: (position: Position) => void
@@ -32,39 +32,39 @@ export default function EditPositionDialog({
 }: EditPositionDialogProps) {
   const [title, setTitle] = useState(position.title)
   const [description, setDescription] = useState(position.description)
-  const [requirements, setRequirements] = useState(position.requirements)
-  const [openings, setOpenings] = useState(position.openings.toString())
 
-  useEffect(() => {
-    if (open) {
-      setTitle(position.title)
-      setDescription(position.description)
-      setRequirements(position.requirements)
-      setOpenings(position.openings.toString())
-    }
-  }, [open, position])
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!title.trim() || !description.trim() || !requirements.trim()) {
       toast.error(t('createPosition.errorFields', language))
-      return
-    }
 
-    const openingsNum = parseInt(openings)
-    if (isNaN(openingsNum) || openingsNum < 1) {
-      toast.error(t('createPosition.errorOpenings', language))
-      return
+    const openingsN
+      toast.err
     }
-
     const updatedPosition: Position = {
-      ...position,
       title: title.trim(),
-      description: description.trim(),
       requirements: requirements.trim(),
-      openings: openingsNum,
     }
+    onSave(updatedPosi
+
+
+    <Dialog open={open
+
+            {language === 'fr' ? 'Modifier le poste' : 'Edit Position'}
+          <DialogDescription className="text-sm">
+            
+     
+
+          <div className="space-y-2">
+              {t('createPosition.title', languag
+            <Input
+            
+     
+
+
+            <Label
+            </Label>
+              id="edit-description"
+              onChange={(e) => setDescri
+              rows={4}
+     
 
     onSave(updatedPosition)
     toast.success(language === 'fr' ? 'Poste mis à jour avec succès' : 'Position updated successfully')
@@ -96,7 +96,7 @@ export default function EditPositionDialog({
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t('createPosition.titlePlaceholder', language)}
               className="text-sm"
-            />
+            <B
           </div>
 
           <div className="space-y-2">
@@ -135,23 +135,23 @@ export default function EditPositionDialog({
               id="edit-openings"
               type="number"
               min="1"
-              placeholder="1"
-              value={openings}
-              onChange={(e) => setOpenings(e.target.value)}
-              className="text-sm"
-            />
-          </div>
 
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
-              {t('createPosition.cancel', language)}
-            </Button>
-            <Button type="submit" className="w-full sm:w-auto">
-              {language === 'fr' ? 'Enregistrer' : 'Save'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  )
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
