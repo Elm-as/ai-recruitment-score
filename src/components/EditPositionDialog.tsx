@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
-import { t } from '@/lib/translations'
+import { Position, Language } from '@/lib/types'
 import { t } from '@/lib/translations'
 import {
-  DialogD
-  DialogHeader,
-} from '@/components
-import { Input 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -13,11 +13,12 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
 
-
-  open,
-  position,
+interface EditPositionDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
   position: Position
   language: Language
   onSave: (position: Position) => void
@@ -32,39 +33,40 @@ export default function EditPositionDialog({
 }: EditPositionDialogProps) {
   const [title, setTitle] = useState(position.title)
   const [description, setDescription] = useState(position.description)
+  const [requirements, setRequirements] = useState(position.requirements)
+  const [openings, setOpenings] = useState(position.openings.toString())
+  const [isInternship, setIsInternship] = useState(position.isInternship || false)
 
+  useEffect(() => {
+    setTitle(position.title)
+    setDescription(position.description)
+    setRequirements(position.requirements)
+    setOpenings(position.openings.toString())
+    setIsInternship(position.isInternship || false)
+  }, [position])
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!title.trim() || !description.trim() || !requirements.trim()) {
       toast.error(t('createPosition.errorFields', language))
-
-    const openingsN
-      toast.err
+      return
     }
+
+    const openingsNum = parseInt(openings)
+    if (isNaN(openingsNum) || openingsNum < 1) {
+      toast.error(t('createPosition.errorOpenings', language))
+      return
+    }
+
     const updatedPosition: Position = {
+      ...position,
       title: title.trim(),
+      description: description.trim(),
       requirements: requirements.trim(),
+      openings: openingsNum,
+      isInternship,
     }
-    onSave(updatedPosi
-
-
-    <Dialog open={open
-
-            {language === 'fr' ? 'Modifier le poste' : 'Edit Position'}
-          <DialogDescription className="text-sm">
-            
-     
-
-          <div className="space-y-2">
-              {t('createPosition.title', languag
-            <Input
-            
-     
-
-
-            <Label
-            </Label>
-              id="edit-description"
-              onChange={(e) => setDescri
-              rows={4}
-     
 
     onSave(updatedPosition)
     toast.success(language === 'fr' ? 'Poste mis à jour avec succès' : 'Position updated successfully')
@@ -80,8 +82,8 @@ export default function EditPositionDialog({
           </DialogTitle>
           <DialogDescription className="text-sm">
             {language === 'fr' 
-              ? 'Modifiez les informations du poste.' 
-              : 'Edit the position information.'}
+              ? 'Modifiez les informations du poste. Les candidats déjà évalués pourront être réévalués.' 
+              : 'Edit the position information. Already evaluated candidates can be re-evaluated.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -96,7 +98,7 @@ export default function EditPositionDialog({
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t('createPosition.titlePlaceholder', language)}
               className="text-sm"
-            <B
+            />
           </div>
 
           <div className="space-y-2">
@@ -135,23 +137,40 @@ export default function EditPositionDialog({
               id="edit-openings"
               type="number"
               min="1"
+              value={openings}
+              onChange={(e) => setOpenings(e.target.value)}
+              className="text-sm"
+            />
+          </div>
 
+          <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+            <div className="space-y-0.5">
+              <Label htmlFor="edit-internship" className="text-sm font-medium cursor-pointer">
+                {language === 'fr' ? 'Il s\'agit d\'un stage' : 'This is an internship'}
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                {language === 'fr' 
+                  ? 'Les faiblesses seront moins pénalisantes dans l\'évaluation' 
+                  : 'Weaknesses will be less penalizing in the evaluation'}
+              </p>
+            </div>
+            <Switch
+              id="edit-internship"
+              checked={isInternship}
+              onCheckedChange={setIsInternship}
+            />
+          </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              {t('common.cancel', language)}
+            </Button>
+            <Button type="submit">
+              {language === 'fr' ? 'Enregistrer' : 'Save'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}

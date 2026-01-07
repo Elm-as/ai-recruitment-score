@@ -14,6 +14,7 @@ import {
   Trash,
   Briefcase,
   FilePdf,
+  ArrowsClockwise,
 } from '@phosphor-icons/react'
 import {
   AlertDialog,
@@ -33,6 +34,7 @@ import ScoreBreakdownSection from './candidate-details/ScoreBreakdownSection'
 import StrengthsWeaknessesSection from './candidate-details/StrengthsWeaknessesSection'
 import QuestionItem from './candidate-details/QuestionItem'
 import { generateCandidatePDF } from '@/lib/pdfExport'
+import { analyzeCandidateWithAI, findAlternativePositions } from '@/lib/aiAnalysis'
 
 interface CandidateCardProps {
   candidate: Candidate
@@ -56,6 +58,7 @@ export default function CandidateCard({
   const [generatingQuestions, setGeneratingQuestions] = useState(false)
   const [generatingFollowUp, setGeneratingFollowUp] = useState<number | null>(null)
   const [scoringAnswer, setScoringAnswer] = useState<number | null>(null)
+  const [reevaluating, setReevaluating] = useState(false)
 
   const generateInterviewQuestions = async () => {
     setGeneratingQuestions(true)
@@ -301,6 +304,48 @@ Return JSON in ${isEnglish ? 'ENGLISH' : 'FRENCH'}:
     })
   }
 
+  const reevaluateCandidate = async () => {
+    setReevaluating(true)
+    try {
+      toast.info(language === 'fr' ? 'Réévaluation en cours...' : 'Re-evaluating...')
+
+      const analysis = await analyzeCandidateWithAI(candidate, position, language)
+      
+      const otherPositions = positions.filter(p => p.id !== position.id && p.status === 'active')
+      const alternatives = await findAlternativePositions(
+        candidate,
+        position,
+        otherPositions,
+        analysis.score,
+        language
+      )
+
+      setCandidates((prev) =>
+        prev.map((c) =>
+          c.id === candidate.id
+            ? {
+                ...c,
+                score: analysis.score,
+                scoreBreakdown: analysis.scoreBreakdown,
+                strengths: analysis.strengths,
+                weaknesses: analysis.weaknesses,
+                overallAssessment: analysis.overallAssessment,
+                alternativePositions: alternatives,
+                analyzedAt: Date.now(),
+              }
+            : c
+        )
+      )
+
+      toast.success(language === 'fr' ? 'Candidat réévalué avec succès' : 'Candidate re-evaluated successfully')
+    } catch (error) {
+      console.error('Error re-evaluating candidate:', error)
+      toast.error(language === 'fr' ? 'Erreur lors de la réévaluation' : 'Error during re-evaluation')
+    } finally {
+      setReevaluating(false)
+    }
+  }
+
   if (candidate.status === 'analyzing') {
     return (
       <Card className="border-accent/50 bg-accent/5">
@@ -448,6 +493,18 @@ Return JSON in ${isEnglish ? 'ENGLISH' : 'FRENCH'}:
                 <span className="xs:hidden">{generatingQuestions ? 'En cours...' : 'Questions'}</span>
               </Button>
             )}
+
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={reevaluateCandidate}
+              disabled={reevaluating}
+              className="gap-1.5 text-xs sm:text-sm flex-1 xs:flex-initial h-9 border-accent text-accent hover:bg-accent/10"
+            >
+              <ArrowsClockwise size={16} weight="bold" className={reevaluating ? 'animate-spin' : ''} />
+              <span className="hidden xs:inline">{reevaluating ? (language === 'fr' ? 'Réévaluation...' : 'Re-evaluating...') : (language === 'fr' ? 'Réévaluer' : 'Re-evaluate')}</span>
+              <span className="xs:hidden">{reevaluating ? '...' : 'Rééval.'}</span>
+            </Button>
 
             {candidate.status !== 'selected' && candidate.status !== 'hired' && (
               <Button

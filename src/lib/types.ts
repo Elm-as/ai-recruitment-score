@@ -10,6 +10,7 @@ export interface Position {
   archivedAt?: number
   hiredCount?: number
   isLocked?: boolean
+  isInternship?: boolean
 }
 
 export interface Candidate {

@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
 
 interface CreatePositionDialogProps {
@@ -34,6 +35,7 @@ export default function CreatePositionDialog({
   const [description, setDescription] = useState('')
   const [requirements, setRequirements] = useState('')
   const [openings, setOpenings] = useState('1')
+  const [isInternship, setIsInternship] = useState(false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -58,6 +60,7 @@ export default function CreatePositionDialog({
       openings: openingsNum,
       createdAt: Date.now(),
       status: 'active',
+      isInternship,
     }
 
     onCreatePosition(newPosition)
@@ -67,6 +70,7 @@ export default function CreatePositionDialog({
     setDescription('')
     setRequirements('')
     setOpenings('1')
+    setIsInternship(false)
     onOpenChange(false)
   }
 
@@ -125,6 +129,24 @@ export default function CreatePositionDialog({
               value={openings}
               onChange={(e) => setOpenings(e.target.value)}
               className="text-sm"
+            />
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+            <div className="space-y-0.5">
+              <Label htmlFor="internship" className="text-sm font-medium cursor-pointer">
+                {language === 'fr' ? 'Il s\'agit d\'un stage' : 'This is an internship'}
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                {language === 'fr' 
+                  ? 'Les faiblesses seront moins pénalisantes dans l\'évaluation' 
+                  : 'Weaknesses will be less penalizing in the evaluation'}
+              </p>
+            </div>
+            <Switch
+              id="internship"
+              checked={isInternship}
+              onCheckedChange={setIsInternship}
             />
           </div>
 

@@ -25,13 +25,24 @@ export async function analyzeCandidateWithAI(
 ): Promise<AnalysisResult> {
   const isEnglish = language === 'en'
   const targetLang = isEnglish ? 'ENGLISH' : 'FRENCH'
+  const isInternship = position.isInternship || false
   
   const positionSummary = `${position.title}\nRequirements: ${position.requirements.substring(0, 600)}`
+  
+  const internshipGuidance = isInternship 
+    ? `\n\n⚠️ IMPORTANT - THIS IS AN INTERNSHIP POSITION:
+- Significantly reduce penalties for lack of experience or professional gaps
+- Focus on potential, learning ability, academic achievements, and relevant projects
+- Weaknesses related to experience should be viewed as learning opportunities, not red flags
+- Value enthusiasm, adaptability, and foundational knowledge
+- Be more forgiving of skill gaps that can be learned during the internship
+- Scores should generally be 10-15 points higher than for a regular position with same profile`
+    : ''
   
   const analysisPrompt = (window as any).spark.llmPrompt`You are an expert HR recruiter with deep experience in talent assessment. Analyze this candidate against the job position requirements with precision and insight. Respond ONLY in ${targetLang}.
 
 JOB POSITION:
-${positionSummary}
+${positionSummary}${internshipGuidance}
 
 CANDIDATE PROFILE:
 Name: ${candidate.name}
@@ -43,11 +54,11 @@ ANALYSIS INSTRUCTIONS:
 1. Evaluate the candidate across 5 key categories with precise scores (0-100)
 2. For each category, provide specific reasoning based on evidence from the profile
 3. Identify 4-6 concrete strengths that directly match the position requirements
-4. Identify 3-5 specific areas for improvement or concerns
+4. Identify 3-5 specific areas for improvement or concerns${isInternship ? ' (remember: for internships, focus on growth potential)' : ''}
 5. Provide a comprehensive overall assessment (2-3 sentences) that balances strengths and weaknesses
 
-SCORING GUIDELINES:
-- 90-100: Exceptional fit, exceeds all requirements
+SCORING GUIDELINES${isInternship ? ' FOR INTERNSHIP' : ''}:
+- 90-100: Exceptional fit, exceeds all requirements${isInternship ? ' with outstanding potential' : ''}
 - 80-89: Strong fit, meets all key requirements with some standout qualities
 - 70-79: Good fit, meets most requirements with minor gaps
 - 60-69: Adequate fit, meets basic requirements but has notable gaps
