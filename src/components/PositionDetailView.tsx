@@ -765,7 +765,7 @@ export default function PositionDetailView({
         open={editPositionOpen}
         onOpenChange={setEditPositionOpen}
         position={position}
-        onUpdatePosition={handleUpdatePosition}
+        onSave={handleUpdatePosition}
         language={language}
       />
 

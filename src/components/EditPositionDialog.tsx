@@ -1,37 +1,37 @@
 import { useState, useEffect } from 'react'
+import { Position, Language } from '@/lib/types'
 import { t } from '@/lib/translations'
-  Dialog,
-  Dialog
+import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { toast } from 'sonner'
 
-  open: boolea
+interface EditPositionDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
   position: Position
   language: Language
+  onSave: (position: Position) => void
+}
 
+export default function EditPositionDialog({
   open,
+  onOpenChange,
   position,
   language,
-
-  const [requirements, setRequireme
-
-    if (open) {
-      setDescription
-      setOpenings(position.openings.toString())
-  }, [open, position
- 
-
-      toast.error(t('createPosition.errorFie
-    }
-    const openi
-      toast
-    }
-    const u
-      title: title.trim(),
-      requirements: requirements.trim(),
-    }
+  onSave,
+}: EditPositionDialogProps) {
+  const [title, setTitle] = useState(position.title)
+  const [description, setDescription] = useState(position.description)
   const [requirements, setRequirements] = useState(position.requirements)
   const [openings, setOpenings] = useState(position.openings.toString())
 
@@ -66,74 +66,75 @@ import { t } from '@/lib/translations'
       openings: openingsNum,
     }
 
-              placeholder="1"
-              onChange={(e) => setOpenings(e.target.value)}
+    onSave(updatedPosition)
+    toast.success(language === 'fr' ? 'Poste mis à jour avec succès' : 'Position updated successfully')
+    onOpenChange(false)
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-xl sm:text-2xl">
+            {language === 'fr' ? 'Modifier le poste' : 'Edit Position'}
+          </DialogTitle>
+          <DialogDescription className="text-sm">
+            {language === 'fr' 
+              ? 'Modifiez les informations du poste.' 
+              : 'Edit the position information.'}
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="edit-title" className="text-sm font-medium">
+              {t('createPosition.title', language)}
+            </Label>
+            <Input
+              id="edit-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={t('createPosition.titlePlaceholder', language)}
+              className="text-sm"
             />
+          </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="edit-description" className="text-sm font-medium">
+              {t('createPosition.description', language)}
+            </Label>
+            <Textarea
+              id="edit-description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder={t('createPosition.descriptionPlaceholder', language)}
+              rows={4}
+              className="text-sm resize-none"
+            />
+          </div>
 
-          
-              {language === 'fr' ? 'Enregistrer' : '
-          </DialogFooter>
-      </DialogContent>
-  )
+          <div className="space-y-2">
+            <Label htmlFor="edit-requirements" className="text-sm font-medium">
+              {t('createPosition.requirements', language)}
+            </Label>
+            <Textarea
+              id="edit-requirements"
+              value={requirements}
+              onChange={(e) => setRequirements(e.target.value)}
+              placeholder={t('createPosition.requirementsPlaceholder', language)}
+              rows={4}
+              className="text-sm resize-none"
+            />
+          </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+          <div className="space-y-2">
+            <Label htmlFor="edit-openings" className="text-sm font-medium">
+              {t('createPosition.openings', language)}
+            </Label>
+            <Input
+              id="edit-openings"
+              type="number"
+              min="1"
               placeholder="1"
               value={openings}
               onChange={(e) => setOpenings(e.target.value)}
