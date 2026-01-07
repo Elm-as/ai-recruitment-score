@@ -19,6 +19,7 @@ interface CreatePositionDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onCreatePosition: (position: Position) => void
+  companyId: string
   language: Language
 }
 
@@ -26,6 +27,7 @@ export default function CreatePositionDialog({
   open,
   onOpenChange,
   onCreatePosition,
+  companyId,
   language,
 }: CreatePositionDialogProps) {
   const [title, setTitle] = useState('')
@@ -49,6 +51,7 @@ export default function CreatePositionDialog({
 
     const newPosition: Position = {
       id: `pos_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      companyId: companyId,
       title: title.trim(),
       description: description.trim(),
       requirements: requirements.trim(),

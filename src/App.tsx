@@ -51,9 +51,7 @@ function App() {
   const currentUser = users?.find(u => u.id === authSession?.userId)
   const companyUsers = users?.filter(u => u.companyId === currentCompany?.id) || []
 
-  const companyPositions = positions?.filter(p => 
-    candidates?.some(c => c.positionId === p.id && users?.find(u => u.id === authSession?.userId)?.companyId === currentCompany?.id)
-  ) || positions || []
+  const companyPositions = positions?.filter(p => p.companyId === currentCompany?.id) || []
 
   const handleLogin = (company: Company, user: User) => {
     setAuthSession({
@@ -97,11 +95,34 @@ function App() {
     if (positions && positions.length > 0) {
       let needsUpdate = false
       const updatedPositions: Position[] = positions.map(p => {
+        const updates: Partial<Position> = {}
+        
         if (!(p as any).status) {
           needsUpdate = true
-          return { ...p, status: 'active' as const }
+          updates.status = 'active' as const
         }
-        return p
+        
+        if (!(p as any).companyId) {
+          needsUpdate = true
+          const candidate = candidates?.find(c => c.positionId === p.id)
+          if (candidate) {
+            const user = users?.find(u => {
+              const userCandidates = candidates?.filter(c => c.positionId === p.id)
+              return userCandidates && userCandidates.length > 0
+            })
+            if (user) {
+              updates.companyId = user.companyId
+            } else if (companies && companies.length > 0) {
+              updates.companyId = companies[0].id
+            }
+          } else if (authSession?.companyId) {
+            updates.companyId = authSession.companyId
+          } else if (companies && companies.length > 0) {
+            updates.companyId = companies[0].id
+          }
+        }
+        
+        return needsUpdate ? { ...p, ...updates } : p
       })
       
       if (needsUpdate) {
@@ -420,6 +441,7 @@ function App() {
               setPositions={setPositions}
               candidates={candidates || []}
               setCandidates={setCandidates}
+              companyId={currentCompany.id}
               language={lang}
             />
           </TabsContent>

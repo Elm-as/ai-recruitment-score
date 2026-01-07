@@ -16,6 +16,7 @@ interface PositionsViewProps {
   setPositions: (updater: (prev: Position[]) => Position[]) => void
   candidates: Candidate[]
   setCandidates: (updater: (prev: Candidate[]) => Candidate[]) => void
+  companyId: string
   language: Language
 }
 
@@ -24,6 +25,7 @@ export default function PositionsView({
   setPositions,
   candidates,
   setCandidates,
+  companyId,
   language,
 }: PositionsViewProps) {
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
@@ -251,6 +253,7 @@ export default function PositionsView({
       <CreatePositionDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
+        companyId={companyId}
         onCreatePosition={(position) => {
           setPositions((prev) => [...prev, position])
         }}
