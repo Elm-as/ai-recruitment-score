@@ -22,4 +22,7 @@ export default defineConfig({
       '@': resolve(projectRoot, 'src')
     }
   },
+  optimizeDeps: {
+    include: ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities']
+  },
 });
