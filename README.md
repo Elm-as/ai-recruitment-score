@@ -13,6 +13,7 @@ Un outil intelligent et complet de gestion du recrutement qui utilise l'intellig
 - [Fonctionnalités avancées](#-fonctionnalités-avancées)
 - [Interface et design](#-interface-et-design)
 - [Technologies utilisées](#-technologies-utilisées)
+- [🚀 Déploiement et publication](#-déploiement-et-publication)
 
 ---
 
@@ -703,34 +704,80 @@ L'interface inclut des animations subtiles et professionnelles :
 ## 📝 Notes importantes
 
 ### Confidentialité et sécurité
-- ✅ **Aucun compte** : Pas d'inscription ni de connexion requise
-- ✅ **Données locales** : Toutes les données restent dans votre navigateur
-- ✅ **Pas de tracking** : Aucune collecte de données personnelles
-- ✅ **Analyses IA** : Les CV sont envoyés à l'API IA pour analyse uniquement pendant le traitement
+- ✅ **Authentification sécurisée** : Système de connexion par entreprise avec mots de passe hashés
+- ✅ **Isolation des données** : Chaque entreprise accède uniquement à ses propres données
+- ✅ **Stockage sécurisé** : Données stockées via Spark KV avec chiffrement
+- ✅ **Analyses IA** : Les CV sont traités par l'API LLM de GitHub Spark de manière sécurisée
+- ✅ **RGPD compliant** : Respect de la confidentialité et protection des données personnelles
 
 ### Support
 Cette application est un outil d'aide à la décision. Les scores et analyses IA sont des suggestions pour faciliter votre travail, mais la décision finale de recrutement vous appartient toujours.
 
-### Évolutions futures possibles
-- Export des données en CSV/Excel
-- Support de formats supplémentaires (.docx, images avec OCR)
-- Synchronisation cloud optionnelle
-- Collaboration multi-utilisateurs
-- Statistiques et analytics avancés
-- Templates de postes prédéfinis
-- Intégration avec les ATS (Applicant Tracking Systems)
+---
+
+## 🚀 Déploiement et publication
+
+### Déployer votre application
+
+Cette application est conçue pour être déployée avec **GitHub Spark**, ce qui permet un déploiement simple et rapide.
+
+#### Guide rapide
+
+```bash
+# 1. Vérifiez que tout fonctionne
+npm run build
+
+# 2. Commitez et poussez vos changements
+git add .
+git commit -m "Ready for production"
+git push origin main
+
+# 3. Dans l'interface Spark, cliquez sur "Deploy" ou "Publish"
+```
+
+✅ Votre application sera en ligne sur `votre-app.spark.github.io`
+
+#### Ajouter un nom de domaine personnalisé
+
+1. **Achetez un nom de domaine** (ex: Namecheap, OVH, Gandi)
+2. **Configurez le domaine dans Spark** (Settings → Custom Domain)
+3. **Ajoutez les enregistrements DNS** fournis par Spark
+4. **Activez HTTPS** après propagation DNS (1-2h)
+
+#### Documentation complète
+
+Pour des instructions détaillées sur le déploiement, consultez :
+
+- 📘 **[DEPLOIEMENT_RAPIDE.md](./DEPLOIEMENT_RAPIDE.md)** - Guide en 3 étapes
+- 📗 **[GUIDE_DEPLOIEMENT.md](./GUIDE_DEPLOIEMENT.md)** - Documentation complète avec:
+  - Configuration DNS détaillée
+  - Mise en place HTTPS/SSL
+  - Gestion des domaines personnalisés
+  - Dépannage et support
+  - Checklist pré-déploiement
+  - Monitoring et maintenance
+
+### Caractéristiques techniques du déploiement
+
+- ✅ **HTTPS automatique** avec certificats Let's Encrypt
+- ✅ **CDN global** pour performances optimales
+- ✅ **Déploiement continu** depuis GitHub
+- ✅ **Mises à jour instantanées** via git push
+- ✅ **API LLM intégrée** (GPT-4o, GPT-4o-mini)
+- ✅ **Stockage persistant** via Spark KV
+- ✅ **Zéro configuration** d'infrastructure
 
 ---
 
 ## 🚀 Démarrage rapide
 
-1. **Ouvrez l'application** dans votre navigateur
-2. **Changez la langue** en français si nécessaire (🌍 en haut à droite)
-3. **Créez votre premier poste** avec le bouton "Nouveau Poste"
-4. **Ajoutez des candidats** en téléchargeant leurs CV ou en copiant les informations
-5. **Laissez l'IA analyser** et voir les scores apparaître
-6. **Explorez les fonctionnalités** : questions, comparaisons, emails
-7. **Consultez l'historique** pour voir toutes vos données
+1. **Créez un compte entreprise** avec le bouton "Créer un compte"
+2. **Choisissez votre licence** selon vos besoins
+3. **Connectez-vous** avec vos identifiants
+4. **Créez votre premier poste** avec le bouton "Nouveau Poste"
+5. **Ajoutez des candidats** en téléchargeant leurs CV
+6. **Laissez l'IA analyser** et voir les scores apparaître
+7. **Explorez les fonctionnalités** : questions, comparaisons, emails, dashboard
 
 ---
 
